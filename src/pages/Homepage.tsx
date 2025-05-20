@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const HomePage = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col items-start justify-center h-full px-8 py-20 space-y-6">
       <span className="text-sm font-medium text-blue-600">Content</span>
@@ -14,7 +16,9 @@ export const HomePage = () => {
 
       <p className="text-gray-500">~ 웹브릿지 관련 설명문 ~</p>
 
-      <Button className="mt-4">회원 가입</Button>
+      <Button className="mt-4" onClick={() => navigate("/signup")}>
+        회원 가입
+      </Button>
     </div>
   );
 };
