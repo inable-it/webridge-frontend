@@ -9,7 +9,7 @@ export const Header = () => {
     <header className="flex items-center justify-between px-6 border-b bg-gray-50 h-14">
       {/* 좌측 로고 영역 */}
       <div className="flex items-center gap-2">
-        <img src="src/assets/icons/logo.svg" alt="logo" className="w-6 h-6" />
+        <img src="public/logo.svg" alt="logo" className="w-6 h-6" />
         <span className="text-lg font-semibold">WEBridge</span>
       </div>
 
