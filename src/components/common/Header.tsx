@@ -1,38 +1,50 @@
-import { Bell, CircleUser } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// components/common/Header.tsx
 import { useNavigate } from "react-router-dom";
 
-// 예시용 로그인 상태 (실제에선 context나 store에서 받아야 함)
-const isLoggedIn = false;
+const isLoggedIn = false; // 실제 로그인 상태 연동 필요
 
 export const Header = () => {
   const navigate = useNavigate();
-  return (
-    <header className="flex items-center justify-between px-6 border-b bg-gray-50 h-14">
-      {/* 좌측 로고 영역 */}
-      <div className="flex items-center gap-2">
-        <img src="/logo.svg" alt="logo" className="w-6 h-6" />
-        <span className="text-lg font-semibold">WEBridge</span>
-      </div>
 
-      {/* 우측 알림 + 로그인/프로필 */}
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Bell className="w-5 h-5 text-gray-700" />
-          <span className="absolute top-0 right-0 block w-2 h-2 bg-orange-500 rounded-full"></span>
+  return (
+    <header className="flex items-center justify-between px-6 bg-white border-b h-14">
+      {/* 좌측: 로고 + 메뉴 */}
+      <div className="flex items-center gap-8">
+        {/* 로고 */}
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => navigate("/")}
+        >
+          <img src="/logo.svg" alt="logo" className="w-6 h-6" />
+          <span className="text-lg font-semibold">WEBridge</span>
         </div>
 
-        {/* 로그인 상태에 따라 조건 분기 */}
+        {/* 로고 오른쪽 메뉴 */}
+        <nav className="flex gap-6 text-sm font-medium text-gray-700">
+          <button className="hover:text-blue-600">팀 소개</button>
+          <button className="hover:text-blue-600">웹 접근성이란?</button>
+        </nav>
+      </div>
+
+      {/* 우측: 로그인 / 회원가입 */}
+      <div className="flex gap-4 text-sm font-medium text-gray-600">
         {isLoggedIn ? (
-          <CircleUser className="w-6 h-6 text-gray-400" />
+          <button className="hover:text-blue-600">마이페이지</button>
         ) : (
-          <Button
-            variant="outline"
-            className="h-8 px-3 text-sm text-gray-700"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </Button>
+          <>
+            <button
+              onClick={() => navigate("/login")}
+              className="hover:text-blue-600"
+            >
+              로그인
+            </button>
+            <button
+              onClick={() => navigate("/signup")}
+              className="hover:text-blue-600"
+            >
+              회원가입
+            </button>
+          </>
         )}
       </div>
     </header>
