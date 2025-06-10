@@ -3,22 +3,25 @@ import { useNavigate } from "react-router-dom";
 
 export const HomePage = () => {
   const navigate = useNavigate();
+
   return (
-    <div className="flex flex-col items-start justify-center h-full px-8 py-20 space-y-6">
-      <span className="text-sm font-medium text-blue-600">Content</span>
-
-      <div>
-        <h2 className="text-3xl font-semibold text-gray-800">
-          AI 기반의 웹 접근성 자가 검진 도구
-        </h2>
-        <h1 className="mt-2 text-5xl font-bold text-gray-900">WEBridge</h1>
-      </div>
-
-      <p className="text-gray-500">~ 웹브릿지 관련 설명문 ~</p>
-
-      <Button className="mt-4" onClick={() => navigate("/signup")}>
-        회원 가입
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-56px)] px-4 py-12 text-center bg-gray-50">
+      <Button
+        variant="outline"
+        onClick={() => navigate("/scan")}
+        className="flex items-center gap-2 px-6 py-3 font-semibold text-blue-600 transition border-2 border-blue-500 rounded-full hover:bg-blue-50"
+      >
+        <img src="/logo.svg" alt="icon" className="w-6 h-6" />
+        <span>AI 웹 접근성 검사</span>
       </Button>
+
+      <h1 className="mb-4 text-6xl font-bold text-gray-900">WEBridge</h1>
+      <p className="text-lg text-gray-700">
+        접근성을 지키는 가장 빠른 방법. <br />
+        <span className="font-semibold text-black">
+          AI가 실시간으로 점검하고 해결하는 WEBridge.
+        </span>
+      </p>
     </div>
   );
 };
