@@ -21,8 +21,23 @@ export const Header = () => {
 
         {/* 로고 오른쪽 메뉴 */}
         <nav className="flex gap-6 text-sm font-medium text-gray-700">
-          <button className="hover:text-blue-600">팀 소개</button>
-          <button className="hover:text-blue-600">웹 접근성이란?</button>
+          <a
+            href="https://poised-split-457.notion.site/InAble-1a863c8cc2e680c9928edc93504e9bd9"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-600"
+          >
+            팀 소개
+          </a>
+
+          <a
+            href="https://poised-split-457.notion.site/1a863c8cc2e680018aa5edf3f84e197e"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-600"
+          >
+            웹 접근성이란?
+          </a>
         </nav>
       </div>
 
