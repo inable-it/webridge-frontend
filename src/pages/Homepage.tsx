@@ -9,7 +9,7 @@ export const HomePage = () => {
       <Button
         variant="outline"
         onClick={() => navigate("/scan")}
-        className="flex items-center gap-2 px-6 py-3 font-semibold text-blue-600 transition border-2 border-blue-500 rounded-full hover:bg-blue-50"
+        className="flex items-center gap-2 px-6 py-3 mb-10 font-semibold text-blue-600 transition border-2 border-blue-500 rounded-full hover:bg-blue-50"
       >
         <img src="/logo.svg" alt="icon" className="w-6 h-6" />
         <span>AI 웹 접근성 검사</span>
