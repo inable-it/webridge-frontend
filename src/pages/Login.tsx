@@ -8,36 +8,59 @@ const LoginPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
       <div className="w-full max-w-md space-y-6">
-        {/* Email */}
-        <div className="space-y-1">
-          <Label htmlFor="email">E-mail</Label>
-          <Input id="email" type="email" placeholder="Placeholder" />
+        {/* 제목 */}
+        <h1 className="text-2xl font-semibold text-gray-900">로그인</h1>
+
+        {/* 이메일 */}
+        <div className="space-y-1 text-left">
+          <Label htmlFor="email">
+            이메일<span className="ml-1 text-red-500">*</span>
+          </Label>
+          <Input id="email" type="email" placeholder="이메일 주소" />
         </div>
 
-        {/* Password */}
-        <div className="space-y-1">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" placeholder="Placeholder text" />
+        {/* 비밀번호 */}
+        <div className="space-y-1 text-left">
+          <Label htmlFor="password">
+            비밀번호<span className="ml-1 text-red-500">*</span>
+          </Label>
+          <Input id="password" type="password" placeholder="비밀번호" />
         </div>
 
-        {/* Remember Me + Forgot Password */}
+        {/* 상태 유지 + 비밀번호 찾기 */}
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <Checkbox id="remember" />
-            <Label htmlFor="remember">Remember me</Label>
+            <Label htmlFor="remember">로그인 상태 유지</Label>
           </div>
           <Link to="#" className="text-blue-600 hover:underline">
-            Forgot Password?
+            비밀번호 찾기
           </Link>
         </div>
 
-        {/* Submit */}
-        <Button className="w-full bg-blue-600 hover:bg-blue-700">Log In</Button>
+        {/* 로그인 버튼 */}
+        <Button className="w-full text-white bg-blue-600 hover:bg-blue-700">
+          로그인
+        </Button>
 
-        {/* Footer Text */}
-        <p className="text-xs text-center text-gray-500">
-          Vestibulum faucibus odio vitae arcu auctor lectus.
-        </p>
+        {/* 구분선 */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 text-gray-500 bg-white">또는</span>
+          </div>
+        </div>
+
+        {/* 구글 로그인 버튼 */}
+        <button
+          type="button"
+          className="flex items-center justify-center w-full gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+        >
+          <img src="/google.svg" alt="Google" className="w-5 h-5" />
+          Google로 계속하기
+        </button>
       </div>
     </div>
   );
