@@ -4,6 +4,8 @@ import LoginPage from "@/pages/Login";
 import { useRoutes } from "react-router-dom";
 import { SimpleLayout } from "@/layout/SimpleLayout";
 import { BaseLayout } from "@/layout/BaseLayout";
+import TeamIntro from "./pages/TeamIntro";
+import AccessibilityIntro from "./pages/AccessibilityIntro";
 
 function App() {
   const routes = useRoutes([
@@ -14,6 +16,8 @@ function App() {
         { index: true, element: <HomePage /> },
         { path: "login", element: <LoginPage /> },
         { path: "signup", element: <SignupPage /> },
+        { path: "team", element: <TeamIntro /> },
+        { path: "accessibility", element: <AccessibilityIntro /> },
       ],
     },
     {
