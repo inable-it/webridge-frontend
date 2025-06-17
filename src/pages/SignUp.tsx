@@ -1,14 +1,65 @@
+import { useState } from "react";
+import { useRegisterMutation } from "@/features/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
+import { useNavigate } from "react-router-dom";
 
 export const SignupPage = () => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    password2: "",
+    agree: false,
+  });
+
+  const [register, { isLoading }] = useRegisterMutation();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [id]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!form.agree) {
+      alert("약관에 동의해야 가입할 수 있습니다.");
+      return;
+    }
+
+    if (form.password !== form.password2) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        password2: form.password2,
+      }).unwrap();
+      alert("회원가입 성공!");
+      // 회원가입 성공 후 리다이렉트 또는 추가 작업
+      navigate("/login");
+    } catch (err) {
+      console.error("회원가입 실패", err);
+      alert("회원가입 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
-      <div className="w-full max-w-md space-y-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
         {/* 제목 */}
         <h1 className="text-2xl font-bold text-left text-gray-900">회원가입</h1>
 
@@ -17,7 +68,14 @@ export const SignupPage = () => {
           <Label htmlFor="name">
             이름<span className="ml-1 text-red-500">*</span>
           </Label>
-          <Input id="name" type="text" placeholder="이름" required />
+          <Input
+            id="name"
+            type="text"
+            placeholder="이름"
+            value={form.name}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         {/* 이메일 */}
@@ -25,7 +83,14 @@ export const SignupPage = () => {
           <Label htmlFor="email">
             이메일<span className="ml-1 text-red-500">*</span>
           </Label>
-          <Input id="email" type="email" placeholder="이메일" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="이메일"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         {/* 비밀번호 */}
@@ -37,21 +102,48 @@ export const SignupPage = () => {
             id="password"
             type="password"
             placeholder="비밀번호"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* 비밀번호 확인 */}
+        <div className="space-y-1 text-left">
+          <Label htmlFor="password2">
+            비밀번호 확인<span className="ml-1 text-red-500">*</span>
+          </Label>
+          <Input
+            id="password2"
+            type="password"
+            placeholder="비밀번호 확인"
+            value={form.password2}
+            onChange={handleChange}
             required
           />
         </div>
 
         {/* 약관 동의 */}
         <div className="flex items-center gap-2 text-sm text-left">
-          <Checkbox id="agree" />
+          <Checkbox
+            id="agree"
+            checked={form.agree}
+            onCheckedChange={(checked) => {
+              setForm((prev) => ({ ...prev, agree: checked === true }));
+            }}
+          />
           <Label htmlFor="agree" className="text-gray-700">
             서비스 이용약관에 동의합니다.
           </Label>
         </div>
 
         {/* 회원가입 버튼 */}
-        <Button className="w-full text-white bg-blue-600 hover:bg-blue-700">
-          회원가입
+        <Button
+          type="submit"
+          className="w-full text-white bg-blue-600 hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          {isLoading ? "가입 중..." : "회원가입"}
         </Button>
 
         {/* 구분선 */}
@@ -63,6 +155,7 @@ export const SignupPage = () => {
 
         {/* 구글 로그인 */}
         <Button
+          type="button"
           variant="outline"
           className="flex items-center justify-center w-full gap-2 bg-gray-100 hover:bg-gray-200"
         >
@@ -80,7 +173,7 @@ export const SignupPage = () => {
             서비스 약관
           </a>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
