@@ -1,8 +1,13 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import { useSocialLoginMutation } from "@/features/api/authApi";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/features/store/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const GoogleLoginButton = () => {
   const [socialLogin] = useSocialLoginMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const login = useGoogleLogin({
     flow: "implicit",
@@ -12,7 +17,16 @@ const GoogleLoginButton = () => {
           provider: "google",
           access_token: tokenResponse.access_token,
         }).unwrap();
+
+        // 토큰 저장
+        localStorage.setItem("accessToken", response.access);
+        localStorage.setItem("refreshToken", response.refresh);
+
+        // 유저 정보 Redux store에 저장
+        dispatch(setUser(response.user));
+
         console.log("소셜 로그인 성공", response);
+        navigate("/dashboard");
       } catch (error) {
         console.error("소셜 로그인 실패", error);
       }
