@@ -15,6 +15,7 @@ interface RegisterResponse {
   provider: string;
   created_at: string;
 }
+
 interface SocialLoginRequest {
   provider: "google";
   access_token: string;
@@ -36,6 +37,22 @@ interface SocialLoginResponse {
   is_new: boolean;
 }
 
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  user: User;
+  access: string;
+  refresh: string;
+  is_new: boolean;
+}
+
+interface LogoutRequest {
+  refresh: string;
+}
+
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<RegisterResponse, RegisterRequest>({
@@ -52,7 +69,26 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    login: builder.mutation<LoginResponse, LoginRequest>({
+      query: (body) => ({
+        url: "auth/login/",
+        method: "POST",
+        body,
+      }),
+    }),
+    logout: builder.mutation<void, LogoutRequest>({
+      query: (body) => ({
+        url: "auth/logout/",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useRegisterMutation, useSocialLoginMutation } = authApi;
+export const {
+  useRegisterMutation,
+  useSocialLoginMutation,
+  useLoginMutation,
+  useLogoutMutation,
+} = authApi;
