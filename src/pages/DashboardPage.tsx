@@ -91,7 +91,11 @@ const DashboardPage = () => {
                   <td className="p-2">{item.name}</td>
                   <td className="p-2">{item.score}</td>
                   <td className="p-2">
-                    <Button size="sm" variant="outline">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-[#6C9AFF] text-white"
+                    >
                       {item.type}
                     </Button>
                   </td>

@@ -1,15 +1,15 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import counterReducer from "@/features/counterSlice";
 import { baseApi } from "@/app/api";
 import userReducer from "@/features/store/userSlice";
+import menuReducer from "@/features/store/menuSlice";
 
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 // 먼저 combineReducers로 여러 reducer 통합
 const rootReducer = combineReducers({
-  counter: counterReducer,
   user: userReducer,
+  menu: menuReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 

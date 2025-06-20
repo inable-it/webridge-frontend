@@ -7,6 +7,8 @@ import { BaseLayout } from "@/layout/BaseLayout";
 import TeamIntro from "@/pages/TeamIntro";
 import AccessibilityIntro from "@/pages/AccessibilityIntro";
 import DashboardPage from "@/pages/DashboardPage";
+import { MyInfoPage } from "@/pages/MyInfoPage"; // 추가
+import { FeedbackPage } from "@/pages/FeedbackPage"; // 추가
 
 function App() {
   const routes = useRoutes([
@@ -26,7 +28,8 @@ function App() {
       element: <BaseLayout />,
       children: [
         { path: "dashboard", element: <DashboardPage /> },
-        // 이후 /app/other 등 다른 내부 페이지 추가 가능
+        { path: "my-info", element: <MyInfoPage /> }, // 추가
+        { path: "feedback", element: <FeedbackPage /> }, // 추가
       ],
     },
   ]);
