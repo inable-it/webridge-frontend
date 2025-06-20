@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
 import type { RootState } from "@/app/store";
 import { useLogoutMutation } from "@/features/api/authApi";
 import { clearUser } from "@/features/store/userSlice";
@@ -10,6 +11,7 @@ export const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.user);
   const [logout] = useLogoutMutation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -21,7 +23,6 @@ export const Header = () => {
 
       await logout({ refresh: refreshToken }).unwrap();
 
-      // 로컬 저장소 및 스토어 초기화
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       dispatch(clearUser());
@@ -43,12 +44,18 @@ export const Header = () => {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 bg-white border-b h-14">
+    <header className="relative flex items-center justify-between px-6 bg-white border-b h-14">
       {/* 좌측: 로고 + 메뉴 */}
       <div className="flex items-center gap-8">
         <div
           className="flex items-center gap-2 cursor-pointer"
-          onClick={() => navigate("/")}
+          onClick={() => {
+            if (user) {
+              navigate("/dashboard");
+            } else {
+              navigate("/");
+            }
+          }}
         >
           <img src="/logo.svg" alt="logo" className="w-6 h-6" />
           <span className="text-lg font-semibold">WEBridge</span>
@@ -71,16 +78,26 @@ export const Header = () => {
       </div>
 
       {/* 우측: 로그인 / 마이페이지 */}
-      <div className="flex gap-4 text-sm font-medium text-gray-600">
+      <div className="relative flex gap-4 text-sm font-medium text-gray-600">
         {user ? (
-          <>
+          <div className="relative w-40 text-center">
             <span
-              className="text-blue-600 cursor-pointer"
-              onClick={handleLogout}
+              className="inline-block w-full text-blue-600 cursor-pointer"
+              onClick={() => setDropdownOpen((prev) => !prev)}
             >
-              {user.name} (로그아웃)
+              {user.name}
             </span>
-          </>
+            {dropdownOpen && (
+              <div className="absolute right-0 w-40 mt-2 text-center bg-white border rounded shadow-md">
+                <button
+                  onClick={handleLogout}
+                  className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <button
