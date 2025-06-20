@@ -1,18 +1,39 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import counterReducer from "@/features/counterSlice";
-import { baseApi } from "@/app/api"; // baseApi 위치에 맞게 경로 수정
-import userReducer from "@/features/store/userSlice"; // userSlice 위치에 맞게 경로 수정
+import { baseApi } from "@/app/api";
+import userReducer from "@/features/store/userSlice";
 
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+
+// 먼저 combineReducers로 여러 reducer 통합
+const rootReducer = combineReducers({
+  counter: counterReducer,
+  user: userReducer,
+  [baseApi.reducerPath]: baseApi.reducer,
+});
+
+// persist 설정
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["user"], // user slice만 저장
+};
+
+// persistReducer 적용
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// 최종 store 생성
 export const store = configureStore({
-  reducer: {
-    counter: counterReducer,
-    [baseApi.reducerPath]: baseApi.reducer,
-    user: userReducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(baseApi.middleware),
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }).concat(baseApi.middleware),
   devTools: true,
 });
+
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
