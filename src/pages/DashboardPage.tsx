@@ -25,9 +25,9 @@ const resultItems = [
 
 const DashboardPage = () => {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-[#f7faff] p-8 gap-5">
       {/* 왼쪽: 최근 검사 */}
-      <div className="w-[320px] bg-white border-r p-6 space-y-6">
+      <div className="w-[320px] bg-[#f7faff] border-2 p-6 space-y-6 rounded-lg">
         <div className="space-y-3">
           <h2 className="text-lg font-semibold">접근성 검사</h2>
           <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ const DashboardPage = () => {
       </div>
 
       {/* 오른쪽: 검사 결과 */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 bg-white border-2 rounded-lg shadow-md">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-semibold">
