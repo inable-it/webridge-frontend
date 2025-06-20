@@ -1,25 +1,23 @@
-import {
-  Eye,
-  User,
-  MessageSquare,
-  Newspaper,
-  ChevronRight,
-  Search,
-} from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// 메인 메뉴 항목 (아이콘/라벨만 수정)
-const menuItems = [
-  { icon: Eye, label: "접근성 검사", active: true },
-  { icon: User, label: "내 정보" },
-  { icon: MessageSquare, label: "피드백" },
-  { icon: Newspaper, label: "소식지" },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { setActiveMenu } from "@/features/store/menuSlice";
+import type { RootState } from "@/app/store";
+import { useNavigate } from "react-router-dom";
+import { menuItems } from "@/constants/menu";
 
 export const LNB = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const activeMenu = useSelector((state: RootState) => state.menu.activeMenu);
+
+  const handleMenuClick = (label: string, path: string) => {
+    dispatch(setActiveMenu(label));
+    navigate(path);
+  };
+
   return (
     <div className="flex flex-col justify-between h-full p-4 w-[260px] bg-white border-r">
-      {/* 상단 검색 */}
       <div className="space-y-6">
         <div className="flex items-center px-3 py-2 border rounded-lg bg-gray-50">
           <Search className="w-5 h-5 mr-2 text-gray-500" />
@@ -33,16 +31,18 @@ export const LNB = () => {
           </button>
         </div>
 
-        {/* 메뉴 영역 */}
         <div>
           <p className="mb-2 text-xs text-gray-500">메뉴</p>
           <div className="space-y-2">
-            {menuItems.map(({ icon: Icon, label, active }) => (
+            {menuItems.map(({ icon: Icon, label, path }) => (
               <Button
                 key={label}
                 variant="outline"
+                onClick={() => handleMenuClick(label, path)}
                 className={`flex justify-between items-center w-full text-sm h-12 rounded-xl ${
-                  active ? "bg-blue-100 border-blue-300 text-blue-600" : ""
+                  activeMenu === label
+                    ? "bg-blue-100 border-blue-300 text-blue-600"
+                    : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
