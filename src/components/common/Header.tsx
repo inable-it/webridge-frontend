@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import type { RootState } from "@/app/store";
-import { useLogoutMutation } from "@/features/api/authApi";
+import { useLogoutMutation } from "@/features/api/authApi"; // publicApi 기반 hook
 import { clearUser } from "@/features/store/userSlice";
 import { toast } from "@/hooks/use-toast";
+import { publicApi } from "@/app/api"; // publicApi에서 resetApiState 호출
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -15,17 +16,19 @@ export const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken =
+        localStorage.getItem("refreshToken") ||
+        localStorage.getItem("refresh_token");
+      console.log("로그아웃 시도, refreshToken:", refreshToken);
 
-      if (!refreshToken) {
-        throw new Error("No refresh token found.");
-      }
-
-      await logout({ refresh: refreshToken }).unwrap();
+      await logout({ refresh: refreshToken ?? "" }).unwrap();
 
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       dispatch(clearUser());
+
+      // publicApi 캐시 초기화
+      dispatch(publicApi.util.resetApiState());
 
       toast({
         title: "로그아웃 성공",
