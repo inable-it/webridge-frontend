@@ -1,94 +1,55 @@
-import { baseApi } from "@/app/api";
-
-interface RegisterRequest {
-  email: string;
-  password: string;
-  password2: string;
-  name: string;
-}
-
-interface RegisterResponse {
-  id: number;
-  email: string;
-  name: string;
-  profile_image: string;
-  provider: string;
-  created_at: string;
-}
-
-interface SocialLoginRequest {
-  provider: "google";
-  access_token: string;
-}
+import { publicApi, privateApi } from "@/app/api";
 
 interface User {
   id: number;
   email: string;
   name: string;
-  profile_image: string;
+  profile_image: string | null;
   provider: string;
   created_at: string;
-}
-
-interface SocialLoginResponse {
-  user: User;
-  access: string;
-  refresh: string;
-  is_new: boolean;
-}
-
-interface LoginRequest {
-  email: string;
-  password: string;
 }
 
 interface LoginResponse {
   user: User;
   access: string;
   refresh: string;
-  is_new: boolean;
 }
 
-interface LogoutRequest {
-  refresh: string;
-}
-
-export const authApi = baseApi.injectEndpoints({
+// public 인증 API (로그인/회원가입/소셜로그인만)
+export const authPublicApi = publicApi.injectEndpoints({
   endpoints: (builder) => ({
-    register: builder.mutation<RegisterResponse, RegisterRequest>({
-      query: (body) => ({
-        url: "auth/register/",
-        method: "POST",
-        body,
-      }),
+    register: builder.mutation<
+      LoginResponse,
+      { email: string; password: string; password2: string; name: string }
+    >({
+      query: (body) => ({ url: "auth/register/", method: "POST", body }),
     }),
-    socialLogin: builder.mutation<SocialLoginResponse, SocialLoginRequest>({
-      query: (body) => ({
-        url: "auth/social-login/",
-        method: "POST",
-        body,
-      }),
-    }),
-    login: builder.mutation<LoginResponse, LoginRequest>({
-      query: (body) => ({
-        url: "auth/login/",
-        method: "POST",
-        body,
-      }),
-    }),
-    logout: builder.mutation<void, LogoutRequest>({
-      query: (body) => ({
-        url: "auth/logout/",
-        method: "POST",
-        body,
-      }),
+    login: builder.mutation<LoginResponse, { email: string; password: string }>(
+      {
+        query: (body) => ({ url: "auth/login/", method: "POST", body }),
+      }
+    ),
+    socialLogin: builder.mutation<
+      LoginResponse,
+      { provider: string; access_token: string }
+    >({
+      query: (body) => ({ url: "auth/social-login/", method: "POST", body }),
     }),
   }),
+  overrideExisting: false,
 });
 
-export const {
-  useRegisterMutation,
-  useSocialLoginMutation,
-  useLoginMutation,
-  useLogoutMutation,
-} = authApi;
+// private 인증 API (로그아웃은 보호 API)
+export const authPrivateApi = privateApi.injectEndpoints({
+  endpoints: (builder) => ({
+    logout: builder.mutation<void, { refresh: string }>({
+      query: (body) => ({ url: "auth/logout/", method: "POST", body }),
+    }),
+  }),
+  overrideExisting: false,
+});
+
+export const { useRegisterMutation, useLoginMutation, useSocialLoginMutation } =
+  authPublicApi;
+
+export const { useLogoutMutation } = authPrivateApi;
