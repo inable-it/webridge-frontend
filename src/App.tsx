@@ -9,6 +9,7 @@ import AccessibilityIntro from "@/pages/AccessibilityIntro";
 import DashboardPage from "@/pages/DashboardPage";
 import { MyInfoPage } from "@/pages/MyInfoPage"; // 추가
 import { FeedbackPage } from "@/pages/FeedbackPage"; // 추가
+import { RequireAuth } from "@/components/common/RequireAuth";
 
 function App() {
   const routes = useRoutes([
@@ -25,7 +26,11 @@ function App() {
     },
     {
       path: "/",
-      element: <BaseLayout />,
+      element: (
+        <RequireAuth>
+          <BaseLayout />
+        </RequireAuth>
+      ),
       children: [
         { path: "dashboard", element: <DashboardPage /> },
         { path: "my-info", element: <MyInfoPage /> }, // 추가
