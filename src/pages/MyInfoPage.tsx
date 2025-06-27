@@ -17,7 +17,7 @@ export const MyInfoPage = () => {
   const user = data?.data;
 
   return (
-      <div className="p-8 bg-[#edf3fe] h-full">
+      <div className="p-8 bg-[#ecf3ff] h-full">
         <div className="p-6 bg-white rounded-lg shadow">
           <h2 className="mb-6 text-lg font-semibold">내 정보</h2>
           <div className="flex gap-6">

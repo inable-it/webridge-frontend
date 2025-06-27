@@ -28,35 +28,40 @@ const DashboardPage = () => {
   const { generatePdf } = usePdfGenerator(); // Hook 사용
 
   return (
-      <div className="flex h-screen bg-[#f7faff] p-8 gap-5">
-        {/* 왼쪽: 최근 검사 */}
-        <div className="w-[320px] bg-[#f7faff] border-2 p-6 space-y-6 rounded-lg">
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold">접근성 검사</h2>
-            <div className="flex items-center gap-2">
-              <Input placeholder="https://" className="flex-1" />
-              <Button variant="outline" size="icon">
-                <ChevronRight className="w-5 h-5" />
-              </Button>
+      <div className="flex h-screen bg-[#ecf3ff] p-8 gap-5">
+        {/* 왼쪽: 최근 검사 + 최근 검사 내역 */}
+        <div className="flex w-[320px] space-y-6 rounded-lg flex-col">
+          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg">
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">접근성 검사</h2>
+              <div className="flex items-center gap-2">
+                <Input placeholder="https://" className="flex-1" />
+                <Button variant="outline" size="icon">
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500">최근 검사 내역</p>
-            <div className="space-y-1">
-              {recentItems.map((url, idx) => (
-                  <Button
-                      key={idx}
-                      variant="outline"
-                      className="justify-between w-full"
-                  >
-                    <span className="text-sm truncate">{url}</span>
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                  </Button>
-              ))}
+          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg h-full">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">최근 검사 내역</p>
+              <div className="space-y-1">
+                {recentItems.map((url, idx) => (
+                    <Button
+                        key={idx}
+                        variant="outline"
+                        className="justify-between w-full"
+                    >
+                      <span className="text-sm truncate">{url}</span>
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                    </Button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+
 
         {/* 오른쪽: 검사 결과 */}
         <div className="flex-1 p-8 bg-white border-2 rounded-lg shadow-md">

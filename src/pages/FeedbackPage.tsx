@@ -7,7 +7,7 @@ export const FeedbackPage = () => {
   const [text, setText] = useState("");
 
   return (
-    <div className="p-8 bg-[#f7faff] h-full">
+    <div className="p-8 bg-[#ecf3ff] h-full">
       <div className="mx-auto">
         <h2 className="mb-6 text-lg font-semibold">
           WEBridge 사용 후 느낀 점을 남겨주세요.
