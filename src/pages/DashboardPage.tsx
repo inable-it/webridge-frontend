@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChevronRight } from "lucide-react";
+import { usePdfGenerator } from "@/hooks/usePdfGenerator";
 
 const recentItems = [
   "https://wkdaofjsd9.com",
@@ -24,88 +25,99 @@ const resultItems = [
 ];
 
 const DashboardPage = () => {
+  const { generatePdf } = usePdfGenerator(); // Hook 사용
+
   return (
-    <div className="flex h-screen bg-[#f7faff] p-8 gap-5">
-      {/* 왼쪽: 최근 검사 */}
-      <div className="w-[320px] bg-[#f7faff] border-2 p-6 space-y-6 rounded-lg">
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">접근성 검사</h2>
-          <div className="flex items-center gap-2">
-            <Input placeholder="https://" className="flex-1" />
-            <Button variant="outline" size="icon">
-              <ChevronRight className="w-5 h-5" />
+      <div className="flex h-screen bg-[#f7faff] p-8 gap-5">
+        {/* 왼쪽: 최근 검사 */}
+        <div className="w-[320px] bg-[#f7faff] border-2 p-6 space-y-6 rounded-lg">
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold">접근성 검사</h2>
+            <div className="flex items-center gap-2">
+              <Input placeholder="https://" className="flex-1" />
+              <Button variant="outline" size="icon">
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm text-gray-500">최근 검사 내역</p>
+            <div className="space-y-1">
+              {recentItems.map((url, idx) => (
+                  <Button
+                      key={idx}
+                      variant="outline"
+                      className="justify-between w-full"
+                  >
+                    <span className="text-sm truncate">{url}</span>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 오른쪽: 검사 결과 */}
+        <div className="flex-1 p-8 bg-white border-2 rounded-lg shadow-md">
+          {/* PDF 저장 버튼 */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-xl font-semibold">
+                WEBridge 웹 접근성 검사 요약 보고서
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                홈페이지명 : ooo <br />
+                https://www.naver.com/
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                2025.06.25 / 한국형 웹 콘텐츠 접근성 지침 2.2 기준
+              </p>
+            </div>
+
+            <Button
+                onClick={() => generatePdf("reportContent", "accessibility-report.pdf")}
+            >
+              PDF로 저장하기
             </Button>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <p className="text-sm text-gray-500">최근 검사 내역</p>
-          <div className="space-y-1">
-            {recentItems.map((url, idx) => (
-              <Button
-                key={idx}
-                variant="outline"
-                className="justify-between w-full"
-              >
-                <span className="text-sm truncate">{url}</span>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 오른쪽: 검사 결과 */}
-      <div className="flex-1 p-8 bg-white border-2 rounded-lg shadow-md">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-xl font-semibold">
-              WEBridge 웹 접근성 검사 요약 보고서
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              홈페이지명 : ooo <br />
-              https://www.naver.com/
-            </p>
-            <p className="mt-1 text-xs text-gray-400">
-              2025.06.25 / 한국형 웹 콘텐츠 접근성 지침 2.2 기준
-            </p>
-          </div>
-
-          <Button>PDF로 저장하기</Button>
-        </div>
-
-        <div className="p-6 bg-white border rounded-lg">
-          <table className="w-full text-sm text-left">
-            <thead>
+          {/* PDF 대상 영역 */}
+          <div
+              className="p-6 bg-white border rounded-lg"
+              id="reportContent" // PDF 변환 대상 ID
+          >
+            <table className="w-full text-sm text-left">
+              <thead>
               <tr className="border-b">
                 <th className="p-2">순번</th>
                 <th className="p-2">항목</th>
                 <th className="p-2">준수수준</th>
                 <th className="p-2">오류 확인</th>
               </tr>
-            </thead>
-            <tbody>
+              </thead>
+              <tbody>
               {resultItems.map((item) => (
-                <tr key={item.id} className="border-b">
-                  <td className="p-2">{item.id}</td>
-                  <td className="p-2">{item.name}</td>
-                  <td className="p-2">{item.score}</td>
-                  <td className="p-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-[#6C9AFF] text-white"
-                    >
-                      {item.type}
-                    </Button>
-                  </td>
-                </tr>
+                  <tr key={item.id} className="border-b">
+                    <td className="p-2">{item.id}</td>
+                    <td className="p-2">{item.name}</td>
+                    <td className="p-2">{item.score}</td>
+                    <td className="p-2">
+                      <Button
+                          size="sm"
+                          variant="outline"
+                          className="bg-[#6C9AFF] text-white"
+                      >
+                        {item.type}
+                      </Button>
+                    </td>
+                  </tr>
               ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
