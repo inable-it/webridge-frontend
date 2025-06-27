@@ -19,17 +19,24 @@ export const LNB = () => {
   return (
     <div className="flex flex-col justify-between h-full p-4 w-[260px] bg-white border-r">
       <div className="space-y-6">
-        <div className="flex items-center px-3 py-2 border rounded-lg bg-gray-50">
-          <Search className="w-5 h-5 mr-2 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search for..."
-            className="flex-1 text-sm bg-transparent outline-none placeholder:text-gray-500"
-          />
-          <button className="p-1 ml-2 bg-white border rounded-md">
-            <ChevronRight className="w-4 h-4 text-gray-600" />
-          </button>
+        <div className="flex flex-row justify-between items-center px-2 py-2 border rounded-lg bg-gray-50 h-auto w-full">
+
+          <div className="flex flex-row flex-1 items-center">
+
+            {/* 입력 필드 */}
+            <input
+                type="text"
+                placeholder="Search for..."
+                className="flex-1 text-sm bg-transparent outline-none placeholder:text-gray-500"
+            />
+
+          </div>
+          {/* Search 아이콘 */}
+
+          <Search className="w-5 h-5 text-gray-500 mr-2" />
+
         </div>
+
 
         <div>
           <p className="mb-2 text-xs text-gray-500">메뉴</p>
