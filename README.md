@@ -1,54 +1,44 @@
-# React + TypeScript + Vite
+# 웹 접근성 솔루션 - React + TypeScript + Vite 기반
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+이 프로젝트는 국내 웹 접근성 솔루션의 새로운 형태를 제안하기 위해 개발되었습니다. 기존의 단순한 접근성 검사 도구와는 차별화된 **URL 기반 리포트 생성**과 사용자 친화적인 UI를 제공하며, 추후 **AI 모델 도입**을 통한 발전 방향성을 지닌 웹 서비스 형태로 기획되었습니다.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## **프로젝트 주요 목표 및 배경**
+### **1. 목적**
+- 기존 국내 웹 접근성 솔루션의 한계점을 극복하고 차별화된 SaaS 형태를 검증.
+- 초기에는 최소한의 기능을 우선 개발하여 빠르게 유저 확보:
+    - **웹 접근성 검사 기능**을 기반으로 한 **URL 리포트 생성**을 핵심 기능으로 설정.
+    - 유사 서비스처럼 기존 사용자의 요구를 충족시키는 형태(참고: [accessibility.kr](https://accessibility.kr/))로 제작.
+- 기존 플러그인 형태 서비스는 도입 초기 가시성이 낮을 수 있어 **웹 사이트 기반 서비스** 제공 방향으로 설정.
 
-## Expanding the ESLint configuration
+### **2. 추가적인 배경**
+- 현재 웹 접근성 솔루션은 플러그인형 자가 진단이나 단순 URL 리포트 생성 서비스에 집중되어 있음.
+    - **플러그인**은 시각화를 통한 장점이 있으나, 구현 난이도가 높아 우선 순위에서 배제.
+    - 웹 사이트 접근 방식은 서비스의 초기 홍보 및 기능 확장이 용이하기 때문에 선택.
+- 추후 **AI 분석 모델을 접목**하여 고도화를 진행할 계획.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## **사용된 기술 스택**
+- **React**: 프론트엔드 UI 라이브러리
+- **Vite**: 빠른 개발 환경을 제공하는 빌드 도구
+- **Redux Toolkit**: 상태 관리 라이브러리
+- **Tailwind CSS**: 유틸리티 기반의 CSS 프레임워크
+- **TypeScript**: 정적 타입 언어
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## **구현된 주요 기능**
+### **1. URL 기반 웹 접근성 리포트 제공**
+- 사용자가 입력한 URL의 웹 접근성 점검 결과를 리포트 형태로 제공.
+- 간단하고 직관적인 UI로 사용자 이해도 향상.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### **2. 초기 UI 구성**
+- Tailwind를 적극적으로 활용한 반응형 디자인.
+- 핵심 기능에 집중한 깔끔한 사용자 경험 제공.
+
+### **3. 확장 가능성**
+- 추후 AI 분석 모델 관련 기능을 추가하여 더욱 정확하고 세부적인 접근성 진단 제공 예정.
+
+---
