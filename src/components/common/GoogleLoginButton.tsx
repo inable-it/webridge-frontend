@@ -25,7 +25,6 @@ const GoogleLoginButton = () => {
         // 유저 정보 Redux store에 저장
         dispatch(setUser(response.user));
 
-        console.log("소셜 로그인 성공", response);
         navigate("/dashboard");
       } catch (error) {
         console.error("소셜 로그인 실패", error);

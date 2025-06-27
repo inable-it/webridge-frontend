@@ -19,7 +19,6 @@ export const Header = () => {
       const refreshToken =
         localStorage.getItem("refreshToken") ||
         localStorage.getItem("refresh_token");
-      console.log("로그아웃 시도, refreshToken:", refreshToken);
 
       await logout({ refresh: refreshToken ?? "" }).unwrap();
 
