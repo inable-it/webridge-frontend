@@ -1,19 +1,7 @@
 import { publicApi, privateApi } from "@/app/api";
+import type {LoginResponse} from "@/types/user.ts";
 
-interface User {
-  id: number;
-  email: string;
-  name: string;
-  profile_image: string | null;
-  provider: string;
-  created_at: string;
-}
 
-interface LoginResponse {
-  user: User;
-  access: string;
-  refresh: string;
-}
 
 // public 인증 API (로그인/회원가입/소셜로그인만)
 export const authPublicApi = publicApi.injectEndpoints({
