@@ -92,7 +92,7 @@ const DashboardPage = () => {
               className="p-6 bg-white border rounded-lg"
               id="reportContent" // PDF 변환 대상 ID
           >
-            <table className="w-full text-sm text-left">
+            <table className="w-full text-sm text-center">
               <thead>
               <tr className="border-b">
                 <th className="p-2">순번</th>
