@@ -6,7 +6,7 @@ export const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full h-full overflow-y-scroll scroll-smooth">
+    <div className="w-full h-full scroll-smooth">
       {/* Slide 1 */}
       <section className="h-screen w-full flex flex-col justify-between items-center px-6 pt-16 bg-gradient-to-b from-[#e9f0ff] to-[#f2f6ff]">
         <FadeInSection>
