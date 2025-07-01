@@ -2,10 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import type { RootState } from "@/app/store";
-import { useLogoutMutation } from "@/features/api/authApi"; // publicApi 기반 hook
+import { useLogoutMutation } from "@/features/api/authApi";
 import { clearUser } from "@/features/store/userSlice";
 import { toast } from "@/hooks/use-toast";
-import { publicApi } from "@/app/api"; // publicApi에서 resetApiState 호출
+import { publicApi } from "@/app/api";
+import { persistor } from "@/app/store";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -20,21 +21,23 @@ export const Header = () => {
         localStorage.getItem("refreshToken") ||
         localStorage.getItem("refresh_token");
 
+      // 1. 서버 로그아웃
       await logout({ refresh: refreshToken ?? "" }).unwrap();
 
+      // 2. 로컬 토큰 제거
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      dispatch(clearUser());
 
-      // publicApi 캐시 초기화
+      // 3. 상태 초기화
+      dispatch(clearUser());
       dispatch(publicApi.util.resetApiState());
 
-      toast({
-        title: "로그아웃 성공",
-        description: "다시 로그인 해주세요.",
-      });
+      // 4. persist 초기화 및 수동 제거
+      await persistor.purge();
+      localStorage.removeItem("persist:root");
 
-      navigate("/login");
+      // 5. 새로고침 (navigate만 하면 재로그인 막힘 가능성 있음)
+      window.location.reload();
     } catch (error) {
       console.error("로그아웃 실패", error);
       toast({
