@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // useLocation 추가
 import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import type { RootState } from "@/app/store";
@@ -10,6 +10,7 @@ import { persistor } from "@/app/store";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // 현재 경로 가져오기
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.user);
   const [logout] = useLogoutMutation();
@@ -21,22 +22,13 @@ export const Header = () => {
         localStorage.getItem("refreshToken") ||
         localStorage.getItem("refresh_token");
 
-      // 1. 서버 로그아웃
       await logout({ refresh: refreshToken ?? "" }).unwrap();
-
-      // 2. 로컬 토큰 제거
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-
-      // 3. 상태 초기화
       dispatch(clearUser());
       dispatch(publicApi.util.resetApiState());
-
-      // 4. persist 초기화 및 수동 제거
       await persistor.purge();
       localStorage.removeItem("persist:root");
-
-      // 5. 새로고침 (navigate만 하면 재로그인 막힘 가능성 있음)
       window.location.reload();
     } catch (error) {
       console.error("로그아웃 실패", error);
@@ -47,6 +39,9 @@ export const Header = () => {
       });
     }
   };
+
+  // 현재 경로와 비교하여 메뉴 항목에 활성화 스타일 부여
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className="relative flex items-center justify-between px-6 bg-white border-b h-14">
@@ -69,13 +64,17 @@ export const Header = () => {
         <nav className="flex gap-6 text-sm font-medium text-gray-700">
           <button
             onClick={() => navigate("/team")}
-            className="hover:text-blue-600"
+            className={`hover:text-blue-600 ${
+              isActive("/team") ? "text-blue-600 font-semibold" : ""
+            }`}
           >
             팀 소개
           </button>
           <button
             onClick={() => navigate("/accessibility")}
-            className="hover:text-blue-600"
+            className={`hover:text-blue-600 ${
+              isActive("/accessibility") ? "text-blue-600 font-semibold" : ""
+            }`}
           >
             웹 접근성이란?
           </button>
