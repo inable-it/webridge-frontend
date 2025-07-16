@@ -48,6 +48,7 @@ export const SignupPage = () => {
         email: form.email,
         password: form.password,
         password2: form.password2,
+        terms_agreed: form.agree,
       }).unwrap();
       alert("회원가입 성공!");
       // 회원가입 성공 후 리다이렉트 또는 추가 작업
