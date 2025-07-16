@@ -17,12 +17,24 @@ export const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
-    try {
-      const refreshToken =
-        localStorage.getItem("refreshToken") ||
-        localStorage.getItem("refresh_token");
+    const refreshToken =
+      localStorage.getItem("refreshToken") ||
+      localStorage.getItem("refresh_token");
 
-      await logout({ refresh: refreshToken ?? "" }).unwrap();
+    if (!refreshToken) {
+      // 서버에 요청은 생략하고 로컬 초기화만 진행
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      dispatch(clearUser());
+      dispatch(publicApi.util.resetApiState());
+      await persistor.purge();
+      localStorage.removeItem("persist:root");
+      window.location.reload();
+      return;
+    }
+
+    try {
+      await logout({ refresh: refreshToken }).unwrap();
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       dispatch(clearUser());
