@@ -10,6 +10,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import { MyInfoPage } from "@/pages/MyInfoPage"; // 추가
 import { FeedbackPage } from "@/pages/FeedbackPage"; // 추가
 import { RequireAuth } from "@/components/common/RequireAuth";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   const routes = useRoutes([
@@ -39,7 +40,12 @@ function App() {
     },
   ]);
 
-  return routes;
+  return (
+    <>
+      {routes}
+      <Toaster />
+    </>
+  );
 }
 
 export default App;
