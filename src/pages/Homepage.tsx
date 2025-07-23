@@ -8,10 +8,10 @@ export const HomePage = () => {
   return (
     <div className="w-full h-full scroll-smooth">
       {/* Slide 1 */}
-      <section className="h-screen w-full flex flex-col justify-between items-center px-6 pt-16 bg-gradient-to-b from-[#e9f0ff] to-[#f2f6ff]">
+      <section className="min-h-screen w-full flex flex-col justify-center items-center px-6 bg-gradient-to-b from-[#e9f0ff] to-[#f2f6ff]">
         <FadeInSection>
-          <div className="mt-12 text-center">
-            <h1 className="mt-12 mb-8 text-4xl font-extrabold leading-relaxed tracking-wide text-gray-900 sm:text-5xl">
+          <div className="max-w-3xl text-center">
+            <h1 className="mb-8 text-4xl font-extrabold leading-relaxed tracking-wide text-gray-900 sm:text-5xl">
               WEBridge,
               <br />
               효율적인 웹 접근성 자가 검진 솔루션
@@ -22,26 +22,14 @@ export const HomePage = () => {
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <button
-                onClick={() =>
-                  window.open("https://forms.gle/auwBzhYqpfT9ixEG8", "_blank")
-                }
+                onClick={() => navigate("/dashboard")}
+                className="flex items-center justify-center gap-3 px-6 py-4 text-lg font-semibold text-white rounded-xl"
                 style={{
-                  display: "flex",
-                  padding: "16px 24px",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textAlign: "center",
-                  gap: "12px",
-                  borderRadius: "12px",
                   background:
                     "linear-gradient(141deg, #155DFC 5.21%, #9ABAFF 196.72%)",
-                  color: "white",
-                  fontWeight: 600,
-                  fontSize: "20px",
-                  lineHeight: "20px",
                 }}
               >
-                서비스 정식 출시 알림받기
+                접근성 검사하기
                 <img
                   src={ArrowRightIcon}
                   alt="Arrow Right"
@@ -50,20 +38,7 @@ export const HomePage = () => {
               </button>
               <button
                 onClick={() => navigate("/accessibility")}
-                style={{
-                  display: "flex",
-                  padding: "16px 24px",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: "12px",
-                  borderRadius: "12px",
-                  border: "2px solid #155DFC",
-                  background: "#FFF",
-                  color: "#155DFC",
-                  fontWeight: 600,
-                  fontSize: "20px",
-                  lineHeight: "24px",
-                }}
+                className="flex items-center justify-center px-6 py-4 gap-3 text-[#155DFC] border-2 border-[#155DFC] bg-white font-semibold text-lg rounded-xl"
               >
                 웹 접근성 솔루션이란?
               </button>
@@ -72,7 +47,7 @@ export const HomePage = () => {
         </FadeInSection>
 
         <FadeInSection>
-          <div className="w-full max-w-5xl">
+          <div className="w-full max-w-5xl mt-12">
             <img
               src="/slide1.png"
               alt="웹 접근성 샘플 리포트"
