@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useGetMyInfoQuery } from "@/features/api/userApi";
 import { WithdrawModal } from "@/components/common/WithdrawModal";
 
-export const MyInfoPage = () => {
+const MyInfoPage = () => {
   const { data, isLoading, error } = useGetMyInfoQuery();
   const [modalOpen, setModalOpen] = useState(false);
   const user = data?.data;
@@ -45,3 +45,4 @@ export const MyInfoPage = () => {
     </div>
   );
 };
+export default MyInfoPage;

@@ -80,7 +80,11 @@ const LoginPage = () => {
             <Checkbox id="remember" />
             <Label htmlFor="remember">로그인 상태 유지</Label>
           </div>
-          <Link to="#" className="text-blue-600 hover:underline">
+          {/* 비밀번호 찾기 버튼 - 클릭시 /password-reset 페이지로 이동 */}
+          <Link
+            to="/password-reset"
+            className="text-blue-600 transition-colors hover:underline"
+          >
             비밀번호 찾기
           </Link>
         </div>

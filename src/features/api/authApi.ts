@@ -24,7 +24,26 @@ type LogoutRequest = {
   refresh: string;
 };
 
-// 인증이 필요 없는 API들: 회원가입, 로그인, 소셜 로그인, 로그아웃
+type PasswordResetRequest = {
+  email: string;
+};
+
+type PasswordResetConfirmRequest = {
+  uid: string;
+  token: string;
+  new_password: string;
+  new_password2: string;
+};
+
+type PasswordResetResponse = {
+  message: string;
+};
+
+type PasswordResetConfirmResponse = {
+  message: string;
+};
+
+// 인증이 필요 없는 API들: 회원가입, 로그인, 소셜 로그인, 로그아웃, 비밀번호 재설정
 export const authPublicApi = publicApi.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<LoginResponse, RegisterRequest>({
@@ -58,6 +77,28 @@ export const authPublicApi = publicApi.injectEndpoints({
         body,
       }),
     }),
+
+    passwordReset: builder.mutation<
+      PasswordResetResponse,
+      PasswordResetRequest
+    >({
+      query: (body) => ({
+        url: "auth/password-reset/",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    passwordResetConfirm: builder.mutation<
+      PasswordResetConfirmResponse,
+      PasswordResetConfirmRequest
+    >({
+      query: (body) => ({
+        url: "auth/password-reset-confirm/",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -68,4 +109,6 @@ export const {
   useLoginMutation,
   useSocialLoginMutation,
   useLogoutMutation,
+  usePasswordResetMutation,
+  usePasswordResetConfirmMutation,
 } = authPublicApi;
