@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { usePasswordResetMutation } from "@/features/api/authApi";
-import { Key, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 const PasswordResetPage = () => {
   const navigate = useNavigate();
@@ -60,12 +60,12 @@ const PasswordResetPage = () => {
       <div className="flex items-center justify-center min-h-screen px-4 bg-white">
         <div className="w-full max-w-md space-y-6">
           <div className="space-y-4 text-center">
-            <div className="flex justify-center">
-              <Key className="w-12 h-12 text-blue-500" />
+            <div className="flex items-center justify-center gap-2">
+              <img src="/logo.svg" alt="Logo" className="w-12 h-12" />
+              <h1 className="text-2xl font-bold text-gray-900">
+                새 비밀번호 설정
+              </h1>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              새 비밀번호 설정
-            </h1>
             <p className="text-gray-600">
               이전과 다른 비밀번호를 입력해 주세요.
             </p>
@@ -136,10 +136,12 @@ const PasswordResetPage = () => {
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
         <div className="space-y-4 text-center">
-          <div className="flex justify-center">
-            <Key className="w-12 h-12 text-blue-500" />
+          <div className="flex items-center justify-center gap-2">
+            <img src="/logo.svg" alt="Logo" className="w-12 h-12" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              비밀번호 재설정
+            </h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">비밀번호 재설정</h1>
           <div className="space-y-1 text-gray-600">
             <p>가입 시 등록한 이메일 주소를 입력해 주세요.</p>
             <p>비밀번호 재설정 링크를 보내드려요.</p>
