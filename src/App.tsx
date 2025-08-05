@@ -4,13 +4,15 @@ import LoginPage from "@/pages/Login";
 import { useRoutes } from "react-router-dom";
 import { SimpleLayout } from "@/layout/SimpleLayout";
 import { BaseLayout } from "@/layout/BaseLayout";
+import { RequireAuth } from "@/components/common/RequireAuth";
+import { Toaster } from "@/components/ui/toaster";
 import TeamIntro from "@/pages/TeamIntro";
 import AccessibilityIntro from "@/pages/AccessibilityIntro";
 import DashboardPage from "@/pages/DashboardPage";
-import { MyInfoPage } from "@/pages/MyInfoPage"; // 추가
-import { FeedbackPage } from "@/pages/FeedbackPage"; // 추가
-import { RequireAuth } from "@/components/common/RequireAuth";
-import { Toaster } from "@/components/ui/toaster";
+import MyInfoPage from "@/pages/MyInfoPage";
+import PasswordResetPage from "@/pages/PasswordResetPage";
+import FeedbackPage from "@/pages/FeedbackPage";
+import PasswordResetConfirmPage from "@/pages/PasswordResetConfirmPage";
 
 function App() {
   const routes = useRoutes([
@@ -23,6 +25,8 @@ function App() {
         { path: "signup", element: <SignupPage /> },
         { path: "team", element: <TeamIntro /> },
         { path: "accessibility", element: <AccessibilityIntro /> },
+        { path: "password-reset", element: <PasswordResetPage /> },
+        { path: "reset-password", element: <PasswordResetConfirmPage /> },
       ],
     },
     {
