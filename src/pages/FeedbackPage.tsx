@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 
-export const FeedbackPage = () => {
+const FeedbackPage = () => {
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
 
@@ -56,3 +56,4 @@ export const FeedbackPage = () => {
     </div>
   );
 };
+export default FeedbackPage;
