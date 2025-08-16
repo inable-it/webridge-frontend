@@ -170,9 +170,6 @@ const PasswordResetConfirmPage = () => {
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
         <div className="space-y-4 text-center">
-          <div className="flex justify-center">
-            <Key className="w-12 h-12 text-blue-500" />
-          </div>
           <h1 className="text-2xl font-bold text-gray-900">새 비밀번호 설정</h1>
           <p className="text-gray-600">이전과 다른 비밀번호를 입력해 주세요.</p>
         </div>

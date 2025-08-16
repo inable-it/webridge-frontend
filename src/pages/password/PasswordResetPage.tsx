@@ -4,15 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { usePasswordResetMutation } from "@/features/api/authApi";
-import { Eye, EyeOff } from "lucide-react";
 
 const PasswordResetPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [passwordReset, { isLoading }] = usePasswordResetMutation();
 
@@ -28,7 +24,6 @@ const PasswordResetPage = () => {
 
     try {
       await passwordReset({ email }).unwrap();
-      setIsSuccess(true);
     } catch (err: any) {
       console.error("비밀번호 재설정 요청 실패", err);
 
@@ -55,89 +50,11 @@ const PasswordResetPage = () => {
     }
   };
 
-  if (isSuccess) {
-    return (
-      <div className="flex items-center justify-center min-h-screen px-4 bg-white">
-        <div className="w-full max-w-md space-y-6">
-          <div className="space-y-4 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <img src="/logo.svg" alt="Logo" className="w-12 h-12" />
-              <h1 className="text-2xl font-bold text-gray-900">
-                새 비밀번호 설정
-              </h1>
-            </div>
-            <p className="text-gray-600">
-              이전과 다른 비밀번호를 입력해 주세요.
-            </p>
-          </div>
-
-          {/* 새 비밀번호 입력 */}
-          <div className="space-y-1 text-left">
-            <Label htmlFor="newPassword">새 비밀번호</Label>
-            <div className="relative">
-              <Input
-                id="newPassword"
-                type={showNewPassword ? "text" : "password"}
-                placeholder="새 비밀번호"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
-              >
-                {showNewPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-            <div className="space-y-1 text-xs text-gray-500">
-              <p>*비밀번호는 최소 8자 이상이어야 합니다.</p>
-              <p>*영문자, 숫자, 특수문자 중 2가지 이상이 포함되어야 합니다.</p>
-            </div>
-          </div>
-
-          {/* 비밀번호 확인 */}
-          <div className="space-y-1 text-left">
-            <Label htmlFor="confirmPassword">비밀번호 확인</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="새 비밀번호 확인"
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* 변경 완료 버튼 */}
-          <Button className="w-full text-white bg-blue-500 hover:bg-blue-600">
-            이메일 전송 받기
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
         <div className="space-y-4 text-center">
           <div className="flex items-center justify-center gap-2">
-            <img src="/logo.svg" alt="Logo" className="w-12 h-12" />
             <h1 className="text-2xl font-bold text-gray-900">
               비밀번호 재설정
             </h1>
