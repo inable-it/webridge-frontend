@@ -1,18 +1,19 @@
 import HomePage from "@/pages/Homepage";
-import SignupPage from "@/pages/SignUp";
-import LoginPage from "@/pages/Login";
+import SignupPage from "@/pages/auth/SignUp";
+import LoginPage from "@/pages/auth/Login";
 import { useRoutes } from "react-router-dom";
 import { SimpleLayout } from "@/layout/SimpleLayout";
 import { BaseLayout } from "@/layout/BaseLayout";
 import { RequireAuth } from "@/components/common/RequireAuth";
 import { Toaster } from "@/components/ui/toaster";
-import TeamIntro from "@/pages/TeamIntro";
-import AccessibilityIntro from "@/pages/AccessibilityIntro";
+import TeamIntro from "@/pages/notion/TeamIntro";
+import AccessibilityIntro from "@/pages/notion/AccessibilityIntro";
 import DashboardPage from "@/pages/DashboardPage";
 import MyInfoPage from "@/pages/MyInfoPage";
-import PasswordResetPage from "@/pages/PasswordResetPage";
+import PasswordResetPage from "@/pages/password/PasswordResetPage";
 import FeedbackPage from "@/pages/FeedbackPage";
-import PasswordResetConfirmPage from "@/pages/PasswordResetConfirmPage";
+import PasswordResetConfirmPage from "@/pages/password/PasswordResetConfirmPage";
+import TermsAgreementPage from "@/pages/auth/TermsAgreementPage";
 
 function App() {
   const routes = useRoutes([
@@ -27,6 +28,7 @@ function App() {
         { path: "accessibility", element: <AccessibilityIntro /> },
         { path: "password-reset", element: <PasswordResetPage /> },
         { path: "reset-password", element: <PasswordResetConfirmPage /> },
+        { path: "terms-agreement", element: <TermsAgreementPage /> },
       ],
     },
     {
