@@ -44,7 +44,6 @@ export const feedbackApi = privateApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Feedback"],
     }),
 
     // 피드백 목록 조회
@@ -56,7 +55,6 @@ export const feedbackApi = privateApi.injectEndpoints({
         url: "feedback/list/",
         params: { page, page_size },
       }),
-      providesTags: ["Feedback"],
     }),
 
     // 피드백 수정
@@ -69,7 +67,6 @@ export const feedbackApi = privateApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["Feedback"],
     }),
 
     // 피드백 삭제
@@ -78,7 +75,6 @@ export const feedbackApi = privateApi.injectEndpoints({
         url: `feedback/${id}/delete/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Feedback"],
     }),
   }),
   overrideExisting: false,
