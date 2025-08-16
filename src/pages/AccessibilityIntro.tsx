@@ -2,8 +2,8 @@ import NotionEmbed from "@/components/common/NotionEmbed";
 
 const AccessibilityIntro = () => {
   return (
-    <div>
-      <NotionEmbed url="https://www.notioniframe.com/notion/g2729m44c5q" />
+    <div className="p-4">
+      <NotionEmbed url="https://inable.super.site/accessibility" />
     </div>
   );
 };
