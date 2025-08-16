@@ -13,6 +13,7 @@ import MyInfoPage from "@/pages/MyInfoPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
 import FeedbackPage from "@/pages/FeedbackPage";
 import PasswordResetConfirmPage from "@/pages/PasswordResetConfirmPage";
+import TermsAgreementPage from "@/pages/TermsAgreementPage";
 
 function App() {
   const routes = useRoutes([
@@ -27,6 +28,7 @@ function App() {
         { path: "accessibility", element: <AccessibilityIntro /> },
         { path: "password-reset", element: <PasswordResetPage /> },
         { path: "reset-password", element: <PasswordResetConfirmPage /> },
+        { path: "terms-agreement", element: <TermsAgreementPage /> },
       ],
     },
     {
