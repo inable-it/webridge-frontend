@@ -15,7 +15,6 @@ import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/features/store/userSlice";
-import { NOTION_URLS } from "@/constants/notionUrls";
 import {
   TERMS_CONFIG,
   getRequiredTermIds,
@@ -109,10 +108,6 @@ const SignupPageContent = () => {
   }, [form.email, emailVerified, isGoogleUser, checkEmailVerification]);
 
   // 유틸리티 함수들
-  const openNotionPage = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
   const resetEmailVerification = () => {
     setEmailVerified(false);
     setIsGoogleUser(false);
@@ -356,13 +351,13 @@ const SignupPageContent = () => {
         {term.linkText && (
           <button
             type="button"
-            onClick={() => openNotionPage(term.url!)}
+            onClick={() => navigate(term.route!)}
             className="mx-1 text-blue-600 underline hover:text-blue-800"
           >
             {term.linkText}
           </button>
         )}
-        {term.linkText && " 에 동의합니다."}
+        {term.linkText && "에 동의합니다."}
       </Label>
     </div>
   );
@@ -508,7 +503,7 @@ const SignupPageContent = () => {
         <div className="flex justify-center gap-4 mt-2 text-xs text-gray-500">
           <button
             type="button"
-            onClick={() => openNotionPage(NOTION_URLS.PRIVACY_PROCESSING)}
+            onClick={() => navigate("/terms/privacy-processing")}
             className="font-bold hover:underline"
           >
             개인정보처리방침
@@ -516,7 +511,7 @@ const SignupPageContent = () => {
           <span>|</span>
           <button
             type="button"
-            onClick={() => openNotionPage(NOTION_URLS.SERVICE_TERMS_FOOTER)}
+            onClick={() => navigate("/terms/service")}
             className="hover:underline"
           >
             서비스 이용 약관

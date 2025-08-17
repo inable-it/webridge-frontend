@@ -1,11 +1,11 @@
 import NotionEmbed from "@/components/common/NotionEmbed";
 
-const TeamIntro = () => {
+const NewsPage = () => {
   return (
     <div className="p-4">
-      <NotionEmbed url="https://inable.super.site/team" />
+      <NotionEmbed url="https://verbal-bobcat.super.site/" />
     </div>
   );
 };
 
-export default TeamIntro;
+export default NewsPage;
