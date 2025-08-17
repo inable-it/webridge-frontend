@@ -5,6 +5,7 @@ export interface TermConfig {
   label: string;
   linkText?: string;
   url?: string;
+  route?: string; // 추가된 라우트 속성
   required: boolean;
 }
 
@@ -19,6 +20,7 @@ export const TERMS_CONFIG: TermConfig[] = [
     label: "(필수)",
     linkText: "서비스 이용약관",
     url: NOTION_URLS.SERVICE_TERMS,
+    route: "/terms/service", // 추가된 라우트
     required: true,
   },
   {
@@ -26,6 +28,7 @@ export const TERMS_CONFIG: TermConfig[] = [
     label: "(필수)",
     linkText: "개인정보 수집 및 이용",
     url: NOTION_URLS.PRIVACY_POLICY,
+    route: "/terms/privacy-policy", // 추가된 라우트
     required: true,
   },
   {
@@ -33,6 +36,7 @@ export const TERMS_CONFIG: TermConfig[] = [
     label: "(선택)",
     linkText: "마케팅 목적의 개인정보 수집 및 이용",
     url: NOTION_URLS.MARKETING_TERMS,
+    route: "/terms/marketing-consent", // 추가된 라우트
     required: false,
   },
 ];

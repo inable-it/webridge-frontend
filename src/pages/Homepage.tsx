@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { FadeInSection } from "@/components/common/FadeInSection";
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon.svg";
-import { NOTION_URLS } from "@/constants/notionUrls";
 
 // 타입 정의
 interface TableItem {
@@ -298,10 +297,7 @@ const CTAButton = () => (
 
 // 메인 HomePage 컴포넌트
 export const HomePage = () => {
-  // Footer 노션 링크 (SignupPage와 동일 동작)
-  const openNotionPage = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="w-full h-full scroll-smooth">
@@ -443,9 +439,7 @@ export const HomePage = () => {
                 <li>
                   <button
                     type="button"
-                    onClick={() =>
-                      openNotionPage(NOTION_URLS.SERVICE_TERMS_FOOTER)
-                    }
+                    onClick={() => navigate("/terms/service")}
                     className="font-['Pretendard_Variable'] font-bold text-gray-600 underline"
                   >
                     이용약관
@@ -455,9 +449,7 @@ export const HomePage = () => {
                 <li>
                   <button
                     type="button"
-                    onClick={() =>
-                      openNotionPage(NOTION_URLS.PRIVACY_PROCESSING)
-                    }
+                    onClick={() => navigate("/terms/privacy-processing")}
                     className="font-['Pretendard_Variable']  font-bold text-gray-600 underline"
                   >
                     개인정보처리방침
