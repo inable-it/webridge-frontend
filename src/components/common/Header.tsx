@@ -78,49 +78,68 @@ export const Header = () => {
 
   // 메뉴 항목 스타일링
   const getMenuItemClass = (path: string) => {
-    return `hover:text-blue-600 transition-colors ${
-      isActive(path) ? "text-blue-600 font-semibold" : ""
+    return `px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors ${
+      isActive(path) ? "text-blue-600" : ""
     }`;
   };
 
   return (
-    <header className="relative flex items-center justify-between px-6 bg-white border-b h-14">
+    <header className="w-full px-6 py-4 bg-white border-b border-[#D9D9D9] flex justify-between items-center">
       {/* 좌측: 로고 + 메뉴 */}
-      <div className="flex items-center gap-8">
+      <div className="flex items-center justify-start gap-8">
+        {/* 로고 섹션 */}
         <div
-          className="flex items-center gap-2 transition-opacity cursor-pointer hover:opacity-80"
+          className="flex justify-center items-center gap-3.5 cursor-pointer transition-opacity hover:opacity-80"
           onClick={handleLogoClick}
         >
-          <img src="/logo.svg" alt="logo" className="w-6 h-6" />
-          <span className="text-lg font-semibold">WEBridge</span>
+          {/* 로고 아이콘 */}
+          <div className="w-11 h-11 relative bg-white overflow-hidden rounded-[10px] border border-[#E4E7EC]">
+            {/* 왼쪽 원 */}
+            <div className="w-3.5 h-3.5 left-1.5 top-4 absolute bg-gradient-to-r from-[#74D5FF] to-[#74D5FF] rounded-full" />
+            {/* 중간 원 (반투명) */}
+            <div className="w-3.5 h-3.5 left-3 top-4 absolute opacity-50 bg-gradient-to-r from-[#3870FF] to-[#3870FF] rounded-full backdrop-blur-[2.36px]" />
+            {/* 오른쪽 원 */}
+            <div className="w-3.5 h-3.5 left-7 top-4 absolute bg-gradient-to-r from-[#72E1FB] to-[#0021F4] rounded-full" />
+          </div>
+
+          {/* 로고 텍스트 */}
+          <div className="text-center text-[#101828] text-2xl font-bold font-['Pretendard_Variable'] leading-8">
+            WEBridge
+          </div>
         </div>
 
-        <nav className="flex gap-6 text-sm font-medium text-gray-700">
+        {/* 네비게이션 메뉴 */}
+        <nav className="flex items-center justify-start gap-8">
           <button
             onClick={() => navigate("/team")}
             className={getMenuItemClass("/team")}
           >
-            팀 소개
+            <div className="flex flex-col justify-center text-center">
+              팀 소개
+            </div>
           </button>
           <button
             onClick={() => navigate("/accessibility")}
             className={getMenuItemClass("/accessibility")}
           >
-            웹 접근성이란?
+            <div className="flex flex-col justify-center">웹 접근성이란?</div>
           </button>
         </nav>
       </div>
 
-      {/* 우측: 로그인 / 마이페이지 */}
-      <div className="relative flex gap-4 text-sm font-medium text-gray-600">
+      {/* 우측: 로그인 / 사용자 메뉴 */}
+      <div className="flex items-center justify-end gap-8">
         {user ? (
-          <div className="relative w-40 text-center">
-            <span
-              className="inline-block w-full text-blue-600 transition-colors cursor-pointer hover:text-blue-700"
+          <div className="relative">
+            <button
               onClick={() => setDropdownOpen((prev) => !prev)}
+              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors"
             >
-              {user.name}
-            </span>
+              <div className="flex flex-col justify-center text-center">
+                {user.name}
+              </div>
+            </button>
+
             {dropdownOpen && (
               <>
                 {/* 드롭다운 외부 클릭 시 닫기용 오버레이 */}
@@ -128,10 +147,10 @@ export const Header = () => {
                   className="fixed inset-0 z-10"
                   onClick={() => setDropdownOpen(false)}
                 />
-                <div className="absolute right-0 z-20 w-40 mt-2 text-center bg-white border rounded shadow-md">
+                <div className="absolute right-0 z-20 mt-2 bg-white border border-[#E4E7EC] rounded-lg shadow-lg min-w-[120px]">
                   <button
                     onClick={handleLogout}
-                    className="block w-full px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+                    className="block w-full px-4 py-3 text-sm text-[#344054] hover:bg-gray-50 transition-colors text-left"
                   >
                     로그아웃
                   </button>
@@ -143,15 +162,17 @@ export const Header = () => {
           <>
             <button
               onClick={() => navigate("/login")}
-              className="transition-colors hover:text-blue-600"
+              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors"
             >
-              로그인
+              <div className="flex flex-col justify-center text-center">
+                로그인
+              </div>
             </button>
             <button
               onClick={() => navigate("/signup")}
-              className="transition-colors hover:text-blue-600"
+              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors"
             >
-              회원가입
+              <div className="flex flex-col justify-center">회원가입</div>
             </button>
           </>
         )}

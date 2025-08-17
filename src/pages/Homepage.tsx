@@ -1,205 +1,475 @@
 import { useNavigate } from "react-router-dom";
 import { FadeInSection } from "@/components/common/FadeInSection";
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon.svg";
+import { NOTION_URLS } from "@/constants/notionUrls";
 
-export const HomePage = () => {
+// 타입 정의
+interface TableItem {
+  id: number;
+  item: string;
+  compliance: string;
+}
+interface ActionButtonProps {
+  onClick: () => void;
+  variant: "primary" | "secondary";
+  children: React.ReactNode;
+  icon?: string;
+}
+interface FeatureTextProps {
+  title: string;
+  description: string;
+}
+
+// 상수
+const TABLE_DATA: TableItem[] = [
+  { id: 1, item: "적절한 대체 텍스트 제공", compliance: "23/50" },
+  { id: 2, item: "자막 제공", compliance: "40/50" },
+  { id: 3, item: "표의 구성", compliance: "30/50" },
+  { id: 4, item: "자동 재생 금지", compliance: "이슈 내용" },
+  { id: 5, item: "텍스트 콘텐츠의 명도 대비", compliance: "Cell Text" },
+  { id: 6, item: "키보드 사용 보장", compliance: "Cell Text" },
+  { id: 7, item: "레이블 제공", compliance: "Cell Text" },
+];
+
+const STYLES = {
+  section: {
+    hero: "flex flex-col items-center justify-center w-full px-6",
+    feature: "w-full px-6 lg:px-8 py-24 bg-white",
+    cta: "flex flex-col items-center justify-center min-h-screen px-4 py-20 text-center text-white bg-gray-900",
+  },
+  text: {
+    title:
+      "text-zinc-800 text-6xl font-bold leading-[80px] font-['Pretendard_Variable'] text-center max-w-[1044px]",
+    subtitle:
+      "text-gray-600 text-xl font-medium leading-loose font-['Pretendard_Variable'] text-center max-w-[754px]",
+    button: "text-xl font-semibold leading-loose font-['Pretendard_Variable']",
+    tableHeader:
+      "text-xs font-medium font-['Pretendard_Variable'] text-gray-600",
+    tableCell: "text-xs font-medium font-['Pretendard_Variable'] text-gray-600",
+  },
+  button: {
+    base: "flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-colors",
+    primary:
+      "bg-gradient-to-b from-blue-600 to-indigo-300 text-gray-50 hover:opacity-90",
+    secondary:
+      "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50",
+    error:
+      "h-10 px-4 py-3 bg-blue-400 rounded-lg hover:bg-blue-500 transition-colors",
+  },
+} as const;
+
+// 메인 컴포넌트들
+const MainTitle = () => (
+  <h1 className={STYLES.text.title}>
+    WEBridge,
+    <br />
+    효율적인 웹 접근성 자가 검진 솔루션
+  </h1>
+);
+
+const SubTitle = () => (
+  <p className={STYLES.text.subtitle}>
+    AI로 더 똑똑해진 웹 접근성 도구 웹브릿지, 알림 신청하고 제일 먼저
+    경험하세요!
+  </p>
+);
+
+const ActionButton = ({
+  onClick,
+  variant,
+  children,
+  icon,
+}: ActionButtonProps) => (
+  <button
+    onClick={onClick}
+    className={`${STYLES.button.base} ${STYLES.button[variant]}`}
+  >
+    <span className={STYLES.text.button}>{children}</span>
+    {icon && <img src={icon} alt="Arrow Right" className="w-6 h-6" />}
+  </button>
+);
+
+const ActionButtons = () => {
   const navigate = useNavigate();
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-7">
+      <ActionButton
+        onClick={() => navigate("/dashboard")}
+        variant="primary"
+        icon={ArrowRightIcon}
+      >
+        접근성 검사하기
+      </ActionButton>
+      <ActionButton
+        onClick={() => navigate("/accessibility")}
+        variant="secondary"
+      >
+        웹 접근성 솔루션이란?
+      </ActionButton>
+    </div>
+  );
+};
+
+// 리포트 관련 컴포넌트들
+const ReportLogo = () => (
+  <div className="relative w-10 h-10 overflow-hidden bg-white border border-gray-200 rounded-lg">
+    <div className="absolute w-3 h-3 rounded-full left-1 top-3 bg-sky-300" />
+    <div className="absolute left-2.5 top-3 w-3 h-3 rounded-full opacity-50 bg-blue-500" />
+    <div className="absolute w-3 h-3 rounded-full left-6 top-3 bg-gradient-to-r from-cyan-300 to-blue-700" />
+  </div>
+);
+
+const ReportHeader = () => (
+  <div className="flex h-14 w-full items-center border-b border-gray-200 bg-white px-5 py-3.5">
+    <div className="flex items-center gap-3">
+      <ReportLogo />
+      <span className="font-['Pretendard_Variable'] text-xl font-bold text-gray-900">
+        WEBridge
+      </span>
+    </div>
+  </div>
+);
+
+const URLInput = () => (
+  <div className="w-full max-w-sm">
+    <div className="relative p-3 bg-white border-2 border-blue-600 rounded-lg">
+      <div className="flex items-center gap-2">
+        <span className="font-['Pretendard_Variable'] text-xs text-gray-500">
+          https://
+        </span>
+        <div className="flex-1" />
+      </div>
+    </div>
+  </div>
+);
+
+const AccessibilityTestPanel = () => (
+  <div className="max-w-4xl p-4 border-t border-gray-200 rounded w-96 border-x bg-white/40">
+    <div className="mb-6">
+      <h3 className="mb-1 font-['Pretendard_Variable'] text-lg font-semibold text-gray-800">
+        접근성 검사
+      </h3>
+      <p className="font-['Pretendard_Variable'] text-xs text-gray-600">
+        접근성 보고서를 확인할 링크를 입력해 주세요.
+      </p>
+    </div>
+    <URLInput />
+  </div>
+);
+
+const TableHeader = ({ children }: { children: React.ReactNode }) => (
+  <th className="border-t border-b border-gray-300 px-4 py-2.5 text-left">
+    <span className={STYLES.text.tableHeader}>{children}</span>
+  </th>
+);
+const TableCell = ({ children }: { children: React.ReactNode }) => (
+  <td className="px-4 py-4 border-b border-gray-300">
+    <span className={STYLES.text.tableCell}>{children}</span>
+  </td>
+);
+
+const ErrorCheckButton = () => (
+  <button
+    className={`${STYLES.button.error} font-['Pretendard_Variable'] text-xs font-medium text-white`}
+  >
+    오류 확인
+  </button>
+);
+
+const ResultsTable = () => (
+  <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+    <div className="p-4 border-b border-gray-200">
+      <h3 className="font-['Pretendard_Variable'] text-base font-semibold text-gray-800">
+        항목별 결과
+      </h3>
+    </div>
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr>
+            <TableHeader>순번</TableHeader>
+            <TableHeader>항목</TableHeader>
+            <TableHeader>준수율</TableHeader>
+            <TableHeader>오류 확인</TableHeader>
+          </tr>
+        </thead>
+        <tbody>
+          {TABLE_DATA.map((item) => (
+            <tr key={item.id}>
+              <TableCell>{item.id}</TableCell>
+              <TableCell>{item.item}</TableCell>
+              <TableCell>{item.compliance}</TableCell>
+              <TableCell>
+                <ErrorCheckButton />
+              </TableCell>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const ResultsTablePanel = () => (
+  <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white/40 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+    <div className="border border-gray-200 rounded-lg">
+      <div className="p-4 border-b border-gray-200">
+        <h2 className="font-['Pretendard_Variable'] text-lg font-semibold text-black">
+          WEBridge 웹 접근성 검사 요약 보고서
+        </h2>
+      </div>
+      <div className="p-6">
+        <div className="h-64 overflow-hidden">
+          <ResultsTable />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const ReportPreviewSection = () => (
+  <div className="relative w-full overflow-hidden rounded-t-2xl bg-sky-50">
+    <ReportHeader />
+    <div className="flex flex-row gap-4 px-4 pt-4">
+      <AccessibilityTestPanel />
+      <ResultsTablePanel />
+    </div>
+    <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none bg-gradient-to-t from-sky-50 to-transparent" />
+    <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300" />
+  </div>
+);
+
+// Feature 구성 - 이미지처럼 좌우 2열 (상: 카드+텍스트, 하: 텍스트+이미지)
+const AlternativeTextDemo = () => (
+  <div className="flex justify-center flex-1 lg:justify-start">
+    <div className="flex items-center w-full max-w-xl p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
+      <img
+        src="/example-shoes.png"
+        alt="유아용 흰색 운동화"
+        className="object-cover rounded-md h-28 w-28"
+      />
+      <div className="flex flex-col gap-1 ml-6">
+        <div className="flex items-center gap-2 text-sm font-medium text-blue-600">
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          적절한 대체텍스트를 추천드려요.
+        </div>
+        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-600">
+          {`<img src="product.jpg" alt="유아용 흰색 운동화" />`}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const FeatureText = ({ title, description }: FeatureTextProps) => (
+  <div className="flex-1 max-w-xl text-left">
+    <h2 className="mb-6 text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 leading-[56px] lg:leading-[68px]">
+      {title.split("\n").map((line, i, arr) => (
+        <span key={i}>
+          {line}
+          {i < arr.length - 1 && <br />}
+        </span>
+      ))}
+    </h2>
+    <p className="text-lg leading-8 text-gray-700">{description}</p>
+  </div>
+);
+
+const CTAButton = () => (
+  <button
+    onClick={() => window.open("https://forms.gle/auwBzhYqpfT9ixEG8", "_blank")}
+    className="flex items-center justify-center gap-3 px-6 py-4 text-lg font-semibold text-white transition-opacity rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 hover:opacity-90"
+  >
+    서비스 정식 출시 알림받기
+  </button>
+);
+
+// 메인 HomePage 컴포넌트
+export const HomePage = () => {
+  // Footer 노션 링크 (SignupPage와 동일 동작)
+  const openNotionPage = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="w-full h-full scroll-smooth">
-      {/* Slide 1 */}
-      <section className="min-h-screen w-full flex flex-col justify-center items-center px-6 bg-gradient-to-b from-[#e9f0ff] to-[#f2f6ff]">
+      {/* Hero Section */}
+      <section
+        className={STYLES.section.hero}
+        style={{
+          background: "linear-gradient(180deg, #F7F8FA 0%, #C2D6FF 100%)",
+        }}
+      >
         <FadeInSection>
-          <div className="max-w-3xl text-center">
-            <h1 className="mb-8 text-4xl font-extrabold leading-relaxed tracking-wide text-gray-900 sm:text-5xl">
-              WEBridge,
-              <br />
-              효율적인 웹 접근성 자가 검진 솔루션
-            </h1>
-            <p className="mb-6 text-gray-600">
-              AI로 더 똑똑해진 웹 접근성 도구 웹브릿지, 알림 신청하고 제일 먼저
-              경험하세요!
-            </p>
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="flex items-center justify-center gap-3 px-6 py-4 text-lg font-semibold text-white rounded-xl"
-                style={{
-                  background:
-                    "linear-gradient(141deg, #155DFC 5.21%, #9ABAFF 196.72%)",
-                }}
-              >
-                접근성 검사하기
-                <img
-                  src={ArrowRightIcon}
-                  alt="Arrow Right"
-                  className="w-5 h-5"
-                />
-              </button>
-              <button
-                onClick={() => navigate("/accessibility")}
-                className="flex items-center justify-center px-6 py-4 gap-3 text-[#155DFC] border-2 border-[#155DFC] bg-white font-semibold text-lg rounded-xl"
-              >
-                웹 접근성 솔루션이란?
-              </button>
+          <div className="px-8 pt-20 max-w-7xl">
+            <div className="flex flex-col items-center gap-8">
+              <MainTitle />
+              <div className="flex flex-col items-center w-full gap-12">
+                <div className="min-w-[520px] flex flex-col items-center gap-9">
+                  <SubTitle />
+                  <ActionButtons />
+                </div>
+                <ReportPreviewSection />
+              </div>
             </div>
-          </div>
-        </FadeInSection>
-
-        <FadeInSection>
-          <div className="w-full max-w-5xl mt-12">
-            <img
-              src="/slide1.png"
-              alt="웹 접근성 샘플 리포트"
-              className="object-contain w-full"
-            />
           </div>
         </FadeInSection>
       </section>
 
-      {/* Slide 2 */}
-      <section className="flex flex-col items-center justify-center min-h-screen px-8 py-24 bg-white">
-        <div className="flex flex-col w-full gap-24 max-w-7xl">
+      {/* Feature Section (1번 이미지 레이아웃) */}
+      <section className={STYLES.section.feature}>
+        <div className="grid w-full grid-cols-1 mx-auto max-w-7xl place-items-start gap-x-24 gap-y-28 lg:grid-cols-2">
+          {/* 상단 왼쪽: 카드 */}
           <FadeInSection>
-            <div className="flex flex-row items-center gap-12">
-              {/* 대체 텍스트 추천 박스 */}
-              <div className="flex items-center justify-center flex-1">
-                <div className="flex items-center w-full max-w-xl p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-                  {/* 신발 이미지 */}
-                  <img
-                    src="/example-shoes.png"
-                    alt="유아용 흰색 운동화"
-                    className="object-cover rounded-md w-28 h-28"
-                  />
-
-                  {/* 텍스트 영역 */}
-                  <div className="flex flex-col gap-1 ml-6 text-left">
-                    {/* 체크 아이콘 */}
-                    <div className="flex items-center gap-2 text-sm font-medium text-blue-600">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 text-blue-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      적절한 대체텍스트를 추천드려요.
-                    </div>
-
-                    {/* 코드 예시 */}
-                    <div className="mt-1 text-xs text-gray-600 bg-gray-50 px-3 py-1.5 rounded-md font-mono whitespace-pre">
-                      {`<img src="product.jpg" alt="유아용 흰색 운동화" />`}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 설명 텍스트 */}
-              <div className="flex-1 text-center">
-                <h2 className="mb-4 text-4xl font-bold leading-snug text-gray-900">
-                  한 번의 클릭으로
-                  <br />웹 접근성 진단부터 개선까지
-                </h2>
-                <p className="text-lg leading-relaxed text-gray-700">
-                  웹 접근성에 특화된 AI 솔루션 WEBridge는
-                  <br />
-                  이미지의 대체 텍스트처럼,
-                  <br />
-                  자동으로 문제를 분석하고 적절한 수정안을 제안합니다.
-                </p>
-              </div>
-            </div>
+            <AlternativeTextDemo />
           </FadeInSection>
 
+          {/* 상단 오른쪽: 텍스트 */}
           <FadeInSection>
-            <div className="flex flex-row items-center gap-16">
-              <div className="flex-1 text-center">
-                <h2 className="mb-4 text-4xl font-bold leading-snug text-gray-900">
-                  최소의 리소스로,
-                  <br />웹 접근성 진단부터 개선까지
-                </h2>
-                <p className="text-base leading-relaxed text-gray-700 md:text-lg">
-                  웹 접근성에 특화된 AI 솔루션 WEBridge는
-                  <br />
-                  무엇이 잘못되었고, 어떻게 고쳐야 할지
-                  <br />
-                  명확한 리포트와 함께 수정 가이드를 제공합니다.
-                </p>
-              </div>
+            <FeatureText
+              title={"한 번의 클릭으로\n웹 접근성 진단부터 개선까지"}
+              description="웹 접근성에 특화된 AI 솔루션 WEBridge는 한 번의 클릭으로 비싸고 복잡한 컨설팅 없이도, 웹 접근성을 쉽게 준수할 수 있습니다."
+            />
+          </FadeInSection>
 
-              <img
-                src="/slide2.2.png"
-                alt="접근성 리포트 샘플"
-                className="w-full max-w-[700px] flex-1"
-              />
-            </div>
+          {/* 하단 왼쪽: 텍스트 */}
+          <FadeInSection>
+            <FeatureText
+              title={"최소의 리소스로,\n웹 접근성 진단부터 개선까지"}
+              description="웹 접근성에 특화된 AI 솔루션 WEBridge는 무엇이 잘못되었고, 어떻게 고쳐야 할지 명확한 리포트와 함께 수정 가이드를 제공합니다."
+            />
+          </FadeInSection>
+
+          {/* 하단 오른쪽: 리포트 카드 */}
+          <FadeInSection>
+            <img
+              src="/slide2.2.png"
+              alt="접근성 리포트 샘플"
+              className="w-full max-w-[700px] rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+            />
           </FadeInSection>
         </div>
       </section>
 
-      {/* Slide 3 */}
-      <section className="flex flex-col items-center justify-center min-h-screen px-4 py-20 text-center text-white bg-gray-900">
+      {/* CTA Section */}
+      <section className={STYLES.section.cta}>
         <FadeInSection>
-          <h2 className="mt-20 text-5xl font-bold leading-relaxed tracking-wide mb-14 md:text-6xl">
+          <h2 className="mt-20 mb-14 text-5xl md:text-6xl font-bold tracking-wide leading-[64px] md:leading-[84px]">
             지금 바로, 더 나은
             <br />웹 환경을 위한 첫 걸음
           </h2>
         </FadeInSection>
-
         <FadeInSection>
           <p className="mb-10 text-lg text-gray-300">
             WEBridge와 함께 모두를 위한 웹을 만들어가요!
           </p>
         </FadeInSection>
-
         <FadeInSection>
-          <button
-            onClick={() =>
-              window.open("https://forms.gle/auwBzhYqpfT9ixEG8", "_blank")
-            }
-            style={{
-              display: "flex",
-              padding: "16px 24px",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "12px",
-              borderRadius: "12px",
-              background:
-                "linear-gradient(141deg, #155DFC 5.21%, #9ABAFF 196.72%)",
-              color: "white",
-              fontWeight: 600,
-              fontSize: "18px",
-              lineHeight: "24px",
-            }}
-          >
-            서비스 정식 출시 알림받기
-          </button>
+          <CTAButton />
         </FadeInSection>
       </section>
 
-      {/* Footer */}
-      <footer className="flex flex-col items-center justify-between gap-4 px-16 py-12 text-sm text-gray-600 bg-white md:flex-row">
-        <div className="flex items-center gap-2">
-          <img
-            src="/logo.svg" // 실제 로고 아이콘 경로로 변경
-            alt="WEBridge Logo"
-            className="w-6 h-6"
-          />
-          <span className="font-semibold text-gray-800">WEBridge</span>
-        </div>
-        <div className="text-center ">
-          <p>웹 접근성 자가 검진 솔루션</p>
-          <p>E-mail: inable25@gmail.com</p>
+      {/* Footer (2번 이미지 레이아웃) */}
+      <footer className="w-full bg-white">
+        <div className="mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-20 py-16">
+          {/* 헤더(브랜드) */}
+          <div className="flex items-center gap-2 mb-6">
+            <img src="/logo.svg" alt="WEBridge Logo" className="w-6 h-6" />
+            <span className="font-['Pretendard_Variable'] text-2xl font-bold text-gray-900">
+              WEBridge
+            </span>
+          </div>
+
+          {/* 본문 3열: 좌(설명/주소) | 중(연락처/사업자) | 우(링크) */}
+          <div className="grid grid-cols-1 md:grid-cols-12">
+            {/* 좌측 */}
+            <div className="md:col-span-6">
+              <ul className="text-[15px] leading-7 text-gray-700">
+                <li>웹 접근성 자가 검진 솔루션</li>
+                <li>
+                  <span className="font-bold">상호</span>
+                  <span className="ml-2">: 이너블</span>
+                </li>
+                <li>
+                  <span className="font-bold">대표자명</span>
+                  <span className="ml-2">: 김은혜</span>
+                </li>
+                <li>
+                  <span className="font-bold">사업장 주소</span>
+                  <span className="ml-2">:</span>
+                </li>
+                <li>서울특별시 광진구 능동로 81 더 라움 펜트하우스 302-1호</li>
+                <li>건국대학교 캠퍼스타운사업단 [공유오피스 InAble(이너블)]</li>
+              </ul>
+            </div>
+
+            {/* 가운데 */}
+            <div className="mt-16 md:col-span-4">
+              <ul className="text-[15px] leading-7 text-gray-700">
+                <li>
+                  <span className="font-bold">E-mail</span>
+                  <span className="ml-2">: inable25@gmail.com</span>
+                </li>
+                <li>
+                  <span className="font-bold">연락처</span>
+                  <span className="ml-2">: 010-4017-9140</span>
+                </li>
+                <li>
+                  <span className="font-bold">사업자 등록번호</span>
+                  <span className="ml-2">: 321-21-02249</span>
+                </li>
+                <li>
+                  <span className="font-bold">개인정보관리책임자</span>
+                  <span className="ml-2">: 김은혜</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 우측 링크 */}
+            <div className="flex mt-32 text-center -w-full md:col-span-2 md:text-left">
+              <ul className="text-[15px] leading-7 text-gray-700">
+                <li>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openNotionPage(NOTION_URLS.SERVICE_TERMS_FOOTER)
+                    }
+                    className="font-['Pretendard_Variable'] font-bold text-gray-600 underline"
+                  >
+                    이용약관
+                  </button>
+                </li>
+                <br className="md:hidden" />
+                <li>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openNotionPage(NOTION_URLS.PRIVACY_PROCESSING)
+                    }
+                    className="font-['Pretendard_Variable']  font-bold text-gray-600 underline"
+                  >
+                    개인정보처리방침
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
   );
 };
+
 export default HomePage;
