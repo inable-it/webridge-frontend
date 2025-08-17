@@ -93,14 +93,7 @@ export const Header = () => {
           onClick={handleLogoClick}
         >
           {/* 로고 아이콘 */}
-          <div className="w-11 h-11 relative bg-white overflow-hidden rounded-[10px] border border-[#E4E7EC]">
-            {/* 왼쪽 원 */}
-            <div className="w-3.5 h-3.5 left-1.5 top-4 absolute bg-gradient-to-r from-[#74D5FF] to-[#74D5FF] rounded-full" />
-            {/* 중간 원 (반투명) */}
-            <div className="w-3.5 h-3.5 left-3 top-4 absolute opacity-50 bg-gradient-to-r from-[#3870FF] to-[#3870FF] rounded-full backdrop-blur-[2.36px]" />
-            {/* 오른쪽 원 */}
-            <div className="w-3.5 h-3.5 left-7 top-4 absolute bg-gradient-to-r from-[#72E1FB] to-[#0021F4] rounded-full" />
-          </div>
+          <img src="/logo.svg" alt="logo" className="w-11 h-11" />
 
           {/* 로고 텍스트 */}
           <div className="text-center text-[#101828] text-2xl font-bold font-['Pretendard_Variable'] leading-8">
