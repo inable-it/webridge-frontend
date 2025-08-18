@@ -14,14 +14,15 @@ const resultItems = [
   { id: 2, name: "자막 제공", score: "Cell Text", type: "오류 확인" },
   { id: 3, name: "표의 구성", score: "Cell Text", type: "오류 확인" },
   { id: 4, name: "자동 재생 금지", score: "이슈 내용", type: "오류 확인" },
-  {
-    id: 5,
-    name: "텍스트 콘텐츠의 명도 대비",
-    score: "Cell Text",
-    type: "오류 확인",
-  },
+  { id: 5, name: "텍스트 콘텐츠의 명도 대비", score: "Cell Text", type: "오류 확인",},
   { id: 6, name: "키보드 사용 보장", score: "Cell Text", type: "오류 확인" },
   { id: 7, name: "레이블 제공", score: "Cell Text", type: "오류 확인" },
+  { id: 8, name: "응답 시간 조절", score: "Cell Text", type: "오류 확인" },
+  { id: 9, name: "정지 기능 제공", score: "이슈 내용", type: "오류 확인" },
+  { id: 10, name: "깜빡임과 번쩍임 사용 제한", score: "Cell Text", type: "오류 확인",},
+  { id: 11, name: "제목 제공", score: "Cell Text", type: "오류 확인" },
+  { id: 12, name: "기본 언어 표시", score: "Cell Text", type: "오류 확인" },
+  { id: 13, name: "마크업 오류 방지", score: "Cell Text", type: "오류 확인" },
 ];
 
 const DashboardPage = () => {
@@ -97,7 +98,7 @@ const DashboardPage = () => {
               <tr className="border-b">
                 <th className="p-2">순번</th>
                 <th className="p-2">항목</th>
-                <th className="p-2">준수수준</th>
+                <th className="p-2">준수율</th>
                 <th className="p-2">오류 확인</th>
               </tr>
               </thead>
