@@ -19,6 +19,7 @@ import PrivacyPolicyPage from "@/pages/notion/PrivacyPolicyPage";
 import MarketingConsentPage from "@/pages/notion/MarketingConsentPage";
 import PrivacyProcessingPage from "@/pages/notion/PrivacyProcessingPage";
 import NewsPage from "@/pages/notion/NewsPage";
+import AccessibilityScanDetailPage from "./pages/AccessibilityScanDetailPage";
 
 function App() {
   const routes = useRoutes([
@@ -53,6 +54,7 @@ function App() {
       ),
       children: [
         { path: "dashboard", element: <DashboardPage /> },
+        { path: "scan/:scanId/:category", element: <AccessibilityScanDetailPage /> },
         { path: "my-info", element: <MyInfoPage /> },
         { path: "feedback", element: <FeedbackPage /> },
         { path: "news", element: <NewsPage /> },
