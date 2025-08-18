@@ -332,7 +332,7 @@ export const scanApi = privateApi.injectEndpoints({
         url: `scans/${scanId}/`,
       }),
       providesTags: (_result, _error, scanId) => [{ type: 'Scan', id: scanId }],
-    }),
+  }),
 
     // 스캔 삭제
     deleteScan: builder.mutation<void, string>({
