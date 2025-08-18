@@ -90,4 +90,5 @@ export const privateApi = createApi({
   reducerPath: "privateApi",
   baseQuery: customBaseQuery,
   endpoints: () => ({}),
+  tagTypes: ['Scan', 'User', 'Feedback'],
 });
