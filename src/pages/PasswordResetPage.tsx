@@ -4,11 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { usePasswordResetMutation } from "@/features/api/authApi";
+import { X } from "lucide-react";
 
 const PasswordResetPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const [passwordReset, { isLoading }] = usePasswordResetMutation();
 
@@ -19,15 +21,13 @@ const PasswordResetPage = () => {
       setEmailError("이메일을 입력해주세요.");
       return;
     }
-
-    setEmailError(""); // 에러 메시지 초기화
+    setEmailError("");
 
     try {
       await passwordReset({ email }).unwrap();
+      setShowModal(true); // ✅ 전송 완료 모달 열기
     } catch (err: any) {
       console.error("비밀번호 재설정 요청 실패", err);
-
-      // 400 에러 또는 기타 에러의 메시지 처리
       if (err?.status === 400 && err?.data) {
         const errorMessage =
           err.data.message ||
@@ -45,9 +45,7 @@ const PasswordResetPage = () => {
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
-    if (emailError) {
-      setEmailError("");
-    }
+    if (emailError) setEmailError("");
   };
 
   return (
@@ -77,10 +75,10 @@ const PasswordResetPage = () => {
             value={email}
             onChange={handleEmailChange}
             required
-            className={emailError ? "border-red-500 focus:border-red-500" : ""}
+            className={`h-12 ${
+              emailError ? "border-red-500 focus:border-red-500" : ""
+            }`}
           />
-
-          {/* 에러 메시지 표시 */}
           {emailError && (
             <p className="mt-1 text-sm text-red-500">{emailError}</p>
           )}
@@ -89,7 +87,7 @@ const PasswordResetPage = () => {
         {/* 전송 버튼 */}
         <Button
           type="submit"
-          className="w-full text-white bg-blue-500 hover:bg-blue-600"
+          className="w-full h-12 text-white bg-blue-500 hover:bg-blue-600"
           disabled={isLoading}
         >
           {isLoading ? "전송 중..." : "이메일 전송 받기"}
@@ -106,6 +104,48 @@ const PasswordResetPage = () => {
           </button>
         </div>
       </form>
+
+      {/* 전송 완료 모달 */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute flex items-center justify-center text-gray-500 border border-gray-300 rounded-full w-9 h-9 top-4 right-4 hover:text-gray-700 hover:border-gray-400"
+              aria-label="닫기"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="space-y-5 text-center">
+              <h2 className="text-xl font-bold text-gray-900">전송 완료</h2>
+              <p className="text-gray-700">
+                <span className="font-medium">{email}</span> 로
+                <br /> 비밀번호 재설정 링크를 보냈어요.
+              </p>
+
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 text-white bg-blue-500 h-11 hover:bg-blue-600"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate("/login");
+                  }}
+                >
+                  로그인으로 이동
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11"
+                  onClick={() => setShowModal(false)}
+                >
+                  닫기
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

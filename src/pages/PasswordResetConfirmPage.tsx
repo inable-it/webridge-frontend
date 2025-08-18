@@ -147,9 +147,6 @@ const PasswordResetConfirmPage = () => {
       <div className="flex items-center justify-center min-h-screen px-4 bg-white">
         <div className="w-full max-w-md space-y-6 text-center">
           <div className="space-y-4">
-            <div className="flex justify-center">
-              <Key className="w-12 h-12 text-blue-500" />
-            </div>
             <h1 className="text-2xl font-bold text-gray-900">
               비밀번호가 변경되었습니다.
             </h1>

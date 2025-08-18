@@ -21,6 +21,9 @@ import {
   type TermConfig,
 } from "@/constants/termsConfig";
 
+// 폼 초안 저장 키
+const DRAFT_KEY = "signup_form_draft_v1";
+
 // 초기 상태 정의
 const INITIAL_FORM_STATE = {
   name: "",
@@ -64,22 +67,18 @@ const SignupPageContent = () => {
       if (name.length >= 10) return "이름은 10자 미만으로 작성해 주세요.";
       return "";
     },
-
     email: (email: string): string => {
       if (!email.trim()) return "이메일을 입력해주세요.";
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) return "유효한 이메일 주소를 입력해주세요.";
       return "";
     },
-
     password: (password: string): string => {
       if (!password) return "비밀번호를 입력해주세요.";
       if (password.length < 8) return "비밀번호는 최소 8자 이상이어야 합니다.";
-
       const hasLetter = /[a-zA-Z]/.test(password);
       const hasNumber = /\d/.test(password);
       const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
       const criteria = [hasLetter, hasNumber, hasSpecial].filter(
         Boolean
       ).length;
@@ -102,15 +101,75 @@ const SignupPageContent = () => {
         }
       }
     };
-
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
   }, [form.email, emailVerified, isGoogleUser, checkEmailVerification]);
+
+  // ===== 저장/이동 헬퍼 =====
+  const saveDraftNow = (
+    draftForm = form,
+    draftEmailVerified = emailVerified,
+    draftIsGoogleUser = isGoogleUser
+  ) => {
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          form: draftForm,
+          emailVerified: draftEmailVerified,
+          isGoogleUser: draftIsGoogleUser,
+        })
+      );
+    } catch {}
+  };
+
+  const go = (to: string) => {
+    // 이동 직전 강제 저장 (체크 직후 이동해도 누락 방지)
+    saveDraftNow();
+    navigate(to);
+  };
+
+  // 마운트 시 초안 복원
+  useEffect(() => {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw);
+      if (saved?.form) setForm((prev) => ({ ...prev, ...saved.form }));
+      if (typeof saved.emailVerified === "boolean")
+        setEmailVerified(saved.emailVerified);
+      if (typeof saved.isGoogleUser === "boolean")
+        setIsGoogleUser(saved.isGoogleUser);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // 변경될 때마다 초안 자동 저장 (입력값/체크/인증상태)
+  useEffect(() => {
+    saveDraftNow();
+  }, [form, emailVerified, isGoogleUser]);
+
+  // 페이지 숨김/이탈 시에도 저장 (선택 보강)
+  useEffect(() => {
+    const onHide = () => saveDraftNow();
+    const onVis = () => {
+      if (document.visibilityState === "hidden") saveDraftNow();
+    };
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [form, emailVerified, isGoogleUser]);
 
   // 유틸리티 함수들
   const resetEmailVerification = () => {
     setEmailVerified(false);
     setIsGoogleUser(false);
+    // 이메일 바꾸는 순간 인증상태 false로 저장되도록 즉시 저장
+    saveDraftNow(form, false, isGoogleUser);
   };
 
   const handleTokenStorage = (access: string, refresh: string) => {
@@ -122,42 +181,48 @@ const SignupPageContent = () => {
     }
   };
 
-  // 입력 필드 변경 핸들러
+  // 입력 필드 변경 핸들러 (즉시 저장 포함)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setForm((prev) => ({ ...prev, [id]: value }));
+    setForm((prev) => {
+      const newForm = { ...prev, [id]: value };
+      saveDraftNow(newForm);
+      return newForm;
+    });
 
-    // 실시간 유효성 검사
     const validator = validators[id as keyof typeof validators];
     const error = validator ? validator(value) : "";
     setErrors((prev) => ({ ...prev, [id]: error }));
 
-    // 이메일이 변경되면 인증 상태 초기화
     if (id === "email") {
       resetEmailVerification();
     }
   };
 
-  // 체크박스 변경 핸들러
+  // 체크박스 변경 핸들러 (즉시 저장 포함)
   const handleCheckboxChange = (id: string, checked: boolean) => {
     if (id === "allAgree") {
-      setForm((prev) => ({
-        ...prev,
-        allAgree: checked,
-        ageAgree: checked,
-        serviceAgree: checked,
-        privacyAgree: checked,
-        marketingAgree: checked,
-      }));
+      setForm((prev) => {
+        const newForm = {
+          ...prev,
+          allAgree: checked,
+          ageAgree: checked,
+          serviceAgree: checked,
+          privacyAgree: checked,
+          marketingAgree: checked,
+        };
+        saveDraftNow(newForm);
+        return newForm;
+      });
     } else {
       setForm((prev) => {
-        const newForm = { ...prev, [id]: checked };
-        // 모든 개별 체크박스가 선택되었는지 확인
+        const newForm: typeof prev = { ...prev, [id]: checked } as any;
         newForm.allAgree =
           newForm.ageAgree &&
           newForm.serviceAgree &&
           newForm.privacyAgree &&
           newForm.marketingAgree;
+        saveDraftNow(newForm);
         return newForm;
       });
     }
@@ -170,7 +235,6 @@ const SignupPageContent = () => {
       setErrors((prev) => ({ ...prev, email: emailError }));
       return;
     }
-
     try {
       await requestEmailVerification({ email: form.email }).unwrap();
       setShowModal(true);
@@ -197,16 +261,11 @@ const SignupPageContent = () => {
         if ("data" in result) {
           const response = result.data;
 
-          // response.status 또는 response.message로 분기 처리
           if (
             response &&
             (response.status === "terms_agreement_required" ||
               response.message === "서비스 이용을 위해 약관 동의가 필요합니다.")
           ) {
-            // 202: 약관 동의가 필요한 사용자
-            console.log("소셜 로그인 성공 (202) - 약관 동의 필요", response);
-
-            // 202 응답에도 토큰이 있을 수 있으므로 저장
             if (response.access && response.access.trim() !== "") {
               localStorage.setItem("accessToken", response.access);
             }
@@ -228,33 +287,23 @@ const SignupPageContent = () => {
               },
             });
           } else if (response) {
-            // 200: 약관 동의가 완료된 사용자
-            console.log("소셜 로그인 성공 (200)", response);
             handleTokenStorage(response.access, response.refresh);
             dispatch(setUser(response.user));
             navigate("/dashboard");
           }
         } else if ("error" in result) {
-          // 실제 에러 (400 등)
           const error = result.error as any;
           if (error?.status === 400) {
-            console.error(
-              "클라이언트 에러:",
-              error?.data?.message || "잘못된 요청입니다."
-            );
             alert("로그인 요청에 문제가 있습니다. 다시 시도해주세요.");
           } else {
-            console.error("기타 에러:", error);
             alert("Google 로그인 중 오류가 발생했습니다.");
           }
         }
       } catch (error: any) {
-        console.error("소셜 로그인 예외:", error);
         alert("Google 로그인 중 예외가 발생했습니다.");
       }
     },
     onError: () => {
-      console.log("Google Login 실패");
       alert("Google 로그인에 실패했습니다.");
     },
   });
@@ -269,7 +318,6 @@ const SignupPageContent = () => {
       form.email &&
       form.password;
 
-    // 필수 약관 동의 확인
     const requiredTermIds = getRequiredTermIds();
     const hasRequiredAgreements = requiredTermIds.every(
       (termId) => form[termId as keyof typeof form] as boolean
@@ -284,7 +332,6 @@ const SignupPageContent = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 최종 유효성 검사
     const validationErrors = {
       name: validators.name(form.name),
       email: validators.email(form.email),
@@ -296,17 +343,14 @@ const SignupPageContent = () => {
       return;
     }
 
-    // 필수 약관 동의 확인
     const requiredTermIds = getRequiredTermIds();
     const hasRequiredAgreements = requiredTermIds.every(
       (termId) => form[termId as keyof typeof form] as boolean
     );
-
     if (!hasRequiredAgreements) {
       alert("필수 약관에 동의해야 가입할 수 있습니다.");
       return;
     }
-
     if (!emailVerified && !isGoogleUser) {
       alert("이메일 인증을 완료해주세요.");
       return;
@@ -325,9 +369,9 @@ const SignupPageContent = () => {
       }).unwrap();
 
       alert("회원가입 성공!");
+      sessionStorage.removeItem(DRAFT_KEY); // 성공 시 초안 삭제
       navigate("/login");
     } catch (err: any) {
-      console.error("회원가입 실패", err);
       if (err?.status === 400 && err?.data?.email) {
         setErrors((prev) => ({ ...prev, email: "이미 가입된 이메일입니다." }));
       } else {
@@ -338,26 +382,44 @@ const SignupPageContent = () => {
 
   // 약관 체크박스 렌더링
   const renderTermsCheckbox = (term: TermConfig) => (
-    <div key={term.id} className="flex items-center gap-2">
+    <div key={term.id} className="flex items-start gap-3">
       <Checkbox
         id={term.id}
         checked={form[term.id as keyof typeof form] as boolean}
         onCheckedChange={(checked) =>
           handleCheckboxChange(term.id, checked === true)
         }
+        className="mt-0.5 w-5 h-5 rounded border-gray-300
+                 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
+                 data-[state=checked]:text-white"
       />
-      <Label htmlFor={term.id} className="text-sm text-gray-700">
-        {term.label}
-        {term.linkText && (
-          <button
-            type="button"
-            onClick={() => navigate(term.route!)}
-            className="mx-1 text-blue-600 underline hover:text-blue-800"
-          >
-            {term.linkText}
-          </button>
+
+      <Label htmlFor={term.id} className="text-[15px] text-gray-800">
+        {term.id === "ageAgree" ? (
+          // 밑줄만 (색상 제거)
+          <>
+            (필수){" "}
+            <span className="underline underline-offset-2">만 14세 이상</span>
+            입니다.
+          </>
+        ) : (
+          <>
+            {term.label}
+            {term.linkText && (
+              <>
+                {" "}
+                <button
+                  type="button"
+                  onClick={() => go(term.route!)} // navigate → go (이동 직전 저장)
+                  className="underline underline-offset-2" // 밑줄만
+                >
+                  {term.linkText}
+                </button>
+                에 동의합니다.
+              </>
+            )}
+          </>
         )}
-        {term.linkText && "에 동의합니다."}
       </Label>
     </div>
   );
@@ -367,7 +429,7 @@ const SignupPageContent = () => {
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
         {/* 제목 */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">회원가입</h1>
+          <h1 className="text-3xl font-bold text-gray-900">회원가입</h1>
         </div>
 
         {/* 이름 입력 */}
@@ -424,7 +486,7 @@ const SignupPageContent = () => {
           )}
 
           {(emailVerified || isGoogleUser) && !errors.email && (
-            <p className="text-sm text-blue-500">인증되었습니다.</p>
+            <p className="mt-1 text-sm text-blue-600">인증되었습니다.</p>
           )}
         </div>
 
@@ -452,18 +514,24 @@ const SignupPageContent = () => {
         {/* 약관 동의 체크박스들 */}
         <div className="space-y-3">
           {/* 전체 동의 */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 my-6">
             <Checkbox
               id="allAgree"
               checked={form.allAgree}
               onCheckedChange={(checked) =>
                 handleCheckboxChange("allAgree", checked === true)
               }
+              className="w-5 h-5 rounded border-gray-300
+                 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
+                 data-[state=checked]:text-white"
             />
-            <Label htmlFor="allAgree" className="text-sm text-gray-700">
+            <Label htmlFor="allAgree" className="text-sm text-gray-800">
               모두 동의합니다.
             </Label>
           </div>
+
+          {/* 회색 구분선 */}
+          <div className="h-px my-4 bg-gray-200" />
 
           {/* 개별 약관들 */}
           {TERMS_CONFIG.map(renderTermsCheckbox)}
@@ -473,9 +541,10 @@ const SignupPageContent = () => {
         <Button
           type="submit"
           disabled={!canSubmit() || isLoading}
-          className={`w-full text-white ${
+          className={`w-full h-12 text-base font-semibold text-white rounded-xl
+          ${
             canSubmit()
-              ? "bg-blue-500 hover:bg-blue-600"
+              ? "bg-blue-600 hover:bg-blue-700"
               : "bg-gray-300 cursor-not-allowed"
           }`}
         >
@@ -503,7 +572,7 @@ const SignupPageContent = () => {
         <div className="flex justify-center gap-4 mt-2 text-xs text-gray-500">
           <button
             type="button"
-            onClick={() => navigate("/terms/privacy-processing")}
+            onClick={() => go("/terms/privacy-processing")} // navigate → go
             className="font-bold hover:underline"
           >
             개인정보처리방침
@@ -511,10 +580,10 @@ const SignupPageContent = () => {
           <span>|</span>
           <button
             type="button"
-            onClick={() => navigate("/terms/service")}
+            onClick={() => go("/terms/service")} // navigate → go
             className="hover:underline"
           >
-            서비스 이용 약관
+            서비스 이용약관
           </button>
         </div>
       </form>

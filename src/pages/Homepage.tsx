@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { FadeInSection } from "@/components/common/FadeInSection";
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon.svg";
+import { useEffect, useState } from "react";
 
 // 타입 정의
 interface TableItem {
@@ -49,7 +50,7 @@ const STYLES = {
   button: {
     base: "flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-colors",
     primary:
-      "bg-gradient-to-b from-blue-600 to-indigo-300 text-gray-50 hover:opacity-90",
+      "bg-gradient-to-b from-blue-700 to-indigo-400 text-white hover:from-blue-800 hover:to-indigo-700",
     secondary:
       "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50",
     error:
@@ -239,38 +240,53 @@ const ReportPreviewSection = () => (
 );
 
 // Feature 구성 - 이미지처럼 좌우 2열 (상: 카드+텍스트, 하: 텍스트+이미지)
-const AlternativeTextDemo = () => (
-  <div className="flex justify-center flex-1 lg:justify-start">
-    <div className="flex items-center w-full max-w-xl p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-      <img
-        src="/example-shoes.png"
-        alt="유아용 흰색 운동화"
-        className="object-cover rounded-md h-28 w-28"
-      />
-      <div className="flex flex-col gap-1 ml-6">
-        <div className="flex items-center gap-2 text-sm font-medium text-blue-600">
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          적절한 대체텍스트를 추천드려요.
-        </div>
-        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-600">
-          {`<img src="product.jpg" alt="유아용 흰색 운동화" />`}
+const AlternativeTextDemo = () => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 30);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="flex justify-center flex-1 lg:justify-start">
+      <div
+        className={[
+          "flex items-center w-full max-w-xl p-6 bg-white border border-gray-200 rounded-xl shadow-sm",
+          "transform transition-all duration-700 ease-out",
+          "hover:scale-[1.01] hover:shadow-md",
+          mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        ].join(" ")}
+      >
+        <img
+          src="/example-shoes.png"
+          alt="유아용 흰색 운동화"
+          className="object-cover rounded-md h-28 w-28"
+        />
+        <div className="flex flex-col gap-1 ml-6">
+          <div className="flex items-center gap-2 text-sm font-medium text-blue-600">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            적절한 대체텍스트를 추천드려요.
+          </div>
+          <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-600">
+            {`<img src="product.jpg" alt="유아용 흰색 운동화" />`}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const FeatureText = ({ title, description }: FeatureTextProps) => (
   <div className="flex-1 max-w-xl text-left">
@@ -282,7 +298,14 @@ const FeatureText = ({ title, description }: FeatureTextProps) => (
         </span>
       ))}
     </h2>
-    <p className="text-lg leading-8 text-gray-700">{description}</p>
+    <p className="text-lg leading-8 text-gray-700">
+      {description.split("\n").map((line, i, arr) => (
+        <span key={i}>
+          {line}
+          {i < arr.length - 1 && <br />}
+        </span>
+      ))}
+    </p>
   </div>
 );
 
@@ -336,7 +359,9 @@ export const HomePage = () => {
           <FadeInSection>
             <FeatureText
               title={"한 번의 클릭으로\n웹 접근성 진단부터 개선까지"}
-              description="웹 접근성에 특화된 AI 솔루션 WEBridge는 한 번의 클릭으로 비싸고 복잡한 컨설팅 없이도, 웹 접근성을 쉽게 준수할 수 있습니다."
+              description={
+                "웹 접근성에 특화된 AI 솔루션 WEBridge는\n한 번의 클릭으로 비싸고 복잡한 컨설팅 없이도,\n웹 접근성을 쉽게 준수할 수 있습니다."
+              }
             />
           </FadeInSection>
 
@@ -344,17 +369,15 @@ export const HomePage = () => {
           <FadeInSection>
             <FeatureText
               title={"최소의 리소스로,\n웹 접근성 진단부터 개선까지"}
-              description="웹 접근성에 특화된 AI 솔루션 WEBridge는 무엇이 잘못되었고, 어떻게 고쳐야 할지 명확한 리포트와 함께 수정 가이드를 제공합니다."
+              description={
+                "웹 접근성에 특화된 AI 솔루션 WEBridge는\n무엇이 잘못되었고, 어떻게 고쳐야 할지\n명확한 리포트와 함께 수정 가이드를 제공합니다."
+              }
             />
           </FadeInSection>
 
           {/* 하단 오른쪽: 리포트 카드 */}
           <FadeInSection>
-            <img
-              src="/slide2.2.png"
-              alt="접근성 리포트 샘플"
-              className="w-full max-w-[700px] rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
-            />
+            <img src="/slide2.2.png" alt="접근성 리포트 샘플" />
           </FadeInSection>
         </div>
       </section>
@@ -396,7 +419,7 @@ export const HomePage = () => {
                 <li>웹 접근성 자가 검진 솔루션</li>
                 <li>
                   <span className="font-bold">상호</span>
-                  <span className="ml-2">: 이너블</span>
+                  <span className="ml-2">: 이너블(InAble)</span>
                 </li>
                 <li>
                   <span className="font-bold">대표자명</span>
@@ -440,9 +463,9 @@ export const HomePage = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/terms/service")}
-                    className="font-['Pretendard_Variable'] font-bold text-gray-600 underline"
+                    className="font-['Pretendard_Variable'] text-gray-600 underline" // 굵게 제거
                   >
-                    이용약관
+                    서비스 이용약관
                   </button>
                 </li>
                 <br className="md:hidden" />
@@ -450,7 +473,7 @@ export const HomePage = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/terms/privacy-processing")}
-                    className="font-['Pretendard_Variable']  font-bold text-gray-600 underline"
+                    className="font-['Pretendard_Variable'] font-bold text-gray-600 underline" // 이 항목만 굵게
                   >
                     개인정보처리방침
                   </button>
