@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { useSocialTermsAgreementMutation } from "@/features/api/authApi";
 import { setUser } from "@/features/store/userSlice";
 import { useDispatch } from "react-redux";
-import { toast } from "@/hooks/use-toast";
 import { TERMS_CONFIG, type TermConfig } from "@/constants/termsConfig";
+import { X } from "lucide-react";
 
 // 이 페이지 전용 초안 저장 키
 const DRAFT_KEY = "terms_agreement_draft_v1";
@@ -30,6 +30,9 @@ const TermsAgreementPage = () => {
   const [socialTermsAgreement, { isLoading }] =
     useSocialTermsAgreementMutation();
 
+  // 환영 모달
+  const [showWelcome, setShowWelcome] = useState(false);
+
   // ---- 저장/복원 헬퍼 ----
   const saveDraftNow = (draft = form) => {
     try {
@@ -38,8 +41,7 @@ const TermsAgreementPage = () => {
   };
 
   const go = (to: string) => {
-    // 이동 직전 현재 상태 저장
-    saveDraftNow();
+    saveDraftNow(); // 이동 직전 저장
     navigate(to);
   };
 
@@ -110,17 +112,19 @@ const TermsAgreementPage = () => {
       }).unwrap();
 
       dispatch(setUser(response.user));
-      sessionStorage.removeItem(DRAFT_KEY); // 완료 시 초안 제거
+      sessionStorage.removeItem(DRAFT_KEY);
 
-      toast({
-        title: "로그인 성공",
-        description: `${response.user.name}님 환영합니다!`,
-      });
-      navigate("/dashboard");
+      // 대시보드로 바로 이동 대신, 환영 모달을 띄운 뒤 설문 페이지로 유도
+      setShowWelcome(true);
     } catch (error) {
       console.error("약관 동의 처리 중 오류:", error);
       alert("약관 동의 처리 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleContinueToSurvey = () => {
+    setShowWelcome(false);
+    navigate("/survey");
   };
 
   // ---- 약관 체크박스 렌더러 (요청하신 스타일) ----
@@ -139,7 +143,6 @@ const TermsAgreementPage = () => {
 
       <Label htmlFor={term.id} className="text-[15px] text-gray-800">
         {term.id === "ageAgree" ? (
-          // 밑줄만 (색상 제거)
           <>
             (필수){" "}
             <span className="underline underline-offset-2">만 14세 이상</span>
@@ -153,8 +156,8 @@ const TermsAgreementPage = () => {
                 {" "}
                 <button
                   type="button"
-                  onClick={() => go(term.route!)} // 이동 직전 저장 후 라우팅
-                  className="underline underline-offset-2" // 밑줄만
+                  onClick={() => go(term.route!)}
+                  className="underline underline-offset-2"
                 >
                   {term.linkText}
                 </button>
@@ -212,11 +215,11 @@ const TermsAgreementPage = () => {
           {/* 회색 구분선 */}
           <div className="h-px my-4 bg-gray-200" />
 
-          {/* 개별 약관들 (TERMS_CONFIG 기반) */}
+          {/* 개별 약관들 */}
           {TERMS_CONFIG.map(renderTermsCheckbox)}
         </div>
 
-        {/* 회원가입 버튼 */}
+        {/* 제출 버튼 */}
         <Button
           type="submit"
           disabled={!canSubmit() || isLoading}
@@ -229,6 +232,42 @@ const TermsAgreementPage = () => {
           {isLoading ? "처리 중..." : "회원가입"}
         </Button>
       </form>
+
+      {/* 환영 모달 */}
+      {showWelcome && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="relative w-full max-w-md p-8 text-center bg-white rounded-2xl">
+            <button
+              onClick={handleContinueToSurvey}
+              className="absolute flex items-center justify-center w-10 h-10 text-gray-500 border-2 border-gray-300 rounded-full top-6 right-6 hover:text-gray-700 hover:border-gray-400"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-[22px] font-extrabold text-gray-900">
+                  회원가입이 완료되었습니다!
+                </h2>
+                <p className="text-gray-600">
+                  더 나은 맞춤형 서비스를 위해 간단한 설문에 참여해 주세요.
+                </p>
+              </div>
+
+              <div className="p-4 text-sm text-gray-700 border rounded-xl bg-gray-50">
+                설문은 30초 정도 소요됩니다. 언제든 건너뛸 수 있어요.
+              </div>
+
+              <Button
+                onClick={handleContinueToSurvey}
+                className="w-full h-12 text-base font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700"
+              >
+                설문 시작하기
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

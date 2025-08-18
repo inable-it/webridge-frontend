@@ -20,6 +20,7 @@ import MarketingConsentPage from "@/pages/notion/MarketingConsentPage";
 import PrivacyProcessingPage from "@/pages/notion/PrivacyProcessingPage";
 import NewsPage from "@/pages/notion/NewsPage";
 import AccessibilityScanDetailPage from "./pages/AccessibilityScanDetailPage";
+import SurveyPage from "@/pages/SurveyPage";
 
 function App() {
   const routes = useRoutes([
@@ -35,6 +36,7 @@ function App() {
         { path: "password-reset", element: <PasswordResetPage /> },
         { path: "reset-password", element: <PasswordResetConfirmPage /> },
         { path: "terms-agreement", element: <TermsAgreementPage /> },
+        { path: "survey", element: <SurveyPage /> },
         // 약관 페이지들
         { path: "terms/service", element: <ServiceTermsPage /> },
         { path: "terms/privacy-policy", element: <PrivacyPolicyPage /> },
@@ -54,7 +56,10 @@ function App() {
       ),
       children: [
         { path: "dashboard", element: <DashboardPage /> },
-        { path: "scan/:scanId/:category", element: <AccessibilityScanDetailPage /> },
+        {
+          path: "scan/:scanId/:category",
+          element: <AccessibilityScanDetailPage />,
+        },
         { path: "my-info", element: <MyInfoPage /> },
         { path: "feedback", element: <FeedbackPage /> },
         { path: "news", element: <NewsPage /> },

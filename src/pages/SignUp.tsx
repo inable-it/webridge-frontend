@@ -50,7 +50,8 @@ const SignupPageContent = () => {
   const [form, setForm] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState(INITIAL_ERRORS_STATE);
   const [emailVerified, setEmailVerified] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // 이메일 인증 안내 모달
+  const [welcomeOpen, setWelcomeOpen] = useState(false); // 회원가입 완료 웰컴 모달
   const [isGoogleUser, setIsGoogleUser] = useState(false);
 
   // API 훅
@@ -124,8 +125,7 @@ const SignupPageContent = () => {
   };
 
   const go = (to: string) => {
-    // 이동 직전 강제 저장 (체크 직후 이동해도 누락 방지)
-    saveDraftNow();
+    saveDraftNow(); // 이동 직전 강제 저장
     navigate(to);
   };
 
@@ -140,17 +140,15 @@ const SignupPageContent = () => {
         setEmailVerified(saved.emailVerified);
       if (typeof saved.isGoogleUser === "boolean")
         setIsGoogleUser(saved.isGoogleUser);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, []);
 
-  // 변경될 때마다 초안 자동 저장 (입력값/체크/인증상태)
+  // 변경될 때마다 초안 자동 저장
   useEffect(() => {
     saveDraftNow();
   }, [form, emailVerified, isGoogleUser]);
 
-  // 페이지 숨김/이탈 시에도 저장 (선택 보강)
+  // 페이지 숨김/이탈 시에도 저장
   useEffect(() => {
     const onHide = () => saveDraftNow();
     const onVis = () => {
@@ -164,24 +162,21 @@ const SignupPageContent = () => {
     };
   }, [form, emailVerified, isGoogleUser]);
 
-  // 유틸리티 함수들
+  // 유틸리티
   const resetEmailVerification = () => {
     setEmailVerified(false);
     setIsGoogleUser(false);
-    // 이메일 바꾸는 순간 인증상태 false로 저장되도록 즉시 저장
     saveDraftNow(form, false, isGoogleUser);
   };
 
   const handleTokenStorage = (access: string, refresh: string) => {
-    if (access && access.trim() !== "") {
+    if (access && access.trim() !== "")
       localStorage.setItem("accessToken", access);
-    }
-    if (refresh && refresh.trim() !== "") {
+    if (refresh && refresh.trim() !== "")
       localStorage.setItem("refreshToken", refresh);
-    }
   };
 
-  // 입력 필드 변경 핸들러 (즉시 저장 포함)
+  // 입력 필드 변경
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setForm((prev) => {
@@ -194,12 +189,10 @@ const SignupPageContent = () => {
     const error = validator ? validator(value) : "";
     setErrors((prev) => ({ ...prev, [id]: error }));
 
-    if (id === "email") {
-      resetEmailVerification();
-    }
+    if (id === "email") resetEmailVerification();
   };
 
-  // 체크박스 변경 핸들러 (즉시 저장 포함)
+  // 체크박스 변경
   const handleCheckboxChange = (id: string, checked: boolean) => {
     if (id === "allAgree") {
       setForm((prev) => {
@@ -228,7 +221,7 @@ const SignupPageContent = () => {
     }
   };
 
-  // 이메일 인증 처리
+  // 이메일 인증 요청
   const handleEmailVerification = async () => {
     const emailError = validators.email(form.email);
     if (emailError) {
@@ -247,7 +240,7 @@ const SignupPageContent = () => {
     }
   };
 
-  // Google 로그인 핸들러
+  // Google 로그인
   const googleLogin = useGoogleLogin({
     flow: "implicit",
     onSuccess: async (tokenResponse) => {
@@ -260,7 +253,6 @@ const SignupPageContent = () => {
 
         if ("data" in result) {
           const response = result.data;
-
           if (
             response &&
             (response.status === "terms_agreement_required" ||
@@ -299,7 +291,7 @@ const SignupPageContent = () => {
             alert("Google 로그인 중 오류가 발생했습니다.");
           }
         }
-      } catch (error: any) {
+      } catch {
         alert("Google 로그인 중 예외가 발생했습니다.");
       }
     },
@@ -308,7 +300,7 @@ const SignupPageContent = () => {
     },
   });
 
-  // 폼 제출 가능 여부 확인
+  // 제출 가능 여부
   const canSubmit = () => {
     const hasValidForm =
       !errors.name &&
@@ -328,7 +320,7 @@ const SignupPageContent = () => {
     return hasValidForm && hasRequiredAgreements && hasEmailVerification;
   };
 
-  // 회원가입 처리
+  // 회원가입 제출
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -357,7 +349,7 @@ const SignupPageContent = () => {
     }
 
     try {
-      await register({
+      const response = await register({
         name: form.name,
         email: form.email,
         password: form.password,
@@ -368,9 +360,11 @@ const SignupPageContent = () => {
         marketing_agreed: form.marketingAgree,
       }).unwrap();
 
-      alert("회원가입 성공!");
-      sessionStorage.removeItem(DRAFT_KEY); // 성공 시 초안 삭제
-      navigate("/login");
+      // 성공 처리: 초안 삭제 + 웰컴 모달 열기
+      sessionStorage.removeItem(DRAFT_KEY);
+      localStorage.setItem("accessToken", response.access);
+      localStorage.setItem("refreshToken", response.refresh);
+      setWelcomeOpen(true);
     } catch (err: any) {
       if (err?.status === 400 && err?.data?.email) {
         setErrors((prev) => ({ ...prev, email: "이미 가입된 이메일입니다." }));
@@ -396,7 +390,6 @@ const SignupPageContent = () => {
 
       <Label htmlFor={term.id} className="text-[15px] text-gray-800">
         {term.id === "ageAgree" ? (
-          // 밑줄만 (색상 제거)
           <>
             (필수){" "}
             <span className="underline underline-offset-2">만 14세 이상</span>
@@ -410,8 +403,8 @@ const SignupPageContent = () => {
                 {" "}
                 <button
                   type="button"
-                  onClick={() => go(term.route!)} // navigate → go (이동 직전 저장)
-                  className="underline underline-offset-2" // 밑줄만
+                  onClick={() => go(term.route!)}
+                  className="underline underline-offset-2"
                 >
                   {term.linkText}
                 </button>
@@ -432,7 +425,7 @@ const SignupPageContent = () => {
           <h1 className="text-3xl font-bold text-gray-900">회원가입</h1>
         </div>
 
-        {/* 이름 입력 */}
+        {/* 이름 */}
         <div className="space-y-1 text-left">
           <Label htmlFor="name" className="text-sm font-medium text-gray-700">
             이름<span className="ml-1 text-red-500">*</span>
@@ -448,7 +441,7 @@ const SignupPageContent = () => {
           {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
         </div>
 
-        {/* 이메일 입력 */}
+        {/* 이메일 */}
         <div className="space-y-1 text-left">
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
             이메일<span className="ml-1 text-red-500">*</span>
@@ -490,7 +483,7 @@ const SignupPageContent = () => {
           )}
         </div>
 
-        {/* 비밀번호 입력 */}
+        {/* 비밀번호 */}
         <div className="space-y-1 text-left">
           <Label
             htmlFor="password"
@@ -511,7 +504,7 @@ const SignupPageContent = () => {
           )}
         </div>
 
-        {/* 약관 동의 체크박스들 */}
+        {/* 약관 동의 */}
         <div className="space-y-3">
           {/* 전체 동의 */}
           <div className="flex items-center gap-2 my-6">
@@ -530,10 +523,8 @@ const SignupPageContent = () => {
             </Label>
           </div>
 
-          {/* 회색 구분선 */}
           <div className="h-px my-4 bg-gray-200" />
 
-          {/* 개별 약관들 */}
           {TERMS_CONFIG.map(renderTermsCheckbox)}
         </div>
 
@@ -568,11 +559,11 @@ const SignupPageContent = () => {
           Google로 계속하기
         </button>
 
-        {/* 약관 링크 */}
+        {/* 하단 약관 링크 */}
         <div className="flex justify-center gap-4 mt-2 text-xs text-gray-500">
           <button
             type="button"
-            onClick={() => go("/terms/privacy-processing")} // navigate → go
+            onClick={() => go("/terms/privacy-processing")}
             className="font-bold hover:underline"
           >
             개인정보처리방침
@@ -580,7 +571,7 @@ const SignupPageContent = () => {
           <span>|</span>
           <button
             type="button"
-            onClick={() => go("/terms/service")} // navigate → go
+            onClick={() => go("/terms/service")}
             className="hover:underline"
           >
             서비스 이용약관
@@ -588,9 +579,9 @@ const SignupPageContent = () => {
         </div>
       </form>
 
-      {/* 이메일 인증 모달 */}
+      {/* 이메일 인증 안내 모달 */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
             <button
               onClick={() => setShowModal(false)}
@@ -620,6 +611,45 @@ const SignupPageContent = () => {
                 className="w-full py-3 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-xl"
               >
                 {isRequestingVerification ? "전송 중..." : "이메일 재전송"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 회원가입 완료 웰컴 모달 */}
+      {welcomeOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
+            <button
+              onClick={() => setWelcomeOpen(false)}
+              className="absolute flex items-center justify-center w-10 h-10 text-gray-500 border-2 border-gray-300 rounded-full top-6 right-6 hover:text-gray-700 hover:border-gray-400"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-6 text-center">
+              <div className="flex items-center justify-center gap-2">
+                <img src="/logo.svg" alt="WEBridge" className="w-8 h-8" />
+                <span className="text-xl font-bold text-gray-900">
+                  WEBridge
+                </span>
+              </div>
+
+              <h2 className="text-2xl font-extrabold text-gray-900">
+                회원가입을 환영합니다!
+              </h2>
+
+              <div className="p-4 mx-auto text-gray-700 border rounded-xl bg-gray-50">
+                <p>계정 생성이 완료되었습니다.</p>
+                <p>로그인 전에 설문 조사를 완료해주세요</p>
+              </div>
+
+              <Button
+                onClick={() => navigate("/survey")}
+                className="w-full py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl"
+              >
+                설문조사 시작하기
               </Button>
             </div>
           </div>
