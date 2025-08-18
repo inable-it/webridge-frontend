@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePasswordResetConfirmMutation } from "@/features/api/authApi";
-import { Key, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 const PasswordResetConfirmPage = () => {
   const navigate = useNavigate();
