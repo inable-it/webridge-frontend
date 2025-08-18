@@ -116,7 +116,7 @@ export type HeadingResult = {
   issues_details: string[];
   compliant: boolean;
   message: string;
-  detailed_results: Record<string, any>;
+  detailed_results: Record<string, unknown>;
   created_at: string;
 };
 
@@ -331,7 +331,7 @@ export const scanApi = privateApi.injectEndpoints({
       query: (scanId) => ({
         url: `scans/${scanId}/`,
       }),
-      providesTags: (result, error, scanId) => [{ type: 'Scan', id: scanId }],
+      providesTags: (_result, _error, scanId) => [{ type: 'Scan', id: scanId }],
     }),
 
     // 스캔 삭제
@@ -340,7 +340,7 @@ export const scanApi = privateApi.injectEndpoints({
         url: `scans/${scanId}/delete/`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, scanId) => [
+      invalidatesTags: (_result, _error, scanId) => [
         { type: 'Scan', id: 'LIST' },
         { type: 'Scan', id: scanId }
       ],
@@ -363,7 +363,7 @@ export const scanApi = privateApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: (result, error, { scanId }) => [
+      invalidatesTags: (_result, _error, { scanId }) => [
         { type: 'Scan', id: scanId }
       ],
     }),
@@ -381,7 +381,7 @@ export const scanApi = privateApi.injectEndpoints({
         url: `scans/${scanId}/restart/`,
         method: "POST",
       }),
-      invalidatesTags: (result, error, scanId) => [
+      invalidatesTags: (_result, _error, scanId) => [
         { type: 'Scan', id: 'LIST' },
         { type: 'Scan', id: scanId }
       ],
