@@ -21,6 +21,7 @@ import PrivacyProcessingPage from "@/pages/notion/PrivacyProcessingPage";
 import NewsPage from "@/pages/notion/NewsPage";
 import AccessibilityScanDetailPage from "./pages/AccessibilityScanDetailPage";
 import SurveyPage from "@/pages/SurveyPage";
+import ScanHistoryPage from "@/pages/ScanHistoryPage";
 
 function App() {
   const routes = useRoutes([
@@ -56,6 +57,7 @@ function App() {
       ),
       children: [
         { path: "dashboard", element: <DashboardPage /> },
+        { path: "scans", element: <ScanHistoryPage /> },
         {
           path: "scan/:scanId/:category",
           element: <AccessibilityScanDetailPage />,
