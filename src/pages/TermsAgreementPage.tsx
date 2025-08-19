@@ -255,7 +255,7 @@ const TermsAgreementPage = () => {
               </div>
 
               <div className="p-4 text-sm text-gray-700 border rounded-xl bg-gray-50">
-                설문은 30초 정도 소요됩니다. 언제든 건너뛸 수 있어요.
+                설문은 30초 정도 소요됩니다.
               </div>
 
               <Button
