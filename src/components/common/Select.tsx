@@ -4,15 +4,20 @@ import type { Option } from "@/types/shared";
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  value: string; // 코드값 "a"~"f" 또는 ""
+  value: string; // "a" ~ "f" 또는 ""
   onChange: (code: string) => void;
   options: Option[];
   placeholder?: string;
   error?: string;
-  showOtherInput?: boolean;
+
+  // 기타 입력
+  otherCode?: string; // 기본 "f"
   otherValue?: string;
   onChangeOther?: (v: string) => void;
   otherPlaceholder?: string;
+
+  // 드롭다운 하단에 항상 기타 입력 영역 보여줄지
+  alwaysShowOtherInput?: boolean;
 };
 
 export default function CustomSelect({
@@ -21,10 +26,11 @@ export default function CustomSelect({
   options,
   placeholder = "선택해 주세요.",
   error,
-  showOtherInput,
-  otherValue,
+  otherCode = "f",
+  otherValue = "",
   onChangeOther,
   otherPlaceholder = "기타 응답을 작성해 주세요.",
+  alwaysShowOtherInput = false,
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -39,6 +45,15 @@ export default function CustomSelect({
     window.addEventListener("click", onClickOutside);
     return () => window.removeEventListener("click", onClickOutside);
   }, []);
+
+  const handlePick = (code: string) => {
+    onChange(code);
+    if (code !== otherCode && otherValue) {
+      // 다른 값 선택하면 기타 입력 초기화
+      onChangeOther?.("");
+    }
+    setOpen(false);
+  };
 
   return (
     <div className="relative" ref={ref}>
@@ -60,19 +75,13 @@ export default function CustomSelect({
 
       {/* Dropdown */}
       {open && (
-        <div
-          className="absolute z-20 w-full mt-2 overflow-hidden bg-white border shadow-lg rounded-xl"
-          role="listbox"
-        >
+        <div className="absolute z-20 w-full mt-2 overflow-hidden bg-white border shadow-lg rounded-xl">
           <ul className="py-2 overflow-auto max-h-64">
             {options.map((opt) => (
               <li key={opt.value}>
                 <button
                   type="button"
-                  onClick={() => {
-                    onChange(opt.value);
-                    setOpen(false);
-                  }}
+                  onClick={() => handlePick(opt.value)}
                   className={`w-full px-4 py-3 text-sm text-left hover:bg-gray-50
                     ${opt.value === value ? "bg-blue-50 text-blue-600" : ""}
                   `}
@@ -83,14 +92,21 @@ export default function CustomSelect({
             ))}
           </ul>
 
-          {/* ‘기타’ 선택 시 하단 입력 (이미지처럼 구분선 아래 입력 영역) */}
-          {showOtherInput && (
+          {/* 하단 기타 입력 (항상 노출 옵션) */}
+          {(alwaysShowOtherInput || value === otherCode) && (
             <>
               <div className="h-px bg-gray-200" />
               <div className="p-3">
                 <Input
-                  value={otherValue ?? ""}
-                  onChange={(e) => onChangeOther?.(e.target.value)}
+                  value={otherValue}
+                  onFocus={() => {
+                    if (value !== otherCode) onChange(otherCode); // 포커스만 해도 f로 설정
+                  }}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (value !== otherCode) onChange(otherCode); // 타이핑하면 f 설정
+                    onChangeOther?.(v);
+                  }}
                   placeholder={otherPlaceholder}
                   className="h-11"
                 />

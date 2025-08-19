@@ -10,7 +10,6 @@ const SurveyPage = () => {
   const navigate = useNavigate();
   const [createExtraInfo, { isLoading }] = useCreateUserExtraInfoMutation();
 
-  // 코드값 보관 ("", "a"~"f")
   const [path, setPath] = useState<Code | "">("");
   const [pathOther, setPathOther] = useState("");
   const [job, setJob] = useState<Code | "">("");
@@ -23,17 +22,20 @@ const SurveyPage = () => {
     jobOther?: string;
   }>({});
 
-  const isPathOther = path === "f"; // 기타
-  const isJobOther = job === "f";
-
+  // 유효성 검사: 기타 값이 있으면 코드 f, 없으면 일반 선택 필수
   const validate = () => {
     const next: typeof errors = {};
-    if (!path) next.path = "경로를 선택해 주세요.";
-    if (!job) next.job = "직군을 선택해 주세요.";
-    if (isPathOther && !pathOther.trim())
+    const usePathOther = !!pathOther.trim();
+    const useJobOther = !!jobOther.trim();
+
+    if (!usePathOther && !path) next.path = "경로를 선택해 주세요.";
+    if (usePathOther && !pathOther.trim())
       next.pathOther = "기타 경로를 입력해 주세요.";
-    if (isJobOther && !jobOther.trim())
+
+    if (!useJobOther && !job) next.job = "직군을 선택해 주세요.";
+    if (useJobOther && !jobOther.trim())
       next.jobOther = "기타 직군을 입력해 주세요.";
+
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -42,15 +44,20 @@ const SurveyPage = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    // 안전장치: other 입력이 있으면 f로 치환
+    const finalPath: Code = pathOther.trim() ? "f" : (path as Code);
+    const finalJob: Code = jobOther.trim() ? "f" : (job as Code);
+
     try {
       await createExtraInfo({
-        path_to_webridge: path!, // "a"~"f"
-        path_to_webridge_other: isPathOther ? pathOther.trim() : undefined,
-        occupation: job!, // "a"~"f"
-        occupation_other: isJobOther ? jobOther.trim() : undefined,
+        path_to_webridge: finalPath, // a~f (기타 입력 시 f)
+        path_to_webridge_other:
+          finalPath === "f" ? pathOther.trim() : undefined,
+        occupation: finalJob, // a~f (기타 입력 시 f)
+        occupation_other: finalJob === "f" ? jobOther.trim() : undefined,
       }).unwrap();
 
-      navigate("/login");
+      navigate("/dashboard");
     } catch (err: any) {
       alert(err?.data?.message || "제출 중 오류가 발생했습니다.");
     }
@@ -78,7 +85,6 @@ const SurveyPage = () => {
             value={path}
             onChange={(code) => {
               setPath(code as Code);
-              // 코드가 변경될 때 기타가 아니라면 입력 초기화
               if (code !== "f") setPathOther("");
               setErrors((p) => ({
                 ...p,
@@ -89,13 +95,18 @@ const SurveyPage = () => {
             options={PATH_OPTIONS}
             placeholder="경로를 선택해 주세요."
             error={errors.path}
-            showOtherInput={isPathOther}
             otherValue={pathOther}
             onChangeOther={(v) => {
               setPathOther(v);
-              if (v) setErrors((p) => ({ ...p, pathOther: undefined }));
+              // 기타 입력이 생기면 에러 제거
+              setErrors((p) => ({
+                ...p,
+                path: undefined,
+                pathOther: undefined,
+              }));
             }}
             otherPlaceholder="기타 응답을 작성해 주세요."
+            alwaysShowOtherInput
           />
           {errors.pathOther && (
             <p className="text-sm text-red-500">{errors.pathOther}</p>
@@ -117,13 +128,13 @@ const SurveyPage = () => {
             options={JOB_OPTIONS}
             placeholder="직군을 선택해 주세요."
             error={errors.job}
-            showOtherInput={isJobOther}
             otherValue={jobOther}
             onChangeOther={(v) => {
               setJobOther(v);
-              if (v) setErrors((p) => ({ ...p, jobOther: undefined }));
+              setErrors((p) => ({ ...p, job: undefined, jobOther: undefined }));
             }}
             otherPlaceholder="기타 응답을 작성해 주세요."
+            alwaysShowOtherInput
           />
           {errors.jobOther && (
             <p className="text-sm text-red-500">{errors.jobOther}</p>
