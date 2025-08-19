@@ -62,7 +62,7 @@ const Card: React.FC<{
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SurveyModal({ open, onClose }: Props) {
-  const [createSurvey, { isLoading, isSuccess }] = useCreateSurveyMutation();
+  const [createSurvey, { isLoading }] = useCreateSurveyMutation();
 
   // 단계 0~(마지막)
   // 0 안내 → 1 이메일 → 2 동의 → 3~10(문항1~8) → 11 완료
