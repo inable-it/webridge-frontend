@@ -1,17 +1,13 @@
 import { privateApi } from "@/app/api";
 
-type CreateExtraInfoReq = {
-  path_to_webridge: string; // 선택값 (예: 'SNS', '기타' 등)
-  path_to_webridge_other?: string; // '기타'일 때만 채움
-  occupation: string; // 선택값 (예: 'PM/PO', '기타' 등)
-  occupation_other?: string; // '기타'일 때만 채움
+export type CreateExtraInfoReq = {
+  path_to_webridge: string; // "a" ~ "f"
+  path_to_webridge_other?: string; // f(기타)일 때만
+  occupation: string; // "a" ~ "f"
+  occupation_other?: string; // f(기타)일 때만
 };
-type CreateExtraInfoRes = {
-  path_to_webridge: string; // 선택값 (예: 'SNS', '기타' 등)
-  path_to_webridge_other?: string; // '기타'일 때만 채움
-  occupation: string; // 선택값 (예: 'PM/PO', '기타' 등)
-  occupation_other?: string; // '기타'일 때만 채움
-};
+export type CreateExtraInfoRes = CreateExtraInfoReq;
+
 export const extraInfoApi = privateApi.injectEndpoints({
   endpoints: (builder) => ({
     createUserExtraInfo: builder.mutation<

@@ -1,55 +1,39 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useCreateUserExtraInfoMutation } from "@/features/api/extraInfoApi";
-
-const PATH_OPTIONS = [
-  "SNS",
-  "웹 포털 검색",
-  "동료 / 지인 추천",
-  "커뮤니티(슬랙/오픈채팅방)",
-  "이메일 홍보",
-  "기타",
-] as const;
-
-const JOB_OPTIONS = [
-  "PM/PO",
-  "기획",
-  "디자인",
-  "개발/엔지니어링",
-  "웹 접근성 전문가 / 컨설턴트",
-  "경영/의사결정권자",
-  "기타",
-] as const;
+import CustomSelect from "@/components/common/Select";
+import { PATH_OPTIONS, JOB_OPTIONS } from "@/constants/survey";
+import type { Code } from "@/types/shared";
 
 const SurveyPage = () => {
   const navigate = useNavigate();
   const [createExtraInfo, { isLoading }] = useCreateUserExtraInfoMutation();
 
-  // 상태
-  const [path, setPath] = useState<string>("");
+  // 코드값 보관 ("", "a"~"f")
+  const [path, setPath] = useState<Code | "">("");
   const [pathOther, setPathOther] = useState("");
-  const [job, setJob] = useState<string>("");
+  const [job, setJob] = useState<Code | "">("");
   const [jobOther, setJobOther] = useState("");
 
   const [errors, setErrors] = useState<{
     path?: string;
     job?: string;
-    other?: string;
+    pathOther?: string;
+    jobOther?: string;
   }>({});
 
-  const isPathOther = path === "기타";
-  const isJobOther = job === "기타";
+  const isPathOther = path === "f"; // 기타
+  const isJobOther = job === "f";
 
   const validate = () => {
     const next: typeof errors = {};
     if (!path) next.path = "경로를 선택해 주세요.";
     if (!job) next.job = "직군을 선택해 주세요.";
     if (isPathOther && !pathOther.trim())
-      next.other = "기타 경로를 입력해 주세요.";
+      next.pathOther = "기타 경로를 입력해 주세요.";
     if (isJobOther && !jobOther.trim())
-      next.other = "기타 직군을 입력해 주세요.";
+      next.jobOther = "기타 직군을 입력해 주세요.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -60,9 +44,9 @@ const SurveyPage = () => {
 
     try {
       await createExtraInfo({
-        path_to_webridge: path,
+        path_to_webridge: path!, // "a"~"f"
         path_to_webridge_other: isPathOther ? pathOther.trim() : undefined,
-        occupation: job,
+        occupation: job!, // "a"~"f"
         occupation_other: isJobOther ? jobOther.trim() : undefined,
       }).unwrap();
 
@@ -90,54 +74,32 @@ const SurveyPage = () => {
             WEBridge 솔루션을 알게 된 경로는 무엇인가요?{" "}
             <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
-              className={`w-full h-12 appearance-none rounded-md border px-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-blue-500
-                ${
-                  errors.path
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300"
-                }`}
-            >
-              <option value="" disabled>
-                경로를 선택해 주세요.
-              </option>
-              {PATH_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-            {/* arrow */}
-            <svg
-              className="absolute -translate-y-1/2 pointer-events-none right-3 top-1/2"
-              width="16"
-              height="16"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M6 8l4 4 4-4"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          {isPathOther && (
-            <Input
-              value={pathOther}
-              onChange={(e) => setPathOther(e.target.value)}
-              placeholder="기타 응답을 작성해 주세요."
-              className={`h-12 ${
-                errors.other ? "border-red-500 focus:border-red-500" : ""
-              }`}
-            />
+          <CustomSelect
+            value={path}
+            onChange={(code) => {
+              setPath(code as Code);
+              // 코드가 변경될 때 기타가 아니라면 입력 초기화
+              if (code !== "f") setPathOther("");
+              setErrors((p) => ({
+                ...p,
+                path: undefined,
+                pathOther: undefined,
+              }));
+            }}
+            options={PATH_OPTIONS}
+            placeholder="경로를 선택해 주세요."
+            error={errors.path}
+            showOtherInput={isPathOther}
+            otherValue={pathOther}
+            onChangeOther={(v) => {
+              setPathOther(v);
+              if (v) setErrors((p) => ({ ...p, pathOther: undefined }));
+            }}
+            otherPlaceholder="기타 응답을 작성해 주세요."
+          />
+          {errors.pathOther && (
+            <p className="text-sm text-red-500">{errors.pathOther}</p>
           )}
-          {errors.path && <p className="text-sm text-red-500">{errors.path}</p>}
         </div>
 
         {/* 직군 */}
@@ -145,53 +107,27 @@ const SurveyPage = () => {
           <label className="text-sm font-medium text-gray-700">
             당신의 직군은 무엇인가요? <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
-              value={job}
-              onChange={(e) => setJob(e.target.value)}
-              className={`w-full h-12 appearance-none rounded-md border px-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-blue-500
-                ${
-                  errors.job
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300"
-                }`}
-            >
-              <option value="" disabled>
-                직군을 선택해 주세요.
-              </option>
-              {JOB_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-            <svg
-              className="absolute -translate-y-1/2 pointer-events-none right-3 top-1/2"
-              width="16"
-              height="16"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <path
-                d="M6 8l4 4 4-4"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          {isJobOther && (
-            <Input
-              value={jobOther}
-              onChange={(e) => setJobOther(e.target.value)}
-              placeholder="기타 응답을 작성해 주세요."
-              className={`h-12 ${
-                errors.other ? "border-red-500 focus:border-red-500" : ""
-              }`}
-            />
+          <CustomSelect
+            value={job}
+            onChange={(code) => {
+              setJob(code as Code);
+              if (code !== "f") setJobOther("");
+              setErrors((p) => ({ ...p, job: undefined, jobOther: undefined }));
+            }}
+            options={JOB_OPTIONS}
+            placeholder="직군을 선택해 주세요."
+            error={errors.job}
+            showOtherInput={isJobOther}
+            otherValue={jobOther}
+            onChangeOther={(v) => {
+              setJobOther(v);
+              if (v) setErrors((p) => ({ ...p, jobOther: undefined }));
+            }}
+            otherPlaceholder="기타 응답을 작성해 주세요."
+          />
+          {errors.jobOther && (
+            <p className="text-sm text-red-500">{errors.jobOther}</p>
           )}
-          {errors.job && <p className="text-sm text-red-500">{errors.job}</p>}
         </div>
 
         {/* 제출 */}
