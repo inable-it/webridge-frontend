@@ -26,8 +26,8 @@ export type SurveyPayload = {
   purchase_method_other?: string;
 
   // Q6 이용 방식 (복수선택)
-  use_method: string; // e.g. "a,c,f"
-  use_method_other?: string;
+  usage_method: string; // e.g. "a,c,f"
+  usage_method_other?: string;
 
   // Q7 추가 희망 기능 (복수선택)
   future_feature: string; // e.g. "a,d,f"

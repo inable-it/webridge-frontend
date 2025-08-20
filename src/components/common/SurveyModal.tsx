@@ -7,7 +7,7 @@ import {
     Q2_USAGE_REASONS,
     Q4_PURCHASE_WAY,
     Q5_PRICE_MODEL,
-    Q6_USE_METHOD,
+    Q6_USAGE_METHOD,
     Q7_EXTRA_AI,
 } from "@/constants/surveyModal";
 import { useCreateSurveyMutation } from "@/features/api/surveyApi";
@@ -218,12 +218,12 @@ export default function SurveyModal({ open, onClose }: Props) {
                 purchase_method: priceModel || (priceModelOther.trim() ? "d" : ""),
                 purchase_method_other: priceModelOther.trim() || undefined,
 
-                // Q6(이용 방식) → use_method
-                use_method: [
+                // Q6(이용 방식) → usage_method
+                usage_method: [
                     ...useMethods,
                     ...(useMethodOther.trim() ? ["f"] : []),
                 ].join(","),
-                use_method_other: useMethodOther.trim() || undefined,
+                usage_method_other: useMethodOther.trim() || undefined,
 
                 // Q7(추가기능) → future_feature
                 future_feature: [
@@ -579,7 +579,7 @@ export default function SurveyModal({ open, onClose }: Props) {
             가능)
           </p>
           <div className="p-2 bg-white border rounded-xl">
-            {Q6_USE_METHOD.map((o) => (
+            {Q6_USAGE_METHOD.map((o) => (
               <label
                 key={o.code}
                 className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"

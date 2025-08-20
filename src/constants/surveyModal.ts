@@ -36,7 +36,7 @@ export const Q5_PRICE_MODEL = [
   { code: "d", label: "기타" },
 ] as const;
 
-export const Q6_USE_METHOD = [
+export const Q6_USAGE_METHOD = [
   { code: "a", label: "URL 입력 후 검사(웹 서비스)" },
   { code: "b", label: "브라우저 확장 프로그램" },
   { code: "c", label: "IDE 플러그인(개발 단계 검사)" },
