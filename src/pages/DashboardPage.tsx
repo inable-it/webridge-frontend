@@ -62,12 +62,43 @@ const DashboardPage = () => {
 
     // 스캔 결과 확인 후 모달 표시 (한 번만)
     useEffect(() => {
-        if (!hasCheckedResults.current && scanListData !== undefined) {
-            const hasResults = (scanListData?.results?.length ?? 0) > 0;
-            setOpenSurvey(hasResults);
-            hasCheckedResults.current = true;
+        // 이미 모달을 표시했다면 다시 표시하지 않음
+        if (hasCheckedResults.current) {
+            return;
         }
-    }, [scanListData]);
+
+        // 스캔 목록이 로드되었고, 선택된 스캔 상세 정보가 로드된 경우
+        if (scanListData?.results && selectedScanDetail) {
+            // 검사 내역이 1개 이상 있는지 확인
+            const hasResults = scanListData.results.length > 0;
+
+            // 선택된 스캔의 상태가 completed이거나 failed일 때
+            const isCompletedOrFailed =
+                selectedScanDetail.status === "completed" ||
+                selectedScanDetail.status === "failed";
+
+            // 모든 항목이 완료되었는지 확인 (모든 _completed 속성이 true인지)
+            const allCategoriesCompleted =
+                !!selectedScanDetail.alt_text_completed &&
+                !!selectedScanDetail.video_completed &&
+                !!selectedScanDetail.table_completed &&
+                !!selectedScanDetail.contrast_completed &&
+                !!selectedScanDetail.keyboard_completed &&
+                !!selectedScanDetail.label_completed &&
+                !!selectedScanDetail.markup_error_completed &&
+                !!selectedScanDetail.basic_language_completed &&
+                !!selectedScanDetail.heading_completed &&
+                !!selectedScanDetail.response_time_completed &&
+                !!selectedScanDetail.pause_control_completed &&
+                !!selectedScanDetail.flashing_completed;
+
+            // 모든 조건이 충족되면 모달 표시
+            if (hasResults && isCompletedOrFailed && allCategoriesCompleted) {
+                setOpenSurvey(true);
+                hasCheckedResults.current = true;
+            }
+        }
+    }, [scanListData, selectedScanDetail]);
 
     // 진행 중인 스캔들에 대한 진행률 조회 (폴링)
     useEffect(() => {
