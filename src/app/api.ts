@@ -42,7 +42,7 @@ export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
         // refresh API 호출
         const refreshResult = await baseQuery(
           {
-            url: "/api/v1/auth/token/refresh/",
+            url: "/auth/token/refresh/",
             method: "POST",
             body: { refresh: refreshToken },
           },
