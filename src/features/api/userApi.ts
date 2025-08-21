@@ -9,11 +9,7 @@ export const userApi = privateApi.injectEndpoints({
       query: () => "/user/me",
     }),
 
-    // name, password 둘 다 이 엔드포인트로 패치
-    updateMyProfile: builder.mutation<
-      ApiResp<User>,
-      Partial<{ name: string; password: string }>
-    >({
+    updateMyName: builder.mutation<ApiResp<User>, Partial<{ name: string }>>({
       query: (body) => ({
         url: "/user/me",
         method: "PATCH",
@@ -32,6 +28,6 @@ export const userApi = privateApi.injectEndpoints({
 
 export const {
   useGetMyInfoQuery,
-  useUpdateMyProfileMutation,
+  useUpdateMyNameMutation,
   useDeleteUserAccountMutation,
 } = userApi;

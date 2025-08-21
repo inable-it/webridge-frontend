@@ -65,6 +65,14 @@ type PasswordResetConfirmResponse = {
   message: string;
 };
 
+type ChangePasswordRequest = {
+  new_password: string;
+};
+
+type ChangePasswordResponse = {
+  message: string;
+};
+
 // 인증이 필요 없는 Public API들: 회원가입, 로그인, 소셜 로그인, 로그아웃, 비밀번호 재설정, 이메일 인증
 export const authPublicApi = publicApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -163,6 +171,16 @@ export const authPrivateApi = privateApi.injectEndpoints({
         body,
       }),
     }),
+    changePassword: builder.mutation<
+      ChangePasswordResponse,
+      ChangePasswordRequest
+    >({
+      query: (body) => ({
+        url: "auth/change-password/",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -180,4 +198,5 @@ export const {
 } = authPublicApi;
 
 // Private API exports
-export const { useSocialTermsAgreementMutation } = authPrivateApi;
+export const { useSocialTermsAgreementMutation, useChangePasswordMutation } =
+  authPrivateApi;

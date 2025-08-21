@@ -4,17 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   useGetMyInfoQuery,
-  useUpdateMyProfileMutation,
+  useUpdateMyNameMutation,
 } from "@/features/api/userApi";
 import {
   useGetTermsStatusQuery,
   useUpdateTermsAgreementMutation,
 } from "@/features/api/termsApi";
 import { WithdrawModal } from "@/components/common/WithdrawModal";
+import { useChangePasswordMutation } from "@/features/api/authApi";
 
 const MyInfoPage = () => {
   const { data, isLoading, error, refetch } = useGetMyInfoQuery();
-  const [updateProfile] = useUpdateMyProfileMutation();
+  const [updateName] = useUpdateMyNameMutation();
+  const [updatePassword] = useChangePasswordMutation();
   const user = data?.data;
 
   const [withdrawOpen, setWithdrawOpen] = useState(false);
@@ -55,7 +57,7 @@ const MyInfoPage = () => {
     if (!v) return alert("이름을 입력해 주세요.");
     if (v.length >= 10) return alert("이름은 10자 미만으로 작성해 주세요.");
     try {
-      await updateProfile({ name: v }).unwrap();
+      await updateName({ name: v }).unwrap();
       setNameEdit(false);
       refetch();
     } catch (e: any) {
@@ -82,7 +84,7 @@ const MyInfoPage = () => {
     }
     setPwdErr("");
     try {
-      await updateProfile({ password: newPwd }).unwrap();
+      await updatePassword({ new_password: newPwd }).unwrap();
       alert("비밀번호가 변경되었습니다.");
       setPwdEdit(false);
       setNewPwd("");
