@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { RootState } from "@/app/store";
 import { useLogoutMutation } from "@/features/api/authApi";
 import { clearUser } from "@/features/store/userSlice";
@@ -16,9 +16,17 @@ export const Header = () => {
   const [logout] = useLogoutMutation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  // 현재 스토리지에 토큰이 있는지 여부
+  const hasTokens = Boolean(
+    localStorage.getItem("accessToken") ||
+      localStorage.getItem("refreshToken") ||
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("refresh_token")
+  );
+
   // 모든 토큰과 저장된 데이터 정리하는 함수
   const clearAllData = async () => {
-    // 토큰들 삭제 (다양한 키 형태 대비)
+    // 토큰 삭제 (다양한 키 형태 대비)
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("refresh_token");
@@ -32,9 +40,21 @@ export const Header = () => {
     dispatch(clearUser());
     dispatch(publicApi.util.resetApiState());
 
-    // 페이지 새로고침
-    window.location.reload();
+    // 드롭다운 닫기 및 안전 이동
+    setDropdownOpen(false);
+    // 토큰이 없을 때는 비로그인 첫 화면 혹은 로그인으로 보낼 수 있어요.
+    // 팀 규칙에 따라 경로를 선택하세요. 여기선 홈으로 이동.
+    if (location.pathname !== "/") navigate("/");
   };
+
+  // 마운트 시: 토큰이 없으면 즉시 로그아웃 처리 (우측 상단을 로그아웃 상태로 만듦)
+  useEffect(() => {
+    if (!hasTokens && user) {
+      // 사용자 객체는 남아있지만 토큰이 없는 불일치 상태 -> 강제 정리
+      clearAllData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 최초 렌더링에서만 검사
 
   const handleLogout = async () => {
     const refreshToken =
@@ -42,7 +62,7 @@ export const Header = () => {
       localStorage.getItem("refresh_token");
 
     if (!refreshToken) {
-      // 서버에 요청은 생략하고 로컬 초기화만 진행
+      // 서버 요청 생략하고 로컬 초기화만
       await clearAllData();
       return;
     }
@@ -52,10 +72,7 @@ export const Header = () => {
       await clearAllData();
     } catch (error) {
       console.error("로그아웃 실패", error);
-
-      // 서버 로그아웃이 실패해도 로컬 데이터는 정리
       await clearAllData();
-
       toast({
         variant: "destructive",
         title: "로그아웃 실패",
@@ -66,7 +83,7 @@ export const Header = () => {
 
   // 로고 클릭 핸들러
   const handleLogoClick = () => {
-    if (user) {
+    if (user && hasTokens) {
       navigate("/dashboard");
     } else {
       navigate("/");
@@ -92,10 +109,7 @@ export const Header = () => {
           className="flex justify-center items-center gap-3.5 cursor-pointer transition-opacity hover:opacity-80"
           onClick={handleLogoClick}
         >
-          {/* 로고 아이콘 */}
           <img src="/logo.svg" alt="logo" className="w-11 h-11" />
-
-          {/* 로고 텍스트 */}
           <div className="text-center text-[#101828] text-2xl font-bold font-['Pretendard_Variable'] leading-8">
             WEBridge
           </div>
@@ -122,7 +136,8 @@ export const Header = () => {
 
       {/* 우측: 로그인 / 사용자 메뉴 */}
       <div className="flex items-center justify-end gap-8">
-        {user ? (
+        {user && hasTokens ? (
+          // 정상 로그인 상태: 사용자 드롭다운
           <div className="relative">
             <button
               onClick={() => setDropdownOpen((prev) => !prev)}
@@ -135,7 +150,6 @@ export const Header = () => {
 
             {dropdownOpen && (
               <>
-                {/* 드롭다운 외부 클릭 시 닫기용 오버레이 */}
                 <div
                   className="fixed inset-0 z-10"
                   onClick={() => setDropdownOpen(false)}
@@ -152,6 +166,7 @@ export const Header = () => {
             )}
           </div>
         ) : (
+          // 비로그인 상태: 로그인/회원가입 버튼
           <>
             <button
               onClick={() => navigate("/login")}
