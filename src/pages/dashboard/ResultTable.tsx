@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { Info } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from "@/components/ui/hover-card";
 
-type Scan = any; // TODO: API 타Rr입으로 교체
+type Scan = any; // TODO: API 타입으로 교체
 
 type ResultItem = {
   id: number;
@@ -9,6 +15,23 @@ type ResultItem = {
   type: "오류 확인" | "진행중" | "대기" | "검사 시작";
   hasIssues?: boolean;
   category?: string;
+};
+
+// 각 항목 설명 텍스트 (행 ID 기준)
+const EXPLANATION_TEXT: Record<number, string> = {
+  1: "이미지에 대체 텍스트가 있으면 화면을 보지 못해도 내용을 이해할 수 있어요.",
+  2: "영상에 자막/대체 텍스트가 있으면 소리를 듣기 어려운 사용자도 내용을 이해할 수 있어요.",
+  3: "표의 헤더와 구조를 올바르게 마크업하면 화면낭독기가 표의 의미를 정확히 전달할 수 있어요.",
+  4: "영상/오디오가 자동 재생되면 보조기기 사용에 방해가 될 수 있어요. 재생은 사용자가 제어해야 해요.",
+  5: "문자와 배경의 색 대비가 충분해야 저시력 사용자도 내용을 읽을 수 있어요.",
+  6: "모든 기능은 키보드만으로도 접근/조작 가능해야 해요. 마우스를 쓰기 어려운 분들도 사용하니까요.",
+  7: "입력 요소에는 시각적/프로그램적으로 연결된 레이블이 있어야 의미가 정확히 전달돼요.",
+  8: "닫히지 않은 태그나 잘못된 중첩 등 마크업 오류는 보조기기의 해석을 방해할 수 있어요.",
+  9: "페이지의 기본 언어를 지정하면 화면낭독기가 정확한 발음/억양으로 읽을 수 있어요.",
+  10: "적절한 제목 구조는 사용자와 보조기기가 페이지를 빠르게 탐색하도록 도와줘요.",
+  11: "시간 제한이 있으면 연장·일시정지 등 조절 수단을 제공해야 누구나 사용 가능해요.",
+  12: "움직이거나 자동 갱신되는 콘텐츠는 정지/일시정지/숨김을 제공해야 해요.",
+  13: "초당 3~50회 깜빡임은 발작 유발 위험이 있어 제한해야 해요.",
 };
 
 const DEFAULT_ITEMS: ResultItem[] = [
@@ -121,7 +144,6 @@ function buildItems(
 
   if (displayScan.status === "processing") {
     const v = detail || {};
-
     return [
       {
         id: 1,
@@ -506,12 +528,14 @@ export const ResultTable = ({
   );
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm text-center min-w-[600px]">
+    <div className="w-full overflow-visible">
+      <table className="w-full text-sm text-center min-w-[680px]">
         <thead>
           <tr className="border-b">
             <th className="w-16 p-2">순번</th>
-            <th className="p-2 text-left min-w-[100px]">항목</th>
+            <th className="p-2 text-left min-w-[140px]">항목</th>
+            {/* 새 컬럼 */}
+            <th className="p-2 w-28">항목 설명</th>
             <th className="w-24 p-2">준수율</th>
             <th className="w-24 p-2">오류 확인</th>
           </tr>
@@ -523,6 +547,35 @@ export const ResultTable = ({
               <td className="p-2 text-left">
                 <span className="break-words">{item.name}</span>
               </td>
+
+              {/* 설명 아이콘 + HoverCard */}
+              <td className="p-2">
+                <HoverCard openDelay={100} closeDelay={60}>
+                  <HoverCardTrigger asChild>
+                    <Button
+                      aria-label={`${item.name} 항목 설명`}
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full"
+                    >
+                      <Info className="w-4 h-4 text-blue-600" />
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent
+                    align="start"
+                    className="p-4 space-y-2 text-gray-800 bg-white border border-gray-200 shadow-xl w-80 rounded-xl dark:bg-neutral-900 dark:border-neutral-800 dark:text-gray-100"
+                  >
+                    <p className="text-[13px] font-semibold text-blue-600">
+                      {item.name}은 왜 필요할까요?
+                    </p>
+                    <p className="text-[13px] leading-5 text-gray-600">
+                      {EXPLANATION_TEXT[item.id] ??
+                        "이 항목에 대한 설명이 준비 중입니다."}
+                    </p>
+                  </HoverCardContent>
+                </HoverCard>
+              </td>
+
               <td className="p-2">
                 <span className="break-words">{item.score}</span>
               </td>
