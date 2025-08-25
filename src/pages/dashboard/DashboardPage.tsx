@@ -23,7 +23,7 @@ const DashboardPage = () => {
     data: scanListData,
     isLoading: isLoadingList,
     refetch: refetchScanList,
-  } = useGetScanListQuery({ page: 1, page_size: 5, ordering: "-created_at" });
+  } = useGetScanListQuery({ page: 1, page_size: 50, ordering: "-created_at" });
 
   const {
     selectedScanId,
@@ -74,7 +74,7 @@ const DashboardPage = () => {
       <div className="flex min-h-screen bg-[#ecf3ff] p-8 gap-5">
         {/* 왼쪽: 입력 + 최근 검사 */}
         <div className="flex w-[320px] space-y-6 rounded-lg flex-col">
-          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg">
+          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg max-h-[70vh] overflow-y-auto">
             <UrlScanForm isCreating={isCreating} onStartScan={onStartScan} />
           </div>
 
