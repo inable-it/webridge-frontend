@@ -100,14 +100,6 @@ export const authPublicApi = publicApi.injectEndpoints({
       }),
     }),
 
-    logout: builder.mutation<void, LogoutRequest>({
-      query: (body) => ({
-        url: "auth/logout/",
-        method: "POST",
-        body,
-      }),
-    }),
-
     passwordReset: builder.mutation<
       PasswordResetResponse,
       PasswordResetRequest
@@ -160,7 +152,14 @@ export const authPublicApi = publicApi.injectEndpoints({
 // 인증이 필요한 Private API들: 소셜 로그인 후 약관 동의 등
 export const authPrivateApi = privateApi.injectEndpoints({
   endpoints: (builder) => ({
-    // 소셜 로그인 후 약관 동의 API - 인증 필요
+      logout: builder.mutation<void, LogoutRequest>({
+          query: (body) => ({
+              url: "auth/logout/",
+              method: "POST",
+              body,
+          }),
+      }),
+      // 소셜 로그인 후 약관 동의 API - 인증 필요
     socialTermsAgreement: builder.mutation<
       SocialTermsAgreementResponse,
       SocialTermsAgreementRequest
@@ -190,7 +189,6 @@ export const {
   useRegisterMutation,
   useLoginMutation,
   useSocialLoginMutation,
-  useLogoutMutation,
   usePasswordResetMutation,
   usePasswordResetConfirmMutation,
   useRequestEmailVerificationMutation,
@@ -198,5 +196,5 @@ export const {
 } = authPublicApi;
 
 // Private API exports
-export const { useSocialTermsAgreementMutation, useChangePasswordMutation } =
+export const { useLogoutMutation, useSocialTermsAgreementMutation, useChangePasswordMutation } =
   authPrivateApi;

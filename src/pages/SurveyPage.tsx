@@ -58,8 +58,8 @@ const SurveyPage = () => {
       }).unwrap();
 
       navigate("/dashboard");
-    } catch (err: any) {
-      alert(err?.data?.message || "제출 중 오류가 발생했습니다.");
+    } catch (err) {
+      alert(err || "제출 중 오류가 발생했습니다.");
     }
   };
 
