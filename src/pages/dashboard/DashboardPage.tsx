@@ -70,14 +70,16 @@ const DashboardPage = () => {
 
   return (
     <>
-      <div className="flex h-screen bg-[#ecf3ff] p-8 gap-5">
+      {/* 변경: h-screen -> min-h-screen (내용에 맞춰 배경이 늘어나게) */}
+      <div className="flex min-h-screen bg-[#ecf3ff] p-8 gap-5">
         {/* 왼쪽: 입력 + 최근 검사 */}
         <div className="flex w-[320px] space-y-6 rounded-lg flex-col">
           <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg">
             <UrlScanForm isCreating={isCreating} onStartScan={onStartScan} />
           </div>
 
-          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg h-full">
+          {/* 변경: h-full 제거 (부모 높이에 묶이지 않도록) */}
+          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg">
             <ScanList
               isLoading={isLoadingList}
               scanList={scanListData?.results || []}
@@ -139,10 +141,8 @@ const DashboardPage = () => {
             </Button>
           </div>
 
-          <div
-            className="p-6 overflow-hidden bg-white border rounded-lg"
-            id="reportContent"
-          >
+          {/* 변경: overflow-hidden 제거 (내용이 자라면 카드도 함께 커지도록) */}
+          <div className="p-6 bg-white border rounded-lg" id="reportContent">
             <ResultTable
               displayScan={displayScan}
               isDisplayingScanDetail={isDisplayingScanDetail}

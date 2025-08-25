@@ -8,7 +8,7 @@ import { RequireAuth } from "@/components/common/RequireAuth";
 import { Toaster } from "@/components/ui/toaster";
 import TeamIntro from "@/pages/notion/TeamIntro";
 import AccessibilityIntro from "@/pages/notion/AccessibilityIntro";
-import DashboardPage from "@/pages/DashboardPage";
+import DashboardPage from "@/pages/dashboard/DashboardPage";
 import MyInfoPage from "@/pages/MyInfoPage";
 import PasswordResetPage from "@/pages/PasswordResetPage";
 import FeedbackPage from "@/pages/FeedbackPage";
