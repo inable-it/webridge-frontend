@@ -97,44 +97,61 @@ export const UrlScanForm = ({
       <h2 className="text-lg font-semibold">접근성 검사</h2>
 
       <div className="space-y-2">
-        <Input
-          type="url"
-          inputMode="url"
-          autoComplete="url"
-          aria-invalid={!!error}
-          aria-describedby="url-rules url-error"
-          placeholder="https://example.com"
-          className={`flex-1 ${
-            error ? "border-red-500 focus-visible:ring-red-500" : ""
-          }`}
-          value={urlInput}
-          onChange={(e) => {
-            const v = e.target.value;
-            setUrlInput(v);
-            if (error) setError(null);
-          }}
-          onPaste={(e) => {
-            const text = e.clipboardData.getData("text");
-            const first = firstUrlInText(text);
-            // 여러 개 붙여넣기 시 첫 번째만 반영하고 오류 표시
-            if (text.trim() !== first.trim()) {
-              e.preventDefault();
-              setUrlInput(first);
-              setError(
-                "하나의 URL만 입력 가능합니다. 첫 번째 URL만 적용했어요."
-              );
-              toast({
-                title: "여러 URL 감지",
-                description: "첫 번째 URL만 적용했습니다.",
-              });
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleStart();
-          }}
-          disabled={isCreating}
-          pattern="https?://.*"
-        />
+        {/* 주소 입력 + 시작 버튼 (한 줄) */}
+        <div className="flex items-center gap-2">
+          <Input
+            type="url"
+            inputMode="url"
+            autoComplete="url"
+            aria-invalid={!!error}
+            aria-describedby="url-rules url-error"
+            placeholder="https://example.com"
+            className={`flex-1 ${
+              error ? "border-red-500 focus-visible:ring-red-500" : ""
+            }`}
+            value={urlInput}
+            onChange={(e) => {
+              const v = e.target.value;
+              setUrlInput(v);
+              if (error) setError(null);
+            }}
+            onPaste={(e) => {
+              const text = e.clipboardData.getData("text");
+              const first = firstUrlInText(text);
+              if (text.trim() !== first.trim()) {
+                e.preventDefault();
+                setUrlInput(first);
+                setError(
+                  "하나의 URL만 입력 가능합니다. 첫 번째 URL만 적용했어요."
+                );
+                toast({
+                  title: "여러 URL 감지",
+                  description: "첫 번째 URL만 적용했습니다.",
+                });
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleStart();
+            }}
+            disabled={isCreating}
+            pattern="https?://.*"
+          />
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleStart}
+            disabled={isCreating || !urlInput.trim()}
+            aria-label="검사 시작"
+            className="shrink-0"
+          >
+            {isCreating ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <ChevronRight className="w-5 h-5" />
+            )}
+          </Button>
+        </div>
 
         {/* 규칙 안내 */}
         <div id="url-rules" className="space-y-1 text-xs text-gray-500">
@@ -177,22 +194,6 @@ export const UrlScanForm = ({
             {error}
           </p>
         )}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleStart}
-          disabled={isCreating || !urlInput.trim()}
-          aria-label="검사 시작"
-        >
-          {isCreating ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <ChevronRight className="w-5 h-5" />
-          )}
-        </Button>
       </div>
     </div>
   );
