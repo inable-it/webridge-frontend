@@ -1,3 +1,4 @@
+// src/pages/dashboard/DashboardPage.tsx
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { usePdfGenerator } from "@/hooks/usePdfGenerator";
@@ -20,7 +21,6 @@ type DetailRow = Record<string, any>;
 const CATS: {
   id: number;
   title: string;
-  // selectedScanDetail의 프로퍼티 키
   prop:
     | "alt_text_results"
     | "video_results"
@@ -34,9 +34,7 @@ const CATS: {
     | "response_time_results"
     | "pause_control_results"
     | "flashing_results";
-  // 실패(이슈) 판별 함수
   isFail: (r: DetailRow) => boolean;
-  // 점수 계산용 “성공” 판별 함수
   isPass: (r: DetailRow) => boolean;
 }[] = [
   {
@@ -132,7 +130,6 @@ const CATS: {
   },
 ];
 
-// ---- [상세 보고서 가이드 텍스트] ----
 const GUIDE_TEXT: Record<
   number,
   { judge: string[]; how: string[]; consider: string[] }
@@ -152,10 +149,8 @@ const GUIDE_TEXT: Record<
       "대체텍스트는 해당 이미지를 이해할 수 있도록 간결·정확해야 합니다.",
     ],
   },
-  // 필요하면 항목별 맞춤 문구를 아래에 추가
 };
 
-// 기본 가이드(해당 id가 없을 때 사용)
 const DEFAULT_GUIDE = {
   judge: ["해당 항목의 검사 기준을 만족하지 않는 패턴이 탐지되었습니다."],
   how: [
@@ -167,14 +162,12 @@ const DEFAULT_GUIDE = {
   ],
 };
 
-// 점수 표시 형태: 예) 10%(1/10)
 function formatCompliance(pass: number, total: number) {
   if (!total) return "-";
   const pct = Math.round((pass / total) * 100);
   return `${pct}%(${pass}/${total})`;
 }
 
-// 각 이슈 행에서 텍스트 추출(없으면 JSON)
 function extractIssueText(r: Record<string, any>) {
   return (
     r.selector ||
@@ -187,6 +180,42 @@ function extractIssueText(r: Record<string, any>) {
     JSON.stringify(r)
   );
 }
+
+// PDF 1페이지용 요약 테이블
+const PdfSummaryTable = ({
+  selectedScanDetail,
+}: {
+  selectedScanDetail: any | null;
+}) => {
+  return (
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-b">
+          <th className="w-20 p-3 text-left">순번</th>
+          <th className="p-3 text-left">검사 항목</th>
+          <th className="p-3 text-right w-36">준수율</th>
+        </tr>
+      </thead>
+      <tbody>
+        {CATS.map((cat) => {
+          const all: DetailRow[] =
+            (selectedScanDetail && selectedScanDetail[cat.prop]) || [];
+          const pass = all.filter(cat.isPass).length;
+          const total = all.length || 0;
+          return (
+            <tr key={cat.id} className="border-b last:border-b-0">
+              <td className="p-3">{cat.id}</td>
+              <td className="p-3">{cat.title}</td>
+              <td className="p-3 text-right">
+                {formatCompliance(pass, total)}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -260,7 +289,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* 오른쪽: 검사 결과 */}
+        {/* 오른쪽: 검사 결과(대시보드용). PDF 레이아웃은 오프스크린 처리 */}
         <div className="flex-1 min-w-0 p-8 bg-white border-2 rounded-lg shadow-md">
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1 min-w-0 mr-4">
@@ -284,27 +313,12 @@ const DashboardPage = () => {
                 {new Date().toLocaleDateString("ko-KR")} / 한국형 웹 콘텐츠
                 접근성 지침 2.2 기준
               </p>
-              {displayScan?.status === "completed" &&
-                isDisplayingScanDetail && (
-                  <div className="flex flex-wrap items-center gap-4 mt-2">
-                    <div className="text-sm">
-                      <span className="font-semibold text-green-600">
-                        준수율: {displayScan.compliance_score?.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="text-sm">
-                      <span className="font-semibold text-red-600">
-                        총 이슈: {displayScan.total_issues}개
-                      </span>
-                    </div>
-                  </div>
-                )}
             </div>
 
             <Button
               onClick={() =>
                 generatePdf(
-                  ["summaryReport", "detailReport"], // 요약 + (오프스크린) 상세
+                  ["summaryReport", "detailReport"], // ✅ 요약 → 상세 (둘 다 오프스크린)
                   `webridge-report-${displayScan?.title || "report"}.pdf`,
                   {
                     targetDpi: 144,
@@ -320,8 +334,8 @@ const DashboardPage = () => {
             </Button>
           </div>
 
-          {/* 1) 화면에 보이는 요약 섹션 */}
-          <div id="summaryReport" className="p-6 bg-white border rounded-lg">
+          {/* 대시보드 화면에서만 보이는 기본 테이블(원하면 유지/삭제 가능) */}
+          <div className="p-6 bg-white border rounded-lg">
             <ResultTable
               displayScan={displayScan}
               isDisplayingScanDetail={isDisplayingScanDetail}
@@ -329,154 +343,190 @@ const DashboardPage = () => {
               onNavigate={(path) => navigate(path)}
             />
           </div>
+        </div>
+      </div>
 
-          {/* 2) 화면에는 보이지 않지만 DOM에만 존재하는 상세 섹션 (오프스크린) */}
-          {/*  - display:none, hidden, opacity:0 는 html2canvas가 캡쳐 못 하니 사용 금지
-              - 화면 밖으로 크게 이동: fixed + -left 로 사용자에게 보이지 않게 */}
-          {/* PDF 전용: 화면엔 보이지 않게 오프스크린 렌더링 */}
-          <div
-            id="detailReport"
-            aria-hidden
-            className="fixed -left-[200vw] top-0 w-[900px] p-10 bg-white"
-            style={{
-              zIndex: -1,
-            }}
-          >
-            {/* 상단 제목/메타(이미지처럼) */}
-            <header className="mb-8">
-              <h1 className="mb-6 text-2xl font-bold text-center">
-                WEBridge 웹 접근성 검사 보고서
-              </h1>
+      {/* === PDF 전용 섹션: 화면에 보이지 않도록 오프스크린 렌더링 === */}
+      {/* 1) 요약 보고서 (PDF 첫 페이지) */}
+      <div
+        id="summaryReport"
+        aria-hidden
+        // display:none을 쓰면 html2canvas가 캡처 못하므로 화면 밖으로 이동
+        className="fixed -left-[200vw] top-0 w-[900px] p-10 bg-white"
+        style={{ zIndex: -1 }}
+      >
+        <h1 className="mb-6 text-3xl font-bold text-center">
+          WEBridge 웹 접근성 검사 보고서
+        </h1>
+        <div className="h-px mb-6 bg-gray-200" />
+        <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-600">
+          <div className="space-y-1">
+            <p>
+              <span className="font-semibold">홈페이지명 :</span>{" "}
+              {displayScan?.title || "-"}
+            </p>
+            <p className="break-all">
+              <span className="font-semibold">URL :</span>{" "}
+              {displayScan?.url || "-"}
+            </p>
+            <p>
+              <span className="font-semibold">검사 일시 :</span>{" "}
+              {new Date().toLocaleDateString("ko-KR")} 00:00
+            </p>
+          </div>
+          <div className="space-y-1 text-right">
+            <p>
+              <span className="font-semibold">사용 검진 도구 :</span> WEBridge
+              1.0
+            </p>
+            <p>
+              <span className="font-semibold">검사 기준 :</span> 한국형 웹
+              콘텐츠 접근성 지침 2.2
+            </p>
+          </div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-2xl">
+          <div className="px-4 py-3 border-b">
+            <p className="text-sm font-medium text-gray-700">
+              웹 접근성 검사 요약 보고서
+            </p>
+          </div>
+          <div className="p-4">
+            <PdfSummaryTable selectedScanDetail={selectedScanDetail} />
+          </div>
+        </div>
+      </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="space-y-1">
-                  <p>
-                    <span className="font-semibold">홈페이지명 :</span>{" "}
-                    {displayScan?.title || "-"}
-                  </p>
-                  <p className="break-all">
-                    <span className="font-semibold">URL :</span>{" "}
-                    {displayScan?.url || "-"}
-                  </p>
-                </div>
-                <div className="space-y-1 text-right">
-                  <p>
-                    <span className="font-semibold">사용 검진 도구 :</span>{" "}
-                    WEBridge 1.0
-                  </p>
-                  <p>
-                    <span className="font-semibold">검사 일시 :</span>{" "}
-                    {new Date().toLocaleDateString("ko-KR")} 00:00
-                  </p>
-                  <p>
-                    <span className="font-semibold">검사 기준 :</span> 한국형 웹
-                    콘텐츠 접근성 지침 2.2
-                  </p>
-                </div>
-              </div>
-            </header>
-
-            {/* ---- 각 항목 상세 블록 ---- */}
-            <div className="space-y-8">
-              {CATS.map((cat) => {
-                const all: Record<string, any>[] =
-                  (selectedScanDetail && selectedScanDetail[cat.prop]) || [];
-                const pass = all.filter(cat.isPass).length;
-                const total = all.length || 0;
-                const issues = all.filter(cat.isFail);
-
-                const guide = GUIDE_TEXT[cat.id] || DEFAULT_GUIDE;
-
-                return (
-                  <section key={cat.id} className="space-y-4">
-                    {/* 섹션 상단 타이틀 + 점수 */}
-                    <div className="flex items-baseline justify-between">
-                      <h2 className="text-base font-semibold">
-                        [상세 보고서] {cat.id}. {cat.title}
-                      </h2>
-                      <div className="text-sm text-gray-600">
-                        준수율 : {formatCompliance(pass, total)}
-                      </div>
-                    </div>
-
-                    {/* 표 카드 */}
-                    <div className="bg-white border border-gray-200 rounded-2xl">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b">
-                            <th className="w-20 p-3 text-left">순번</th>
-                            <th className="p-3 text-left">미준수 항목</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {issues.length ? (
-                            issues.map((r, idx) => (
-                              <tr
-                                key={idx}
-                                className="border-b last:border-b-0"
-                              >
-                                <td className="p-3">{idx + 1}</td>
-                                <td className="p-3 break-all">
-                                  {extractIssueText(r)}
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td className="p-4 text-gray-500" colSpan={2}>
-                                표기할 이슈가 없습니다.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* 가이드 박스(블루 톤) */}
-                    <div className="rounded-2xl bg-[#eaf2ff] p-5 space-y-3">
-                      <p className="font-semibold">
-                        [수정 참고 가이드] {cat.id}. {cat.title}
-                      </p>
-
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">
-                          현재 “{cat.title}” 항목의 오류 대상은 다음과 같은
-                          기준으로 판단하고 있어요.
-                        </p>
-                        <ul className="pl-5 text-sm text-gray-700 list-disc">
-                          {guide.judge.map((t, i) => (
-                            <li key={i}>{t}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">
-                          이를 수정하기 위해서는 아래 내용을 준수하세요.
-                        </p>
-                        <ul className="pl-5 text-sm text-gray-700 list-disc">
-                          {guide.how.map((t, i) => (
-                            <li key={i}>{t}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-700">
-                          WEBridge 검사 이외에 이런 점도 고려해야 해요.
-                        </p>
-                        <ul className="pl-5 text-sm text-gray-700 list-disc">
-                          {guide.consider.map((t, i) => (
-                            <li key={i}>{t}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </section>
-                );
-              })}
+      {/* 2) 상세 보고서 (PDF 두 번째 페이지부터) */}
+      <div
+        id="detailReport"
+        aria-hidden
+        className="fixed -left-[200vw] top-0 w-[900px] p-10 bg-white"
+        style={{ zIndex: -1 }}
+      >
+        <header className="mb-8">
+          <h1 className="mb-6 text-2xl font-bold text-center">
+            WEBridge 웹 접근성 검사 보고서
+          </h1>
+          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+            <div className="space-y-1">
+              <p>
+                <span className="font-semibold">홈페이지명 :</span>{" "}
+                {displayScan?.title || "-"}
+              </p>
+              <p className="break-all">
+                <span className="font-semibold">URL :</span>{" "}
+                {displayScan?.url || "-"}
+              </p>
+            </div>
+            <div className="space-y-1 text-right">
+              <p>
+                <span className="font-semibold">사용 검진 도구 :</span> WEBridge
+                1.0
+              </p>
+              <p>
+                <span className="font-semibold">검사 일시 :</span>{" "}
+                {new Date().toLocaleDateString("ko-KR")} 00:00
+              </p>
+              <p>
+                <span className="font-semibold">검사 기준 :</span> 한국형 웹
+                콘텐츠 접근성 지침 2.2
+              </p>
             </div>
           </div>
+        </header>
+
+        <div className="space-y-8">
+          {CATS.map((cat) => {
+            const all: DetailRow[] =
+              (selectedScanDetail && selectedScanDetail[cat.prop]) || [];
+            const pass = all.filter(cat.isPass).length;
+            const total = all.length || 0;
+            const issues = all.filter(cat.isFail);
+            const guide = GUIDE_TEXT[cat.id] || DEFAULT_GUIDE;
+
+            return (
+              <section key={cat.id} className="space-y-4">
+                <div className="flex items-baseline justify-between">
+                  <h2 className="text-base font-semibold">
+                    [상세 보고서] {cat.id}. {cat.title}
+                  </h2>
+                  <div className="text-sm text-gray-600">
+                    준수율 : {formatCompliance(pass, total)}
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-2xl">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="w-20 p-3 text-left">순번</th>
+                        <th className="p-3 text-left">미준수 항목</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {issues.length ? (
+                        issues.map((r, idx) => (
+                          <tr key={idx} className="border-b last:border-b-0">
+                            <td className="p-3">{idx + 1}</td>
+                            <td className="p-3 break-all">
+                              {extractIssueText(r)}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="p-4 text-gray-500" colSpan={2}>
+                            표기할 이슈가 없습니다.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="rounded-2xl bg-[#eaf2ff] p-5 space-y-3">
+                  <p className="font-semibold">
+                    [수정 참고 가이드] {cat.id}. {cat.title}
+                  </p>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      현재 “{cat.title}” 항목의 오류 대상은 다음과 같은 기준으로
+                      판단하고 있어요.
+                    </p>
+                    <ul className="pl-5 text-sm text-gray-700 list-disc">
+                      {guide.judge.map((t, i) => (
+                        <li key={i}>{t}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      이를 수정하기 위해서는 아래 내용을 준수하세요.
+                    </p>
+                    <ul className="pl-5 text-sm text-gray-700 list-disc">
+                      {guide.how.map((t, i) => (
+                        <li key={i}>{t}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      WEBridge 검사 이외에 이런 점도 고려해야 해요.
+                    </p>
+                    <ul className="pl-5 text-sm text-gray-700 list-disc">
+                      {guide.consider.map((t, i) => (
+                        <li key={i}>{t}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </section>
+            );
+          })}
         </div>
       </div>
 
