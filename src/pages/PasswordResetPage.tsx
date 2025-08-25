@@ -25,7 +25,7 @@ const PasswordResetPage = () => {
 
     try {
       await passwordReset({ email }).unwrap();
-      setShowModal(true); // ✅ 전송 완료 모달 열기
+      setShowModal(true); // 전송 완료 모달 열기
     } catch (err: any) {
       console.error("비밀번호 재설정 요청 실패", err);
       if (err?.status === 400 && err?.data) {

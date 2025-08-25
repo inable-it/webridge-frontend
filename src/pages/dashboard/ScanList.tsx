@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronRight, AlertCircle } from "lucide-react";
-import { getStatusDisplay } from "@/utils/scanSataus";
+import { getStatusDisplay } from "@/utils/scanStatus";
 
 type Scan = any; // TODO: API 타입으로 교체
 

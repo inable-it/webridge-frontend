@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { FadeInSection } from "@/components/common/FadeInSection";
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // 타입 정의
 interface TableItem {
@@ -227,61 +227,144 @@ const ResultsTablePanel = () => (
   </div>
 );
 
-const ReportPreviewSection = () => (
-  <div className="relative w-full overflow-hidden rounded-t-2xl bg-sky-50">
-    <ReportHeader />
-    <div className="flex flex-row gap-4 px-4 pt-4">
-      <AccessibilityTestPanel />
-      <ResultsTablePanel />
-    </div>
-    <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none bg-gradient-to-t from-sky-50 to-transparent" />
-    <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300" />
-  </div>
-);
+const ReportPreviewSection = () => {
+  const [showHeader, setShowHeader] = useState(false);
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(false);
 
-// Feature 구성 - 이미지처럼 좌우 2열 (상: 카드+텍스트, 하: 텍스트+이미지)
-const AlternativeTextDemo = () => {
-  const [mounted, setMounted] = useState(false);
+  const playedRef = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 30);
-    return () => clearTimeout(t);
+    const el = rootRef.current;
+    if (!el) return;
+
+    // 뷰포트에 들어오면 한 번만 재생
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !playedRef.current) {
+          playedRef.current = true;
+          setTimeout(() => setShowHeader(true), 60); // 1) 헤더
+          setTimeout(() => setShowLeft(true), 380); // 2) 왼쪽 카드
+          setTimeout(() => setShowRight(true), 760); // 3) 오른쪽 카드
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (
-    <div className="flex justify-center flex-1 lg:justify-start">
+    <div
+      ref={rootRef}
+      className="relative w-full overflow-hidden rounded-t-2xl bg-sky-50"
+    >
+      {/* 헤더: 위에서 아래로 페이드/슬라이드 */}
       <div
         className={[
-          "flex items-center w-full max-w-xl p-6 bg-white border border-gray-200 rounded-xl shadow-sm",
-          "transform transition-all duration-700 ease-out",
-          "hover:scale-[1.01] hover:shadow-md",
-          mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+          "transition-all duration-700 ease-out transform",
+          showHeader ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4",
         ].join(" ")}
       >
-        <img
-          src="/example-shoes.png"
-          alt="유아용 흰색 운동화"
-          className="object-cover rounded-md h-28 w-28"
-        />
-        <div className="flex flex-col gap-1 ml-6">
-          <div className="flex items-center gap-2 text-sm font-medium text-blue-600">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            적절한 대체텍스트를 추천드려요.
-          </div>
-          <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-600">
-            {`<img src="product.jpg" alt="유아용 흰색 운동화" />`}
-          </div>
+        <ReportHeader />
+      </div>
+
+      {/* 본문 2열: 좌 → 우 순차 등장 */}
+      <div className="flex flex-row gap-4 px-4 pt-4">
+        <div
+          className={[
+            "transition-all duration-700 ease-out transform",
+            showLeft ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6",
+          ].join(" ")}
+        >
+          <AccessibilityTestPanel />
+        </div>
+
+        <div
+          className={[
+            "transition-all duration-700 ease-out transform",
+            showRight ? "opacity-100 translate-x-0" : "opacity-0 translate-x-6",
+          ].join(" ")}
+        >
+          <ResultsTablePanel />
+        </div>
+      </div>
+
+      {/* 바닥 그라데이션/라인 */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none bg-gradient-to-t from-sky-50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300" />
+    </div>
+  );
+};
+
+// Feature 구성 - 이미지처럼 좌우 2열 (상: 카드+텍스트, 하: 텍스트+이미지)
+const StatusIcon = ({ ok }: { ok: boolean }) =>
+  ok ? (
+    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M7 12l3 3 7-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ) : (
+    <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M12 7v6m0 4h.01"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+
+const AlternativeTextDemo = ({ variant }: { variant: "good" | "bad" }) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 20);
+    return () => clearTimeout(t);
+  }, [variant]);
+
+  const isGood = variant === "good";
+
+  return (
+    <div
+      className={[
+        "flex items-center w-full max-w-xl p-6 rounded-xl shadow-sm border transition-all duration-500 ease-out bg-white",
+        isGood
+          ? "border-blue-200 ring-1 ring-blue-100"
+          : "border-rose-200 ring-1 ring-rose-100",
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
+      ].join(" ")}
+    >
+      <img
+        src="/example-shoes.png"
+        alt="유아용 흰색 운동화"
+        className="object-cover rounded-md h-28 w-28"
+      />
+      <div className="flex flex-col gap-1 ml-6">
+        <div
+          className={[
+            "flex items-center gap-2 text-sm font-medium",
+            isGood ? "text-blue-600" : "text-rose-500",
+          ].join(" ")}
+        >
+          <StatusIcon ok={isGood} />
+          {isGood
+            ? "적절한 대체텍스트를 추천드려요."
+            : "대체텍스트가 적절하지 않습니다."}
+        </div>
+
+        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-600">
+          {isGood
+            ? `<img src="product.jpg" alt="유아용 흰색 운동화" />`
+            : `<img src="product.jpg" alt="" />`}
         </div>
       </div>
     </div>
@@ -318,6 +401,69 @@ const CTAButton = () => (
   </button>
 );
 
+// Feature Section (번갈아 표시)
+const FeatureSectionAnimated = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [variant, setVariant] = useState<"good" | "bad">("bad"); // 시작 상태
+  const visibleRef = useRef(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        // 보임 상태로 "진입"할 때만 토글 (머무는 동안 반복 토글 방지)
+        if (entry.isIntersecting && !visibleRef.current) {
+          visibleRef.current = true;
+          setVariant((v) => (v === "good" ? "bad" : "good"));
+        } else if (!entry.isIntersecting && visibleRef.current) {
+          visibleRef.current = false;
+        }
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className={STYLES.section.feature}>
+      <div className="grid w-full grid-cols-1 mx-auto max-w-7xl place-items-start gap-x-24 gap-y-28 lg:grid-cols-2">
+        {/* 상단 왼쪽: (토글되는) 카드 */}
+        <FadeInSection>
+          {/* key로 재마운트 → 자연스러운 페이드/슬라이드 */}
+          <AlternativeTextDemo key={variant} variant={variant} />
+        </FadeInSection>
+
+        {/* 상단 오른쪽: 텍스트 */}
+        <FadeInSection>
+          <FeatureText
+            title={"한 번의 클릭으로\n웹 접근성 진단부터 개선까지"}
+            description={
+              "웹 접근성에 특화된 AI 솔루션 WEBridge는\n한 번의 클릭으로 비싸고 복잡한 컨설팅 없이도,\n웹 접근성을 쉽게 준수할 수 있습니다."
+            }
+          />
+        </FadeInSection>
+
+        {/* 하단 왼쪽: 텍스트 */}
+        <FadeInSection>
+          <FeatureText
+            title={"최소의 리소스로,\n웹 접근성 진단부터 개선까지"}
+            description={
+              "웹 접근성에 특화된 AI 솔루션 WEBridge는\n무엇이 잘못되었고, 어떻게 고쳐야 할지\n명확한 리포트와 함께 수정 가이드를 제공합니다."
+            }
+          />
+        </FadeInSection>
+
+        {/* 하단 오른쪽: 리포트 카드(정적 이미지) */}
+        <FadeInSection>
+          <img src="/slide2.2.png" alt="접근성 리포트 샘플" />
+        </FadeInSection>
+      </div>
+    </section>
+  );
+};
+
 // 메인 HomePage 컴포넌트
 export const HomePage = () => {
   const navigate = useNavigate();
@@ -348,39 +494,7 @@ export const HomePage = () => {
       </section>
 
       {/* Feature Section (1번 이미지 레이아웃) */}
-      <section className={STYLES.section.feature}>
-        <div className="grid w-full grid-cols-1 mx-auto max-w-7xl place-items-start gap-x-24 gap-y-28 lg:grid-cols-2">
-          {/* 상단 왼쪽: 카드 */}
-          <FadeInSection>
-            <AlternativeTextDemo />
-          </FadeInSection>
-
-          {/* 상단 오른쪽: 텍스트 */}
-          <FadeInSection>
-            <FeatureText
-              title={"한 번의 클릭으로\n웹 접근성 진단부터 개선까지"}
-              description={
-                "웹 접근성에 특화된 AI 솔루션 WEBridge는\n한 번의 클릭으로 비싸고 복잡한 컨설팅 없이도,\n웹 접근성을 쉽게 준수할 수 있습니다."
-              }
-            />
-          </FadeInSection>
-
-          {/* 하단 왼쪽: 텍스트 */}
-          <FadeInSection>
-            <FeatureText
-              title={"최소의 리소스로,\n웹 접근성 진단부터 개선까지"}
-              description={
-                "웹 접근성에 특화된 AI 솔루션 WEBridge는\n무엇이 잘못되었고, 어떻게 고쳐야 할지\n명확한 리포트와 함께 수정 가이드를 제공합니다."
-              }
-            />
-          </FadeInSection>
-
-          {/* 하단 오른쪽: 리포트 카드 */}
-          <FadeInSection>
-            <img src="/slide2.2.png" alt="접근성 리포트 샘플" />
-          </FadeInSection>
-        </div>
-      </section>
+      <FeatureSectionAnimated />
 
       {/* CTA Section */}
       <section className={STYLES.section.cta}>
