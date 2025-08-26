@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   CheckCircle,
   ExternalLink,
+  XCircle, // ⬅️ 추가: 빨간 아이콘
 } from "lucide-react";
 import { useGetScanDetailQuery } from "@/features/api/scanApi";
 import type { AccessibilityScanDetail } from "@/features/api/scanApi";
@@ -76,6 +77,7 @@ const AccessibilityScanDetailPage = () => {
       case "alt_text":
         return result.compliance !== 0;
       case "contrast":
+        // contrast는 지금 지원 제외이지만, 필터 로직은 유지(실제 렌더링은 아래에서 별도 처리)
         return !result.wcag_compliant;
       case "keyboard":
         return !result.accessible;
@@ -93,6 +95,8 @@ const AccessibilityScanDetailPage = () => {
         return !result.compliant;
     }
   });
+
+  const isContrast = category === "contrast";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,19 +136,21 @@ const AccessibilityScanDetailPage = () => {
           <h2 className="mb-2 text-lg font-semibold text-gray-900">
             {categoryInfo.title}
           </h2>
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>문제 발견: {issueResults.length}개</span>
+          {!isContrast && (
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span>문제 발견: {issueResults.length}개</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span>정상: {results.length - issueResults.length}개</span>
+              </div>
+              <div className="text-gray-500">
+                총 검사 대상: {results.length}개
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>정상: {results.length - issueResults.length}개</span>
-            </div>
-            <div className="text-gray-500">
-              총 검사 대상: {results.length}개
-            </div>
-          </div>
+          )}
         </div>
 
         {/* 검사 결과 상세 */}
@@ -153,23 +159,40 @@ const AccessibilityScanDetailPage = () => {
             <h3 className="text-lg font-semibold text-gray-900">
               문제가 발견된 항목들
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              아래 항목들을 수정하여 웹 접근성을 개선하세요.
-            </p>
+            {!isContrast && (
+              <p className="mt-1 text-sm text-gray-500">
+                아래 항목들을 수정하여 웹 접근성을 개선하세요.
+              </p>
+            )}
           </div>
+
           <div className="p-6">
-            {issueResults.length > 0 ? (
-              // 모든 Detail 컴포넌트가 scanUrl?: string props를 받아도 되도록 통일
+            {isContrast ? (
+              // 명도 대비: 지원 제외 전용 화면
+              <div className="py-12 text-center">
+                <XCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                  현재 지원하지 않는 검사 항목입니다.
+                </h3>
+                {/* 안내 문구 제거 요청에 따라 추가 문단 없음 */}
+                <Button onClick={() => navigate("/dashboard")} className="mt-4">
+                  대시보드로 돌아가기
+                </Button>
+              </div>
+            ) : issueResults.length > 0 ? (
+              // 일반 항목: 이슈만 렌더링
               <DetailComponent
                 results={issueResults}
                 scanUrl={scanDetail.url}
               />
             ) : (
+              // 일반 항목: 이슈 없음 화면
               <div className="py-12 text-center">
                 <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
                 <h3 className="mb-2 text-lg font-semibold text-gray-900">
                   문제가 발견되지 않았습니다!
                 </h3>
+                {/* 요청사항: 보조 문장 유지(contrast가 아닐 때만) */}
                 <p className="text-gray-600">
                   {categoryInfo.title} 항목은 모든 요소가 접근성 기준을 준수하고
                   있습니다.

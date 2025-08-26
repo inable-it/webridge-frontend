@@ -17,25 +17,6 @@ type ResultItem = {
   category?: string;
 };
 
-/** ===== 조사(은/는) 자동 선택 헬퍼 START ===== */
-function hasFinalConsonant(k: string): boolean {
-  // 뒤에서부터 한글 음절(가~힣) 찾고 종성 유무로 판정
-  for (let i = k.trim().length - 1; i >= 0; i--) {
-    const ch = k.trim().charCodeAt(i);
-    // 한글 음절 범위
-    if (ch >= 0xac00 && ch <= 0xd7a3) {
-      const code = ch - 0xac00;
-      const jong = code % 28; // 0이면 받침 없음
-      return jong !== 0;
-    }
-    // 한글이 아니면 계속 앞으로 탐색 (괄호/기호/숫자 등 스킵)
-  }
-  // 한글이 전혀 없으면 기본적으로 '는' 선택
-  return false;
-}
-function withTopicJosa(s: string): string {
-  return `${s}${hasFinalConsonant(s) ? "은" : "는"}`;
-}
 const EXPLANATION_TEXT: Record<number, string> = {
   1: "이미지에 간단한 설명을 넣으면,\n화면을 보지 못해도 내용을 이해할 수 있어요.",
   2: "영상에 자막을 넣으면 소리를\n듣기 어려운 사람도 내용을 이해할 수 있어요.",
@@ -151,13 +132,15 @@ function buildItems(
   detail: any | null
 ): ResultItem[] {
   if (!displayScan) return DEFAULT_ITEMS;
+
   if (displayScan.status === "pending") {
     return DEFAULT_ITEMS.map((i) => ({
       ...i,
-      score: "검사 대기중",
+      score: i.category === "contrast" ? "-" : "검사 대기중", // ⬅️ contrast는 항상 하이픈
       type: "대기",
     }));
   }
+
   if (displayScan.status === "processing") {
     const v = detail || {};
     return [
@@ -228,17 +211,10 @@ function buildItems(
       {
         id: 5,
         name: "텍스트 콘텐츠의 명도 대비",
-        score: v.contrast_completed
-          ? v.contrast_results
-            ? `${
-                v.contrast_results.filter((r: any) => r.wcag_compliant).length
-              } / ${v.contrast_results.length}`
-            : "검사 완료"
-          : "검사중...",
+        // 항상 하이픈
+        score: v.contrast_completed ? "-" : "검사중...",
         type: v.contrast_completed ? "오류 확인" : "진행중",
-        hasIssues: (v.contrast_results || []).some(
-          (r: any) => !r.wcag_compliant
-        ),
+        hasIssues: false,
         category: "contrast",
       },
       {
@@ -363,6 +339,8 @@ function buildItems(
       },
     ];
   }
+
+  // completed
   if (displayScan.status !== "completed" || !detail) return DEFAULT_ITEMS;
 
   const v = detail;
@@ -373,6 +351,16 @@ function buildItems(
       let score = "검사 대기";
       let hasIssues = false;
 
+      if (base.category === "contrast") {
+        // 완료 후에도 항상 하이픈, 이슈 없음 처리
+        return {
+          ...base,
+          score: "-",
+          hasIssues: false,
+          type: "오류 확인" as const,
+        };
+      }
+
       if (Array.isArray(res)) {
         let passCount = 0;
 
@@ -381,34 +369,23 @@ function buildItems(
             passCount = res.filter((r: any) => r.compliance === 0).length;
             hasIssues = res.some((r: any) => r.compliance !== 0);
             break;
-
           case "video_caption":
             passCount = res.filter((r: any) => r.has_transcript).length;
             hasIssues = res.some((r: any) => !r.has_transcript);
             break;
-
           case "video_autoplay":
             passCount = res.filter((r: any) => r.autoplay_disabled).length;
             hasIssues = res.some((r: any) => !r.autoplay_disabled);
             break;
-
-          case "contrast":
-            passCount = res.filter((r: any) => r.wcag_compliant).length;
-            hasIssues = res.some((r: any) => !r.wcag_compliant);
-            break;
-
           case "keyboard":
             passCount = res.filter((r: any) => r.accessible).length;
             hasIssues = res.some((r: any) => !r.accessible);
             break;
-
           case "label":
             passCount = res.filter((r: any) => r.label_present).length;
             hasIssues = res.some((r: any) => !r.label_present);
             break;
-
           default:
-            // table / basic_language / markup_error / heading / response_time / pause_control / flashing
             passCount = res.filter((r: any) => r.compliant).length;
             hasIssues = res.some((r: any) => !r.compliant);
         }
@@ -443,9 +420,25 @@ export const ResultTable = ({
     }
   };
 
+  // 조사(은/는) 보정
+  const josa = (name: string) =>
+    /[가-힣]$/.test(name) && "을"
+      ? name.endsWith("다비")
+        ? "는"
+        : /[가-힣]$/.test(name)
+        ? /[가-힣]/.test(name)
+          ? (name.charCodeAt(name.length - 1) - 44032) % 28
+            ? "은"
+            : "는"
+          : "은"
+        : "은"
+      : "은";
+
+  const withPostposition = (name: string) => `${name}${josa(name)}`;
+
   return (
     <div className="w-full">
-      {/* 데스크톱 테이블: md 이상에서만 노출 */}
+      {/* 데스크톱 테이블 */}
       <div
         role="region"
         aria-label="요약 보고서 테이블"
@@ -492,7 +485,7 @@ export const ResultTable = ({
                       className="p-4 space-y-2 text-left text-gray-800 bg-white border border-gray-200 shadow-xl w-80 rounded-xl dark:bg-neutral-900 dark:border-neutral-800 dark:text-gray-100"
                     >
                       <p className="text-[13px] font-semibold text-blue-600">
-                        {withTopicJosa(item.name)} 왜 필요할까요?
+                        {withPostposition(item.name)} 왜 필요할까요?
                       </p>
                       <p className="text-[13px] leading-5 text-gray-600 whitespace-pre-line text-left">
                         {EXPLANATION_TEXT[item.id] ??
@@ -532,7 +525,7 @@ export const ResultTable = ({
         </table>
       </div>
 
-      {/* 모바일 카드: md 미만에서 노출 */}
+      {/* 모바일 카드 */}
       <div className="space-y-3 md:hidden">
         {rows.map((item) => (
           <div
