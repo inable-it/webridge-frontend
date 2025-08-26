@@ -418,7 +418,7 @@ export const ResultTable = ({
           </colgroup>
           <thead>
             <tr className="border-b">
-              <th className="p-2">순번</th>
+              <th className="p-2 text-left">순번</th>
               <th className="p-2 text-left">항목</th>
               <th className="p-2">항목 설명</th>
               <th className="p-2">준수율</th>
@@ -427,12 +427,12 @@ export const ResultTable = ({
           </thead>
           <tbody>
             {rows.map((item) => (
-              <tr key={item.id} className="align-top border-b">
-                <td className="p-2">{item.id}</td>
+              <tr key={item.id} className="border-b">
+                <td className="p-2 text-left">{item.id}</td>
                 <td className="p-2 text-left">
                   <span className="break-words break-all">{item.name}</span>
                 </td>
-                <td className="p-2 text-left">
+                <td className="p-2">
                   <HoverCard openDelay={100} closeDelay={60}>
                     <HoverCardTrigger asChild>
                       <Button
