@@ -1,6 +1,11 @@
-// src/pages/dashboard/DashboardPage.tsx
+import { useEffect, useMemo, useRef } from "react";
+import {
+  useLocation,
+  useNavigate,
+  useSearchParams,
+  type NavigateOptions,
+} from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { usePdfGenerator } from "@/hooks/usePdfGenerator";
 import {
   useCreateScanMutation,
@@ -219,6 +224,9 @@ const PdfSummaryTable = ({
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // ← 히스토리에서 온 state 수신
+  const [searchParams] = useSearchParams(); // ← ?scanId= 딥링크도 지원
+  const resultPanelRef = useRef<HTMLDivElement | null>(null); // 선택 후 스크롤 포커스용
   const { generatePdf } = usePdfGenerator();
 
   const {
@@ -250,6 +258,52 @@ const DashboardPage = () => {
     scanListData,
     selectedScanDetail,
   });
+
+  // 히스토리/딥링크에서 넘어온 scanId 추출
+  const incomingScanId = useMemo(() => {
+    const fromState = location.state?.scanId as string | undefined;
+    const fromQuery = searchParams.get("scanId") || undefined;
+    return fromState ?? fromQuery;
+  }, [location.state, searchParams]);
+
+  // 목록이 로드되면 incomingScanId 자동 선택 + 포커스 + state/쿼리 정리
+  useEffect(() => {
+    if (!scanListData?.results || !incomingScanId) return;
+
+    const exists = scanListData.results.some((s) => s.id === incomingScanId);
+    if (!exists) return;
+
+    setSelectedScanId(incomingScanId);
+
+    // 결과 패널로 부드럽게 스크롤
+    requestAnimationFrame(() => {
+      resultPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    // state/쿼리 제거(뒤로가기 중복 방지)
+    const opts: NavigateOptions = { replace: true, state: {} };
+    if (searchParams.has("scanId")) {
+      const sp = new URLSearchParams(searchParams);
+      sp.delete("scanId");
+      navigate(
+        { pathname: location.pathname, search: sp.toString() ? `?${sp}` : "" },
+        opts
+      );
+    } else if (location.state?.scanId) {
+      navigate(location.pathname, opts);
+    }
+  }, [
+    scanListData?.results,
+    incomingScanId,
+    setSelectedScanId,
+    navigate,
+    location.pathname,
+    location.state,
+    searchParams,
+  ]);
 
   const [createScan, { isLoading: isCreating }] = useCreateScanMutation();
   const onStartScan = async (url: string) => {
@@ -290,7 +344,10 @@ const DashboardPage = () => {
         </div>
 
         {/* 오른쪽: 검사 결과(대시보드용). PDF 레이아웃은 오프스크린 처리 */}
-        <div className="flex-1 min-w-0 p-8 bg-white border-2 rounded-lg shadow-md">
+        <div
+          ref={resultPanelRef}
+          className="flex-1 min-w-0 p-8 bg-white border-2 rounded-lg shadow-md"
+        >
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1 min-w-0 mr-4">
               <h1 className="text-xl font-semibold">
@@ -318,7 +375,7 @@ const DashboardPage = () => {
             <Button
               onClick={() =>
                 generatePdf(
-                  ["summaryReport", "detailReport"], // ✅ 요약 → 상세 (둘 다 오프스크린)
+                  ["summaryReport", "detailReport"], // 요약 → 상세 (둘 다 오프스크린)
                   `webridge-report-${displayScan?.title || "report"}.pdf`,
                   {
                     targetDpi: 144,
@@ -351,7 +408,6 @@ const DashboardPage = () => {
       <div
         id="summaryReport"
         aria-hidden
-        // display:none을 쓰면 html2canvas가 캡처 못하므로 화면 밖으로 이동
         className="fixed -left-[200vw] top-0 w-[900px] p-10 bg-white"
         style={{ zIndex: -1 }}
       >

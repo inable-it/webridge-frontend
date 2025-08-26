@@ -83,9 +83,9 @@ export default function ScanHistoryPage() {
     setSelected({});
   };
 
-  const goDetail = (scanId: string) => {
-    // 프로젝트 규칙에 맞춰 기본 카테고리 지정
-    navigate(`/scan/${scanId}/summary`);
+  const goDetail = (scanId: string, siteTitle?: string) => {
+    // Dashboard 로 이동하면서 선택한 scanId와 사이트명을 state로 전달
+    navigate("/dashboard", { state: { scanId, siteTitle } });
   };
 
   return (
@@ -143,10 +143,10 @@ export default function ScanHistoryPage() {
                   />
                 </div>
 
-                {/* 사이트명 (파란 링크 버튼 느낌) */}
+                {/* 사이트명 (링크 버튼) */}
                 <div className="col-span-4">
                   <button
-                    onClick={() => goDetail(row.id)}
+                    onClick={() => goDetail(row.id, row.title)}
                     className="font-medium text-blue-600 hover:underline"
                     title="상세 보기"
                   >
