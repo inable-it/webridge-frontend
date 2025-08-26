@@ -23,6 +23,9 @@ import { useSurveyTrigger } from "@/hooks/useSurveyTrigger";
 
 type DetailRow = Record<string, any>;
 
+/* =========================================
+ * 1) 항목 정의
+ * ======================================= */
 const CATS: {
   id: number;
   title: string;
@@ -136,6 +139,362 @@ const CATS: {
   },
 ];
 
+// 결과 prop 유니온 타입
+type Cat = (typeof CATS)[number]["prop"];
+
+/* =========================================
+ * 2) PDF 상세에 들어갈 "오류 스니펫" 추출 유틸
+ *  - 오류 보기 화면과 같은 정보(코드/HTML/메시지 등)를
+ *    최대한 뽑아오도록 키를 확장
+ * ======================================= */
+const S = (v: any) => {
+  if (v == null) return "";
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  try {
+    const flat: Record<string, any> = {};
+    Object.entries(v).forEach(([k, val]) => {
+      if (val == null) return;
+      if (["string", "number", "boolean"].includes(typeof val)) flat[k] = val;
+    });
+    const s = JSON.stringify(flat);
+    return s === "{}" ? "" : s;
+  } catch {
+    return "";
+  }
+};
+const truncate = (s: string, max = 600) =>
+  s.length > max ? s.slice(0, max) + "…" : s;
+
+const pickMany = (obj: Record<string, any>, keys: string[]) => {
+  for (const k of keys) {
+    if (k in obj) {
+      const sv = S(obj[k]);
+      if (sv) return sv;
+    }
+  }
+  return "";
+};
+
+const findDeepByKey = (obj: any, re: RegExp, maxDepth = 4): string => {
+  const seen = new WeakSet();
+  const walk = (o: any, d: number): string => {
+    if (!o || typeof o !== "object" || seen.has(o) || d > maxDepth) return "";
+    seen.add(o);
+    for (const [k, v] of Object.entries(o)) {
+      if (re.test(k)) {
+        const sv = S(v);
+        if (sv) return sv;
+      }
+      if (typeof v === "object") {
+        const got = walk(v, d + 1);
+        if (got) return got;
+      }
+    }
+    return "";
+  };
+  return walk(obj, 0);
+};
+
+const styleSnippet = (style: any) => {
+  if (!style) return "";
+  if (typeof style === "string") return style;
+  if (typeof style === "object") {
+    const bg =
+      style["background-image"] ||
+      style["backgroundImage"] ||
+      style["background"];
+    if (bg) return `background-image: ${S(bg)}`;
+    const color = style["color"] || style["fill"];
+    const fs = style["font-size"] || style["fontSize"];
+    const parts = [
+      color ? `color:${S(color)}` : "",
+      fs ? `font-size:${S(fs)}` : "",
+    ].filter(Boolean);
+    return parts.join("  ");
+  }
+  return "";
+};
+
+const CANDIDATE_KEYS_BY_CAT: Record<Cat, string[]> = {
+  alt_text_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "path",
+    "cssPath",
+    "src",
+    "image_src",
+    "data_src",
+    "currentSrc",
+    "message",
+    "reason",
+    "code",
+    "snippet",
+  ],
+  video_caption_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "src",
+    "track_src",
+    "video_src",
+    "path",
+    "message",
+    "reason",
+    "code",
+    "snippet",
+  ],
+  video_autoplay_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "src",
+    "path",
+    "message",
+    "reason",
+    "code",
+    "snippet",
+  ],
+  table_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "summary",
+    "caption",
+    "headers",
+    "message",
+    "reason",
+    "code",
+    "snippet",
+  ],
+  contrast_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "text",
+    "path",
+    "message",
+    "reason",
+    "snippet",
+  ],
+  keyboard_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "path",
+    "role",
+    "tabindex",
+    "message",
+    "reason",
+    "code",
+    "snippet",
+  ],
+  label_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "for",
+    "id",
+    "name",
+    "message",
+    "reason",
+    "code",
+    "snippet",
+  ],
+  markup_error_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "path",
+    "tag",
+    "message",
+    "error",
+    "code",
+    "snippet",
+  ],
+  basic_language_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "lang",
+    "message",
+    "reason",
+    "snippet",
+  ],
+  heading_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "text",
+    "level",
+    "message",
+    "reason",
+    "snippet",
+  ],
+  response_time_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "message",
+    "reason",
+    "snippet",
+  ],
+  pause_control_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "message",
+    "reason",
+    "snippet",
+  ],
+  flashing_results: [
+    "outerHTML",
+    "outer_html",
+    "element_html",
+    "node_html",
+    "html",
+    "selector",
+    "xpath",
+    "frequency",
+    "message",
+    "reason",
+    "snippet",
+  ],
+};
+
+function extractIssueTextForPdf(prop: Cat, r: Record<string, any>) {
+  // 1) 항목 우선 키
+  const primary = pickMany(r, CANDIDATE_KEYS_BY_CAT[prop]);
+
+  // 2) 깊이 탐색으로 html/snippet 류 보강
+  const deepHtml =
+    primary ||
+    findDeepByKey(
+      r,
+      /(outer|inner)?HTML|element_html|node_html|snippet|code/i,
+      4
+    );
+
+  // 3) 항목별 메타
+  const extras: string[] = [];
+  switch (prop) {
+    case "alt_text_results": {
+      const alt =
+        r.alt !== undefined
+          ? `alt:${S(r.alt)}`
+          : r.alt_text !== undefined
+          ? `alt:${S(r.alt_text)}`
+          : "";
+      if (alt) extras.push(alt);
+      const bg = findDeepByKey(r, /background-?image/i, 2);
+      if (bg) extras.push(`bg:${bg}`);
+      break;
+    }
+    case "video_caption_results":
+      if (r.has_transcript === false) extras.push("no transcript");
+      break;
+    case "video_autoplay_results":
+      if (r.autoplay_detected || r.autoplay) extras.push("autoplay:true");
+      break;
+    case "label_results":
+      if (r.for) extras.push(`for:${S(r.for)}`);
+      if (r.label_text) extras.push(`<label>${S(r.label_text)}</label>`);
+      break;
+    case "keyboard_results":
+      if (r.role) extras.push(`role:${S(r.role)}`);
+      if (r.tabindex != null) extras.push(`tabindex:${S(r.tabindex)}`);
+      break;
+    case "markup_error_results":
+      if (r.tag) extras.push(`<${S(r.tag)}>`);
+      if (r.message) extras.push(`msg:${S(r.message)}`);
+      break;
+    case "basic_language_results":
+      if (r.lang) extras.push(`lang:${S(r.lang)}`);
+      break;
+    case "heading_results":
+      if (r.level) extras.push(`h${S(r.level)}`);
+      break;
+  }
+
+  // 4) 최종 조립
+  const base =
+    deepHtml ||
+    pickMany(r, [
+      "selector",
+      "xpath",
+      "cssPath",
+      "path",
+      "src",
+      "image_src",
+      "data_src",
+      "href",
+      "text",
+      "textContent",
+      "name",
+      "id",
+      "tagName",
+      "title",
+      "message",
+      "reason",
+    ]) ||
+    styleSnippet(r.style);
+
+  const joined = [base, ...extras].filter(Boolean).join("  •  ");
+  return truncate(joined || "-");
+}
+
+/* =========================================
+ * 3) 가이드 텍스트
+ * ======================================= */
 const GUIDE_TEXT: Record<
   number,
   { judge: string[]; how: string[]; consider: string[] }
@@ -168,26 +527,19 @@ const DEFAULT_GUIDE = {
   ],
 };
 
+/* =========================================
+ * 4) 공통 포맷터
+ * ======================================= */
 function formatCompliance(pass: number, total: number) {
   if (!total) return "-";
   const pct = Math.round((pass / total) * 100);
   return `${pct}%(${pass}/${total})`;
 }
 
-function extractIssueText(r: Record<string, any>) {
-  return (
-    r.selector ||
-    r.src ||
-    r.text ||
-    r.path ||
-    r.id ||
-    r.name ||
-    r.tagName ||
-    JSON.stringify(r)
-  );
-}
-
-// PDF 1페이지용 요약 테이블
+/* =========================================
+ * 5) PDF 요약 테이블
+ *   - 명도 대비 항목만 준수율 하이픈 처리
+ * ======================================= */
 const PdfSummaryTable = ({
   selectedScanDetail,
 }: {
@@ -208,13 +560,15 @@ const PdfSummaryTable = ({
             (selectedScanDetail && selectedScanDetail[cat.prop]) || [];
           const pass = all.filter(cat.isPass).length;
           const total = all.length || 0;
+
+          const isContrast = cat.prop === "contrast_results";
+          const display = isContrast ? "-" : formatCompliance(pass, total);
+
           return (
             <tr key={cat.id} className="border-b last:border-b-0">
               <td className="p-3">{cat.id}</td>
               <td className="p-3">{cat.title}</td>
-              <td className="p-3 text-right">
-                {formatCompliance(pass, total)}
-              </td>
+              <td className="p-3 text-right">{display}</td>
             </tr>
           );
         })}
@@ -223,6 +577,9 @@ const PdfSummaryTable = ({
   );
 };
 
+/* =========================================
+ * 6) 페이지 본문
+ * ======================================= */
 const DashboardPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -497,7 +854,8 @@ const DashboardPage = () => {
               (selectedScanDetail && selectedScanDetail[cat.prop]) || [];
             const pass = all.filter(cat.isPass).length;
             const total = all.length || 0;
-            const issues = all.filter(cat.isFail);
+            const isContrast = cat.prop === "contrast_results";
+            const issues = isContrast ? [] : all.filter(cat.isFail);
             const guide = GUIDE_TEXT[cat.id] || DEFAULT_GUIDE;
 
             return (
@@ -507,39 +865,49 @@ const DashboardPage = () => {
                     [상세 보고서] {cat.id}. {cat.title}
                   </h2>
                   <div className="text-sm text-gray-600">
-                    준수율 : {formatCompliance(pass, total)}
+                    준수율 : {isContrast ? "-" : formatCompliance(pass, total)}
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-2xl">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="w-20 p-3 text-left">순번</th>
-                        <th className="p-3 text-left">미준수 항목</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {issues.length ? (
-                        issues.map((r, idx) => (
-                          <tr key={idx} className="border-b last:border-b-0">
-                            <td className="p-3">{idx + 1}</td>
-                            <td className="p-3 break-all">
-                              {extractIssueText(r)}
+                {/* 명도 대비는 지원 제외 안내 */}
+                {isContrast ? (
+                  <div className="p-6 text-center border border-gray-200 rounded-2xl">
+                    <p className="font-medium text-red-600">
+                      현재 지원하지 않는 검사 항목입니다.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-white border border-gray-200 rounded-2xl">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="w-20 p-3 text-left">순번</th>
+                          <th className="p-3 text-left">미준수 항목</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {issues.length ? (
+                          issues.map((r, idx) => (
+                            <tr key={idx} className="border-b last:border-b-0">
+                              <td className="p-3">{idx + 1}</td>
+                              <td className="p-3 break-all">
+                                {extractIssueTextForPdf(cat.prop, r)}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td className="p-4 text-gray-500" colSpan={2}>
+                              표기할 이슈가 없습니다.
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td className="p-4 text-gray-500" colSpan={2}>
-                            표기할 이슈가 없습니다.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
 
+                {/* 가이드 */}
                 <div className="rounded-2xl bg-[#eaf2ff] p-5 space-y-3">
                   <p className="font-semibold">
                     [수정 참고 가이드] {cat.id}. {cat.title}
