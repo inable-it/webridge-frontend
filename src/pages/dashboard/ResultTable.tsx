@@ -46,7 +46,7 @@ const DEFAULT_ITEMS: ResultItem[] = [
     name: "자막 제공",
     score: "검사 대기",
     type: "검사 시작",
-    category: "video",
+    category: "video_caption",
   },
   {
     id: 3,
@@ -60,7 +60,7 @@ const DEFAULT_ITEMS: ResultItem[] = [
     name: "자동 재생 금지",
     score: "검사 대기",
     type: "검사 시작",
-    category: "video",
+    category: "video_autoplay",
   },
   {
     id: 5,
@@ -161,16 +161,19 @@ function buildItems(
       {
         id: 2,
         name: "자막 제공",
-        score: v.video_completed
-          ? v.video_results
+        score: v.video_caption_completed
+          ? v.video_caption_results
             ? `${
-                v.video_results.filter((r: any) => r.has_transcript).length
-              } / ${v.video_results.length}`
+                v.video_caption_results.filter((r: any) => r.has_transcript)
+                  .length
+              } / ${v.video_caption_results.length}`
             : "검사 완료"
           : "검사중...",
-        type: v.video_completed ? "오류 확인" : "진행중",
-        hasIssues: (v.video_results || []).some((r: any) => !r.has_transcript),
-        category: "video",
+        type: v.video_caption_completed ? "오류 확인" : "진행중",
+        hasIssues: (v.video_caption_results || []).some(
+          (r: any) => !r.has_transcript
+        ),
+        category: "video_caption",
       },
       {
         id: 3,
@@ -189,18 +192,19 @@ function buildItems(
       {
         id: 4,
         name: "자동 재생 금지",
-        score: v.video_completed
-          ? v.video_results
+        score: v.video_autoplay_completed
+          ? v.video_autoplay_results
             ? `${
-                v.video_results.filter((r: any) => r.autoplay_disabled).length
-              } / ${v.video_results.length}`
+                v.video_autoplay_results.filter((r: any) => r.autoplay_disabled)
+                  .length
+              } / ${v.video_autoplay_results.length}`
             : "검사 완료"
           : "검사중...",
-        type: v.video_completed ? "오류 확인" : "진행중",
-        hasIssues: (v.video_results || []).some(
+        type: v.video_autoplay_completed ? "오류 확인" : "진행중",
+        hasIssues: (v.video_autoplay_results || []).some(
           (r: any) => !r.autoplay_disabled
         ),
-        category: "video",
+        category: "video_autoplay",
       },
       {
         id: 5,
@@ -344,7 +348,6 @@ function buildItems(
 
   const v = detail;
   return [
-    // ... (완료 시 분기 기존 로직 그대로)
     ...DEFAULT_ITEMS.map((base) => {
       const key = `${base.category}_results`;
       const res = v[key];
@@ -352,25 +355,46 @@ function buildItems(
       let hasIssues = false;
 
       if (Array.isArray(res)) {
-        if (base.category === "alt_text") {
-          score = `${res.filter((r: any) => r.compliance === 0).length} / ${
-            res.length
-          }`;
-          hasIssues = res.some((r: any) => r.compliance !== 0);
-        } else if (base.category === "video") {
-          score = `${
-            res.filter((r: any) => r.has_transcript ?? r.autoplay_disabled)
-              .length
-          } / ${res.length}`;
-          hasIssues = res.some(
-            (r: any) => !(r.has_transcript ?? r.autoplay_disabled)
-          );
-        } else {
-          score = `${res.filter((r: any) => r.compliant).length} / ${
-            res.length
-          }`;
-          hasIssues = res.some((r: any) => !r.compliant);
+        let passCount = 0;
+
+        switch (base.category) {
+          case "alt_text":
+            passCount = res.filter((r: any) => r.compliance === 0).length;
+            hasIssues = res.some((r: any) => r.compliance !== 0);
+            break;
+
+          case "video_caption":
+            passCount = res.filter((r: any) => r.has_transcript).length;
+            hasIssues = res.some((r: any) => !r.has_transcript);
+            break;
+
+          case "video_autoplay":
+            passCount = res.filter((r: any) => r.autoplay_disabled).length;
+            hasIssues = res.some((r: any) => !r.autoplay_disabled);
+            break;
+
+          case "contrast":
+            passCount = res.filter((r: any) => r.wcag_compliant).length;
+            hasIssues = res.some((r: any) => !r.wcag_compliant);
+            break;
+
+          case "keyboard":
+            passCount = res.filter((r: any) => r.accessible).length;
+            hasIssues = res.some((r: any) => !r.accessible);
+            break;
+
+          case "label":
+            passCount = res.filter((r: any) => r.label_present).length;
+            hasIssues = res.some((r: any) => !r.label_present);
+            break;
+
+          default:
+            // table / basic_language / markup_error / heading / response_time / pause_control / flashing
+            passCount = res.filter((r: any) => r.compliant).length;
+            hasIssues = res.some((r: any) => !r.compliant);
         }
+
+        score = `${passCount} / ${res.length}`;
       }
 
       return { ...base, score, hasIssues, type: "오류 확인" as const };

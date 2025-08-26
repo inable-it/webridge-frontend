@@ -6,7 +6,7 @@ export type CreateScanRequest = {
 };
 
 // 스캔 상태 타입
-export type ScanStatus = 'pending' | 'processing' | 'completed' | 'failed';
+export type ScanStatus = "pending" | "processing" | "completed" | "failed";
 
 // 준수 상태 타입 (이미지 대체 텍스트용)
 export type ComplianceStatus = 0 | 1 | 2 | 3; // 0: 문제없음, 1: 개선필요, 2: 미준수, 3: 오류
@@ -57,15 +57,25 @@ export type TableResult = {
   created_at: string;
 };
 
+/**
+ * 비디오 결과 하위 호환 타입
+ * - 자막 관련(`video_caption_results`)과 자동재생 관련(`video_autoplay_results`)
+ *   응답을 모두 수용할 수 있도록 필드들을 선택적(optional)로 두었습니다.
+ */
 export type VideoResult = {
   id: number;
   video_url: string;
-  has_thumbnail: boolean;
-  has_transcript: boolean;
-  has_audio_description: boolean;
-  keyboard_accessible: boolean;
-  has_aria_label: boolean;
-  autoplay_disabled: boolean;
+  has_thumbnail?: boolean;
+
+  // 자막/대본/오디오설명/라벨 등 캡션 관련
+  has_transcript?: boolean;
+  has_audio_description?: boolean;
+  has_aria_label?: boolean;
+
+  // 키보드 접근/자동재생 등 플레이어 제어 관련
+  keyboard_accessible?: boolean;
+  autoplay_disabled?: boolean;
+
   created_at: string;
 };
 
@@ -150,7 +160,7 @@ export type FlashingResult = {
 
 // 리포트 타입
 export type ScanReport = {
-  format: 'pdf' | 'excel' | 'json';
+  format: "pdf" | "excel" | "json";
   generated_at: string;
   download_count: number;
   download_url: string | null;
@@ -180,7 +190,7 @@ export type AccessibilityScanListItem = {
   completed_at: string | null;
 };
 
-// 스캔 상세 정보 응답 타입
+// 스캔 상세 정보 응답 타입 (실제 API 스키마 반영)
 export type AccessibilityScanDetail = {
   id: string;
   url: string;
@@ -191,43 +201,51 @@ export type AccessibilityScanDetail = {
   total_issues: number;
   compliance_score: number;
   completion_percentage: number;
-  
+
   // 각 검사별 완료 상태
   alt_text_completed: boolean;
   contrast_completed: boolean;
   keyboard_completed: boolean;
   label_completed: boolean;
   table_completed: boolean;
-  video_completed: boolean;
+
+  // 비디오가 자막/자동재생으로 분리됨
+  video_caption_completed: boolean;
+  video_autoplay_completed: boolean;
+
   basic_language_completed: boolean;
   markup_error_completed: boolean;
   heading_completed: boolean;
   response_time_completed: boolean;
   pause_control_completed: boolean;
   flashing_completed: boolean;
-  
+
   created_at: string;
   updated_at: string;
   completed_at: string | null;
   error_message: string | null;
-  
+
   // 각 검사 결과들
   alt_text_results: AltTextResult[];
   contrast_results: ContrastResult[];
   keyboard_results: KeyboardResult[];
   label_results: LabelResult[];
   table_results: TableResult[];
-  video_results: VideoResult[];
+
+  // 분리된 비디오 결과 배열
+  video_caption_results: VideoResult[];
+  video_autoplay_results: VideoResult[];
+
   basic_language_results: BasicLanguageResult[];
   markup_error_results: MarkupErrorResult[];
   heading_results: HeadingResult[];
   response_time_results: ResponseTimeResult[];
   pause_control_results: PauseControlResult[];
   flashing_results: FlashingResult[];
-  
+
   // 리포트 정보
   report: ScanReport | null;
-  
+
   // 스캔 요약
   scan_summary: ScanSummaryItem[];
 };
@@ -255,17 +273,15 @@ export type ScanProgress = {
   current_test?: string;
   message?: string;
   timestamp?: string;
-  type?: 'initial' | 'progress' | 'error' | 'fatal_error';
+  type?: "initial" | "progress" | "error" | "fatal_error";
   final?: boolean;
   error?: string;
 };
 
-// 리포트 생성 요청 타입
+// 리포트 생성 요청/응답 타입
 export type GenerateReportRequest = {
-  format: 'pdf' | 'excel' | 'json';
+  format: "pdf" | "excel" | "json";
 };
-
-// 리포트 생성 응답 타입
 export type GenerateReportResponse = {
   task_id: string;
   message: string;
@@ -289,50 +305,52 @@ export const scanApi = privateApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: [{ type: 'Scan', id: 'LIST' }],
+      invalidatesTags: [{ type: "Scan", id: "LIST" }],
     }),
 
     // 스캔 목록 조회
     getScanList: builder.query<
       ScanListResponse,
-      { 
+      {
         status?: ScanStatus;
         ordering?: string;
         page?: number;
         page_size?: number;
       }
     >({
-      query: ({ status, ordering = '-created_at', page = 1, page_size = 10 } = {}) => {
+      query: ({
+        status,
+        ordering = "-created_at",
+        page = 1,
+        page_size = 10,
+      } = {}) => {
         const params = new URLSearchParams({
           ordering,
           page: page.toString(),
           page_size: page_size.toString(),
         });
-        
-        if (status) {
-          params.append('status', status);
-        }
-        
-        return {
-          url: `scans/?${params.toString()}`,
-        };
+
+        if (status) params.append("status", status);
+
+        return { url: `scans/?${params.toString()}` };
       },
       providesTags: (result) =>
         result
           ? [
-              ...result.results.map(({ id }) => ({ type: 'Scan' as const, id })),
-              { type: 'Scan', id: 'LIST' },
+              ...result.results.map(({ id }) => ({
+                type: "Scan" as const,
+                id,
+              })),
+              { type: "Scan", id: "LIST" },
             ]
-          : [{ type: 'Scan', id: 'LIST' }],
+          : [{ type: "Scan", id: "LIST" }],
     }),
 
     // 스캔 상세 조회
     getScanDetail: builder.query<AccessibilityScanDetail, string>({
-      query: (scanId) => ({
-        url: `scans/${scanId}/`,
-      }),
-      providesTags: (_result, _error, scanId) => [{ type: 'Scan', id: scanId }],
-  }),
+      query: (scanId) => ({ url: `scans/${scanId}/` }),
+      providesTags: (_result, _error, scanId) => [{ type: "Scan", id: scanId }],
+    }),
 
     // 스캔 삭제
     deleteScan: builder.mutation<void, string>({
@@ -341,16 +359,14 @@ export const scanApi = privateApi.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: (_result, _error, scanId) => [
-        { type: 'Scan', id: 'LIST' },
-        { type: 'Scan', id: scanId }
+        { type: "Scan", id: "LIST" },
+        { type: "Scan", id: scanId },
       ],
     }),
 
     // 스캔 진행 상황 조회
     getScanProgress: builder.query<ScanProgress, string>({
-      query: (scanId) => ({
-        url: `scans/${scanId}/progress/`,
-      }),
+      query: (scanId) => ({ url: `scans/${scanId}/progress/` }),
     }),
 
     // 리포트 생성
@@ -364,15 +380,13 @@ export const scanApi = privateApi.injectEndpoints({
         body: data,
       }),
       invalidatesTags: (_result, _error, { scanId }) => [
-        { type: 'Scan', id: scanId }
+        { type: "Scan", id: scanId },
       ],
     }),
 
     // 리포트 다운로드 (URL 반환)
     getReportDownloadUrl: builder.query<{ download_url: string }, string>({
-      query: (scanId) => ({
-        url: `scans/${scanId}/download-report/`,
-      }),
+      query: (scanId) => ({ url: `scans/${scanId}/download-report/` }),
     }),
 
     // 스캔 재시작
@@ -382,8 +396,8 @@ export const scanApi = privateApi.injectEndpoints({
         method: "POST",
       }),
       invalidatesTags: (_result, _error, scanId) => [
-        { type: 'Scan', id: 'LIST' },
-        { type: 'Scan', id: scanId }
+        { type: "Scan", id: "LIST" },
+        { type: "Scan", id: scanId },
       ],
     }),
   }),

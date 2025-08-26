@@ -28,7 +28,8 @@ const CATS: {
   title: string;
   prop:
     | "alt_text_results"
-    | "video_results"
+    | "video_caption_results"
+    | "video_autoplay_results"
     | "table_results"
     | "contrast_results"
     | "keyboard_results"
@@ -52,7 +53,7 @@ const CATS: {
   {
     id: 2,
     title: "자막 제공",
-    prop: "video_results",
+    prop: "video_caption_results",
     isFail: (r) => !r.has_transcript,
     isPass: (r) => !!r.has_transcript,
   },
@@ -66,7 +67,7 @@ const CATS: {
   {
     id: 4,
     title: "자동 재생 금지",
-    prop: "video_results",
+    prop: "video_autoplay_results",
     isFail: (r) => !r.autoplay_disabled,
     isPass: (r) => !!r.autoplay_disabled,
   },
@@ -224,9 +225,9 @@ const PdfSummaryTable = ({
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // ← 히스토리에서 온 state 수신
-  const [searchParams] = useSearchParams(); // ← ?scanId= 딥링크도 지원
-  const resultPanelRef = useRef<HTMLDivElement | null>(null); // 선택 후 스크롤 포커스용
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const resultPanelRef = useRef<HTMLDivElement | null>(null);
   const { generatePdf } = usePdfGenerator();
 
   const {
@@ -275,7 +276,6 @@ const DashboardPage = () => {
 
     setSelectedScanId(incomingScanId);
 
-    // 결과 패널로 부드럽게 스크롤
     requestAnimationFrame(() => {
       resultPanelRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -283,7 +283,6 @@ const DashboardPage = () => {
       });
     });
 
-    // state/쿼리 제거(뒤로가기 중복 방지)
     const opts: NavigateOptions = { replace: true, state: {} };
     if (searchParams.has("scanId")) {
       const sp = new URLSearchParams(searchParams);
@@ -356,7 +355,7 @@ const DashboardPage = () => {
               <p className="mt-1 text-sm text-gray-500 break-words">
                 {displayScan ? (
                   <>
-                    홈페이지명 : {displayScan.title} <br />
+                    홈페이지명 : {displayScan.title || "(제목 없음)"} <br />
                     <span className="break-all">{displayScan.url}</span>
                   </>
                 ) : (
@@ -391,7 +390,7 @@ const DashboardPage = () => {
             </Button>
           </div>
 
-          {/* 대시보드 화면에서만 보이는 기본 테이블(원하면 유지/삭제 가능) */}
+          {/* 대시보드 화면에서만 보이는 기본 테이블 */}
           <div className="p-6 bg-white border rounded-lg">
             <ResultTable
               displayScan={displayScan}
