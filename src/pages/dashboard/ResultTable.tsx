@@ -17,6 +17,25 @@ type ResultItem = {
   category?: string;
 };
 
+/** ===== 조사(은/는) 자동 선택 헬퍼 START ===== */
+function hasFinalConsonant(k: string): boolean {
+  // 뒤에서부터 한글 음절(가~힣) 찾고 종성 유무로 판정
+  for (let i = k.trim().length - 1; i >= 0; i--) {
+    const ch = k.trim().charCodeAt(i);
+    // 한글 음절 범위
+    if (ch >= 0xac00 && ch <= 0xd7a3) {
+      const code = ch - 0xac00;
+      const jong = code % 28; // 0이면 받침 없음
+      return jong !== 0;
+    }
+    // 한글이 아니면 계속 앞으로 탐색 (괄호/기호/숫자 등 스킵)
+  }
+  // 한글이 전혀 없으면 기본적으로 '는' 선택
+  return false;
+}
+function withTopicJosa(s: string): string {
+  return `${s}${hasFinalConsonant(s) ? "은" : "는"}`;
+}
 const EXPLANATION_TEXT: Record<number, string> = {
   1: "이미지에 간단한 설명을 넣으면,\n화면을 보지 못해도 내용을 이해할 수 있어요.",
   2: "영상에 자막을 넣으면 소리를\n듣기 어려운 사람도 내용을 이해할 수 있어요.",
@@ -473,7 +492,7 @@ export const ResultTable = ({
                       className="p-4 space-y-2 text-left text-gray-800 bg-white border border-gray-200 shadow-xl w-80 rounded-xl dark:bg-neutral-900 dark:border-neutral-800 dark:text-gray-100"
                     >
                       <p className="text-[13px] font-semibold text-blue-600">
-                        {item.name}은 왜 필요할까요?
+                        {withTopicJosa(item.name)} 왜 필요할까요?
                       </p>
                       <p className="text-[13px] leading-5 text-gray-600 whitespace-pre-line text-left">
                         {EXPLANATION_TEXT[item.id] ??
