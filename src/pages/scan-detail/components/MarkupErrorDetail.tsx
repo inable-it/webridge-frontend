@@ -100,35 +100,6 @@ const MarkupErrorDetail = ({ results }: Props) => {
                 {result.element_html}
               </div>
             </div>
-
-            {result.total_errors > 0 && (
-              <div>
-                <label className="text-xs font-medium text-gray-500">
-                  총 오류 수
-                </label>
-                <div className="mt-1 text-lg font-semibold text-red-600">
-                  {result.total_errors}개
-                </div>
-              </div>
-            )}
-
-            {result.error_details && result.error_details.length > 0 && (
-              <div>
-                <label className="text-xs font-medium text-gray-500">
-                  오류 상세
-                </label>
-                <div className="mt-1 space-y-1">
-                  {result.error_details.map((error, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2 text-sm text-red-700 rounded bg-red-50"
-                    >
-                      {error.message}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       ))}
