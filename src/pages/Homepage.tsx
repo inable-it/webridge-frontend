@@ -85,7 +85,7 @@ const ActionButton = ({
     className={`${STYLES.button.base} ${STYLES.button[variant]}`}
   >
     <span className={STYLES.text.button}>{children}</span>
-    {icon && <img src={icon} alt="Arrow Right" className="w-6 h-6" />}
+    {icon && <img src={icon} alt="다음으로 이동" className="w-6 h-6" />}
   </button>
 );
 
@@ -457,7 +457,7 @@ const FeatureSectionAnimated = () => {
 
         {/* 하단 오른쪽: 리포트 카드(정적 이미지) */}
         <FadeInSection>
-          <img src="/slide2.2.png" alt="접근성 리포트 샘플" />
+          <img src="/slide2.2.png" alt="WEBridge 접근성 보고서 화면 예시" />
         </FadeInSection>
       </div>
     </section>

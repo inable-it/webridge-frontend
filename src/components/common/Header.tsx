@@ -56,39 +56,38 @@ export const Header = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 최초 렌더링에서만 검사
 
-    const handleLogout = async () => {
-        const refreshToken =
-            localStorage.getItem("refreshToken") ||
-            localStorage.getItem("refresh_token");
+  const handleLogout = async () => {
+    const refreshToken =
+      localStorage.getItem("refreshToken") ||
+      localStorage.getItem("refresh_token");
 
-        if (!refreshToken) {
-            // 서버 요청 생략하고 로컬 초기화만
-            await clearAllData();
-            toast({
-                title: "로그아웃 완료",
-                description: "성공적으로 로그아웃되었습니다.",
-            });
-            return;
-        }
+    if (!refreshToken) {
+      // 서버 요청 생략하고 로컬 초기화만
+      await clearAllData();
+      toast({
+        title: "로그아웃 완료",
+        description: "성공적으로 로그아웃되었습니다.",
+      });
+      return;
+    }
 
-        try {
-            await logout({ refresh: refreshToken }).unwrap();
-            await clearAllData();
-            toast({
-                title: "로그아웃 완료",
-                description: "성공적으로 로그아웃되었습니다.",
-            });
-        } catch (error) {
-            console.error("로그아웃 실패", error);
-            await clearAllData();
-            toast({
-                variant: "destructive",
-                title: "로그아웃 실패",
-                description: "로컬 데이터는 정리되었습니다.",
-            });
-        }
-    };
-
+    try {
+      await logout({ refresh: refreshToken }).unwrap();
+      await clearAllData();
+      toast({
+        title: "로그아웃 완료",
+        description: "성공적으로 로그아웃되었습니다.",
+      });
+    } catch (error) {
+      console.error("로그아웃 실패", error);
+      await clearAllData();
+      toast({
+        variant: "destructive",
+        title: "로그아웃 실패",
+        description: "로컬 데이터는 정리되었습니다.",
+      });
+    }
+  };
 
   // 로고 클릭 핸들러
   const handleLogoClick = () => {
@@ -118,7 +117,7 @@ export const Header = () => {
           className="flex justify-center items-center gap-3.5 cursor-pointer transition-opacity hover:opacity-80"
           onClick={handleLogoClick}
         >
-          <img src="/logo.svg" alt="logo" className="w-11 h-11" />
+          <img src="/logo.svg" alt="WEBridge Logo" className="w-11 h-11" />
           <div className="text-center text-[#101828] text-2xl font-bold font-['Pretendard_Variable'] leading-8">
             WEBridge
           </div>
