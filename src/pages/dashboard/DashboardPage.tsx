@@ -1051,7 +1051,9 @@ const DashboardPage = () => {
 
                 {/* 가이드 */}
                 <div className="rounded-2xl bg-[#eaf2ff] p-5 space-y-3">
-                  <p className="font-semibold"> [{cat.title}] 수정 가이드</p>
+                  <span className="font-bold text-blue-700 text-md">
+                    [ {cat.title} ] 수정 가이드
+                  </span>
 
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-gray-700">
