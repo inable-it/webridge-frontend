@@ -96,8 +96,8 @@ const MarkupErrorDetail = ({ results }: Props) => {
               <label className="text-xs font-medium text-gray-500">
                 검사 결과
               </label>
-              <div className="p-2 mt-1 text-sm rounded bg-gray-50">
-                {result.message}
+              <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">
+                {result.element_html}
               </div>
             </div>
 
@@ -123,7 +123,7 @@ const MarkupErrorDetail = ({ results }: Props) => {
                       key={idx}
                       className="p-2 text-sm text-red-700 rounded bg-red-50"
                     >
-                      {error}
+                      {error.message}
                     </div>
                   ))}
                 </div>

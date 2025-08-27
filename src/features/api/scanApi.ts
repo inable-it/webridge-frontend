@@ -15,16 +15,20 @@ export type ComplianceStatus = 0 | 1 | 2 | 3; // 0: 문제없음, 1: 개선필�
 export type AltTextResult = {
   id: number;
   img_url: string;
+  element_html: string;
   alt_text: string;
   suggested_alt: string;
   compliance: ComplianceStatus;
   compliance_display: string;
   created_at: string;
+  user_feedback: string;
+  has_ai_suggestion: boolean;
 };
 
 export type ContrastResult = {
   id: number;
   text_content: string;
+  element_html: string;
   foreground_color: string;
   background_color: string;
   contrast_ratio: number;
@@ -35,6 +39,7 @@ export type ContrastResult = {
 export type KeyboardResult = {
   id: number;
   element_type: string;
+  element_html: string;
   accessible: boolean;
   message: string;
   created_at: string;
@@ -43,6 +48,7 @@ export type KeyboardResult = {
 export type LabelResult = {
   id: number;
   input_type: string;
+  element_html: string;
   label_present: boolean;
   message: string;
   created_at: string;
@@ -52,6 +58,7 @@ export type TableResult = {
   id: number;
   headers_count: number;
   rows_count: number;
+  element_html: string;
   compliant: boolean;
   message: string;
   created_at: string;
@@ -62,19 +69,30 @@ export type TableResult = {
  * - 자막 관련(`video_caption_results`)과 자동재생 관련(`video_autoplay_results`)
  *   응답을 모두 수용할 수 있도록 필드들을 선택적(optional)로 두었습니다.
  */
+
+export type VideoAutoPlayResult = {
+  id: number;
+  video_url: string;
+  element_html: string;
+  autoplay_disabled: boolean;
+  keyboard_accessible: boolean;
+  compliant: boolean;
+  message: string;
+  created_at: string;
+};
+
 export type VideoResult = {
   id: number;
   video_url: string;
+  element_html: string;
   has_thumbnail?: boolean;
 
   // 자막/대본/오디오설명/라벨 등 캡션 관련
   has_transcript?: boolean;
   has_audio_description?: boolean;
   has_aria_label?: boolean;
-
-  // 키보드 접근/자동재생 등 플레이어 제어 관련
-  keyboard_accessible?: boolean;
-  autoplay_disabled?: boolean;
+  compliant: boolean;
+  message: string;
 
   created_at: string;
 };
@@ -83,6 +101,7 @@ export type BasicLanguageResult = {
   id: number;
   lang_attribute: string;
   compliant: boolean;
+  element_html: string;
   message: string;
   created_at: string;
 };
@@ -90,7 +109,12 @@ export type BasicLanguageResult = {
 export type MarkupErrorResult = {
   id: number;
   total_errors: number;
-  error_details: string[];
+  error_details: {
+    type: string;
+    message: string;
+    line: number;
+  }[];
+  element_html: string;
   compliant: boolean;
   message: string;
   created_at: string;
@@ -124,6 +148,7 @@ export type HeadingResult = {
   // 전체 결과
   total_issues: number;
   issues_details: string[];
+  element_html: string;
   compliant: boolean;
   message: string;
   detailed_results: Record<string, unknown>;
@@ -134,6 +159,7 @@ export type ResponseTimeResult = {
   id: number;
   has_time_limit: boolean;
   short_timeouts: number;
+  element_html: string;
   compliant: boolean;
   message: string;
   created_at: string;
@@ -143,6 +169,7 @@ export type PauseControlResult = {
   id: number;
   auto_elements_found: number;
   elements_without_pause: number;
+  element_html: string;
   compliant: boolean;
   message: string;
   created_at: string;
@@ -153,6 +180,7 @@ export type FlashingResult = {
   flashing_elements_count: number;
   has_flashing_script: boolean;
   issue_details: string[];
+  element_html: string;
   compliant: boolean;
   message: string;
   created_at: string;
@@ -234,7 +262,7 @@ export type AccessibilityScanDetail = {
 
   // 분리된 비디오 결과 배열
   video_caption_results: VideoResult[];
-  video_autoplay_results: VideoResult[];
+  video_autoplay_results: VideoAutoPlayResult[];
 
   basic_language_results: BasicLanguageResult[];
   markup_error_results: MarkupErrorResult[];

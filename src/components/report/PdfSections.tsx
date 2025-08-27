@@ -148,14 +148,26 @@ export const DetailReport = ({
                     </thead>
                     <tbody>
                       {issues.length ? (
-                        issues.map((r, idx) => (
-                          <tr key={idx} className="border-b last:border-b-0">
-                            <td className="p-3">{idx + 1}</td>
-                            <td className="p-3 break-all">
-                              {extractIssueTextForPdf(cat.prop, r)}
-                            </td>
-                          </tr>
-                        ))
+                        issues.map((r, idx) => {
+                          const content =
+                            // 1) 요소 HTML이 있으면 그걸 우선 표시
+                            (r as any)?.element_html &&
+                            String((r as any).element_html).trim()
+                              ? (r as any).element_html
+                              : // 2) 없으면 기존 스니펫 추출 로직 사용
+                                extractIssueTextForPdf(cat.prop, r);
+
+                          return (
+                            <tr key={idx} className="border-b last:border-b-0">
+                              <td className="p-3">{idx + 1}</td>
+                              <td className="p-3">
+                                <div className="break-all whitespace-pre-wrap font-mono text-[12px] leading-5">
+                                  {content}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
                       ) : (
                         <tr>
                           <td className="p-4 text-gray-500" colSpan={2}>

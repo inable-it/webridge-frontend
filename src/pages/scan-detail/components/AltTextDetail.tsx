@@ -326,12 +326,9 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                       이미지 URL
                     </label>
                     <div className="p-2 mt-1 font-mono text-sm break-all rounded bg-gray-50">
-                      &lt;img alt="" src="
                       {result.element_html.length > 100
                         ? result.element_html.substring(0, 100) + "..."
                         : result.element_html}
-                      " style="width: 776px; height: 448px; border: none;
-                      filter: none;"&gt;
                     </div>
                   </div>
 

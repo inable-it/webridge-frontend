@@ -81,7 +81,7 @@ const PauseControlDetail = ({ results }: Props) => {
                 검사 결과
               </label>
               <div className="p-2 mt-1 text-sm rounded bg-gray-50">
-                {result.message}
+                {result.element_html}
               </div>
             </div>
 

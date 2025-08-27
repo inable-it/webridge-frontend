@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, XCircle } from "lucide-react";
-import type { VideoResult } from "@/features/api/scanApi";
+import type { VideoAutoPlayResult } from "@/features/api/scanApi";
 
-type Props = { results: VideoResult[]; scanUrl?: string };
+type Props = { results: VideoAutoPlayResult[]; scanUrl?: string };
 
 const AutoPlayDetail = ({ results }: Props) => {
   return (
