@@ -11,6 +11,7 @@ import HeadingDetail from "@/pages/scan-detail/components/HeadingDetail";
 import ResponseTimeDetail from "@/pages/scan-detail/components/ResponseTimeDetail";
 import PauseControlDetail from "@/pages/scan-detail/components/PauseControlDetail";
 import FlashingDetail from "@/pages/scan-detail/components/FlashingDetail";
+import AutoPlayDetail from "@/pages/scan-detail/components/AutoPlayDetail";
 import React from "react";
 
 type CategoryInfo = {
@@ -25,6 +26,7 @@ export const getCategoryInfo = (category: string): CategoryInfo => {
     keyboard: { title: "키보드 사용 보장", component: KeyboardDetail },
     label: { title: "레이블 제공", component: LabelDetail },
     table: { title: "표의 구성", component: TableDetail },
+    auto_play: { title: "자동 재생 금지", component: AutoPlayDetail },
     video: { title: "자막 제공", component: VideoDetail },
     basic_language: { title: "기본 언어 표시", component: BasicLanguageDetail },
     markup_error: { title: "마크업 오류 방지", component: MarkupErrorDetail },

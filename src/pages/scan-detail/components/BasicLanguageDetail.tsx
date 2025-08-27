@@ -8,12 +8,35 @@ type Props = { results: BasicLanguageResult[]; scanUrl?: string };
 const BasicLanguageDetail = ({ results }: Props) => {
   return (
     <div className="space-y-4">
-      <div className="p-4 mb-6 border rounded-lg bg-sky-50 border-sky-200">
+      <div className="p-4 mb-6 border border-blue-200 rounded-lg bg-blue-50">
         <div className="flex items-center gap-2 mb-2">
-          <span className="font-bold text-md text-sky-700">
+          <span className="font-bold text-blue-700 text-md">
             [ 기본 언어 표시 ] 수정 가이드
           </span>
         </div>
+        <div className="flex items-center gap-2 mt-4 mb-2">
+          <span className="text-sm font-bold">
+            ℹ️ WEBridge는 [기본 언어 표시] 미준수 여부를 다음 기준으로 확인해요.
+          </span>
+        </div>
+        <ul className="space-y-1 text-sm">
+          <li>• 웹 페이지의 기본 언어 표시가 명시되어 있지 않은 경우</li>
+        </ul>
+        <div className="flex items-center gap-2 mt-4 mb-2">
+          <span className="text-sm font-bold">
+            ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
+          </span>
+        </div>
+        <ul className="space-y-1 text-sm">
+          <li>
+            • 웹 페이지에서 제공하는 콘텐츠에 적용되는 기본 언어를 반드시
+            정의해야 해요.
+          </li>
+          <li>
+            • 기본 언어 표시는 HTML 태그에 lang 속성을 사용하여 "ISO639-1"에서
+            지정한 두 글자로 된 언어 코드로 제공할 수 있어요.
+          </li>
+        </ul>
       </div>
 
       {results.map((result, index) => (

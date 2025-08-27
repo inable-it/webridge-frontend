@@ -8,9 +8,9 @@ type Props = { results: ContrastResult[]; scanUrl?: string };
 const ContrastDetail = ({ results }: Props) => {
   return (
     <div className="space-y-4">
-      <div className="p-4 mb-6 border border-orange-200 rounded-lg bg-orange-50">
+      <div className="p-4 mb-6 border border-blue-200 rounded-lg bg-blue-50">
         <div className="flex items-center gap-2 mb-2">
-          <span className="font-bold text-orange-700 text-md">
+          <span className="font-bold text-blue-700 text-md">
             [ 텍스트 콘텐츠의 명도 대비 ] 수정 가이드
           </span>
         </div>
@@ -30,8 +30,27 @@ const ContrastDetail = ({ results }: Props) => {
         </div>
         <ul className="space-y-1 text-sm">
           <li>
-            • 텍스트/텍스트 이미지와 배경 간 대비가 4.5:1 이상이 되도록 색상을
-            사용해야 해요.
+            • 텍스트 콘텐츠(텍스트 및 텍스트 이미지)와 배경 간의 명도 대비가 4.5
+            대 1 이상이 되도록 색상을 사용해야 해요.
+          </li>
+        </ul>
+        <div className="flex items-center gap-2 mt-4 mb-2">
+          <span className="text-sm font-bold">
+            💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
+          </span>
+        </div>
+        <ul className="space-y-1 text-sm">
+          <li>
+            • 굵은 텍스트 폰트(18pt 이상 또는 14pt 이상)를 이용한다면 명도
+            대비를 3 대 1까지 낮출 수 있어요.
+          </li>
+          <li>
+            • 화면 확대가 가능한 텍스트 콘텐츠라면 명도 대비를 3 대 1까지 낮출
+            수 있어요.
+          </li>
+          <li>
+            • 로고, 장식 목적의 콘텐츠, 마우스나 키보드를 활용하여 초점을 받았을
+            때 명도 대비가 커지는 콘텐츠 등은 예외로 해요.
           </li>
         </ul>
       </div>
