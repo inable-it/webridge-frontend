@@ -1,57 +1,143 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle, Copy, XCircle } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Copy,
+  XCircle,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import type { AltTextResult, ComplianceStatus } from "@/features/api/scanApi";
+import { useCreateAltTextFeedbackMutation } from "@/features/api/altTextFeedbackApi";
 
 type Props = {
   results: AltTextResult[];
   scanUrl?: string;
 };
 
-const AltTextDetail = ({ results, scanUrl = "" }: Props) => {
-  const getComplianceColor = (compliance: ComplianceStatus) => {
-    switch (compliance) {
-      case 0:
-        return "text-green-600 bg-green-50";
-      case 1:
-      case 2:
-      case 3:
-        return "text-red-600 bg-red-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
+const getComplianceColor = (compliance: ComplianceStatus) => {
+  switch (compliance) {
+    case 0:
+      return "text-green-600 bg-green-50";
+    case 1:
+    case 2:
+    case 3:
+      return "text-red-600 bg-red-50";
+    default:
+      return "text-gray-600 bg-gray-50";
+  }
+};
 
-  const getComplianceIcon = (compliance: ComplianceStatus) => {
-    switch (compliance) {
-      case 0:
-        return <CheckCircle className="w-4 h-4" />;
-      case 1:
-      case 2:
-      case 3:
-        return <XCircle className="w-4 h-4" />;
-      default:
-        return <AlertCircle className="w-4 h-4" />;
-    }
-  };
+const getComplianceIcon = (compliance: ComplianceStatus) => {
+  switch (compliance) {
+    case 0:
+      return <CheckCircle className="w-4 h-4" />;
+    case 1:
+    case 2:
+    case 3:
+      return <XCircle className="w-4 h-4" />;
+    default:
+      return <AlertCircle className="w-4 h-4" />;
+  }
+};
 
-  const getAbsoluteImageUrl = (imgUrl: string, baseUrl: string) => {
-    try {
-      if (imgUrl.startsWith("http://") || imgUrl.startsWith("https://"))
-        return imgUrl;
-      const base = new URL(baseUrl);
-      const absoluteUrl = new URL(imgUrl, base.origin);
-      return absoluteUrl.href;
-    } catch {
+const getAbsoluteImageUrl = (imgUrl: string, baseUrl: string) => {
+  try {
+    if (imgUrl.startsWith("http://") || imgUrl.startsWith("https://"))
       return imgUrl;
+    const base = new URL(baseUrl);
+    const absoluteUrl = new URL(imgUrl, base.origin);
+    return absoluteUrl.href;
+  } catch {
+    return imgUrl;
+  }
+};
+
+const AltTextDetail = ({ results, scanUrl = "" }: Props) => {
+  const [copiedOpenId, setCopiedOpenId] = useState<number | null>(null);
+  const [sendingId, setSendingId] = useState<number | null>(null);
+
+  const [createAltTextFeedback] = useCreateAltTextFeedbackMutation();
+
+  const sendFeedback = async (
+    altTextResultId: number,
+    rating: "like" | "dislike"
+  ) => {
+    try {
+      setSendingId(altTextResultId);
+      await createAltTextFeedback({
+        alt_text_result: altTextResultId,
+        rating,
+      }).unwrap();
+      toast({
+        title: "피드백이 반영되었습니다",
+        description:
+          rating === "like"
+            ? "‘도움이 되었어요’로 기록했어요."
+            : "‘도움이 되지 않았어요’로 기록했어요.",
+      });
+    } catch (e: any) {
+      toast({
+        title: "피드백 전송 실패",
+        description: e?.message || "잠시 후 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingId(null);
     }
   };
+
+  const handleCopy = async (text: string, idForTip: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedOpenId(idForTip);
+      setTimeout(
+        () => setCopiedOpenId((prev) => (prev === idForTip ? null : prev)),
+        1500
+      );
+    } catch {
+      toast({
+        title: "복사 실패",
+        description: "클립보드 권한을 확인하고 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const FeedbackHoverContent = () => (
+    <div className="w-[280px]">
+      <div className="rounded-xl bg-[#f5f7fb] py-3 px-4 text-center font-semibold">
+        이 대체텍스트가 도움이 되었나요?
+      </div>
+      <p className="mt-2 text-sm text-center text-gray-600">
+        더 나은 결과를 위해 의견을 들려주세요.
+      </p>
+    </div>
+  );
+
+  const CopiedHoverContent = () => (
+    <div className="w-[320px]">
+      <div className="rounded-xl bg-[#f5f7fb] py-3 px-4 text-center font-semibold">
+        대체텍스트 복사 완료
+      </div>
+      <p className="mt-2 text-sm text-center text-gray-600">
+        alt 속성에 넣으면 더 많은 사람들이 콘텐츠를 이해할 수 있어요
+      </p>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
+      {/* 상단 가이드: 그대로 유지 */}
       <div className="p-4 mb-6 border border-blue-200 rounded-lg bg-blue-50">
         <div className="flex items-center gap-2 mb-2">
           <span className="font-bold text-blue-700 text-md">
@@ -124,6 +210,7 @@ const AltTextDetail = ({ results, scanUrl = "" }: Props) => {
               </Badge>
             </div>
           </CardHeader>
+
           <CardContent className="space-y-3">
             <div className="flex gap-4">
               <div className="flex-shrink-0">
@@ -183,30 +270,80 @@ const AltTextDetail = ({ results, scanUrl = "" }: Props) => {
               </div>
             </div>
 
+            {/* --- 제안 박스 --- */}
             {result.suggested_alt && (
               <div className="p-3 border border-blue-200 rounded bg-blue-50">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-medium text-blue-700">
-                    ⭐ WEBridge AI 대체텍스트 제안
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-6 px-2 text-xs"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `alt="${result.suggested_alt}"`
-                      );
-                      toast({
-                        title: "복사 완료",
-                        description: "대체 텍스트가 클립보드에 복사되었습니다.",
-                      });
-                    }}
-                  >
-                    <Copy className="w-3 h-3 mr-1" />
-                    복사
-                  </Button>
+                {/* ⭐ 라벨 옆에 복사 버튼 / 우측에 엄지 아이콘들 */}
+                <div className="flex items-center justify-between mb-2">
+                  {/* 좌측: 라벨 + 복사 버튼 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-blue-700">
+                      ⭐ WEBridge AI 대체텍스트 제안
+                    </span>
+
+                    {/* 복사 버튼 (클릭 → 복사 완료 카드) */}
+                    <HoverCard
+                      open={copiedOpenId === result.id}
+                      onOpenChange={(o) => !o && setCopiedOpenId(null)}
+                    >
+                      <HoverCardTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2 text-xs"
+                          onClick={() =>
+                            handleCopy(
+                              `alt="${result.suggested_alt}"`,
+                              result.id
+                            )
+                          }
+                        >
+                          <Copy className="w-3 h-3 mr-1" />
+                          복사
+                        </Button>
+                      </HoverCardTrigger>
+                      <HoverCardContent align="start" className="w-auto">
+                        <CopiedHoverContent />
+                      </HoverCardContent>
+                    </HoverCard>
+                  </div>
+
+                  {/* 우측: 좋아요/싫어요 아이콘 */}
+                  <div className="flex items-center gap-1">
+                    <HoverCard openDelay={150}>
+                      <HoverCardTrigger asChild>
+                        <button
+                          aria-label="도움이 되었어요"
+                          className="p-2 transition rounded-full hover:bg-blue-100/60"
+                          onClick={() => sendFeedback(result.id, "like")}
+                          disabled={sendingId === result.id}
+                        >
+                          <ThumbsUp className="w-5 h-5 text-gray-700" />
+                        </button>
+                      </HoverCardTrigger>
+                      <HoverCardContent align="end" className="w-auto">
+                        <FeedbackHoverContent />
+                      </HoverCardContent>
+                    </HoverCard>
+
+                    <HoverCard openDelay={150}>
+                      <HoverCardTrigger asChild>
+                        <button
+                          aria-label="도움이 되지 않았어요"
+                          className="p-2 transition rounded-full hover:bg-blue-100/60"
+                          onClick={() => sendFeedback(result.id, "dislike")}
+                          disabled={sendingId === result.id}
+                        >
+                          <ThumbsDown className="w-5 h-5 text-gray-700" />
+                        </button>
+                      </HoverCardTrigger>
+                      <HoverCardContent align="end" className="w-auto">
+                        <FeedbackHoverContent />
+                      </HoverCardContent>
+                    </HoverCard>
+                  </div>
                 </div>
+
                 <div className="p-2 font-mono text-sm text-blue-800 bg-white border rounded">
                   alt="{result.suggested_alt}"
                 </div>
