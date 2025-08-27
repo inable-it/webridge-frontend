@@ -1051,16 +1051,14 @@ const DashboardPage = () => {
 
                 {/* 가이드 */}
                 <div className="rounded-2xl bg-[#eaf2ff] p-5 space-y-3">
-                  <p className="font-semibold">
-                    [수정 참고 가이드] {cat.id}. {cat.title}
-                  </p>
+                  <p className="font-semibold"> [{cat.title}] 수정 가이드</p>
 
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-gray-700">
-                      현재 “{cat.title}” 항목의 오류 대상은 다음과 같은 기준으로
-                      판단하고 있어요.
+                      ℹ️ WEBridge는 [{cat.title}] 미준수 여부를 다음 기준으로
+                      확인해요.
                     </p>
-                    <ul className="pl-5 text-sm text-center text-gray-700 list-disc">
+                    <ul className="pl-5 text-sm text-gray-700 list-disc">
                       {guide.judge.map((t, i) => (
                         <li key={i}>{t}</li>
                       ))}
@@ -1069,7 +1067,7 @@ const DashboardPage = () => {
 
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-gray-700">
-                      이를 수정하기 위해서는 아래 내용을 준수하세요.
+                      ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
                     </p>
                     <ul className="pl-5 text-sm text-gray-700 list-disc">
                       {guide.how.map((t, i) => (
@@ -1080,7 +1078,7 @@ const DashboardPage = () => {
 
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-gray-700">
-                      WEBridge 검사 이외에 이런 점도 고려해야 해요.
+                      💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
                     </p>
                     <ul className="pl-5 text-sm text-gray-700 list-disc">
                       {guide.consider.map((t, i) => (
