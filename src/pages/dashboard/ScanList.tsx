@@ -37,11 +37,15 @@ export const ScanList = ({
     <div className="space-y-1">
       {scanList.map((scan) => {
         const status = getStatusDisplay(scan);
+        const isWorking =
+          scan.status === "processing" || scan.status === "pending";
+        const pct = Math.round(scan.completion_percentage || 0);
+
         return (
           <Button
             key={scan.id}
             variant="outline"
-            className={`justify-between w-full p-3 h-auto ${
+            className={`relative justify-between w-full p-3 h-auto ${
               selectedScanId === scan.id ? "bg-blue-50 border-blue-300" : ""
             }`}
             onClick={() => onSelect(scan.id)}
@@ -50,29 +54,35 @@ export const ScanList = ({
               <span className="text-sm truncate max-w-[200px]">
                 {scan.title || scan.url}
               </span>
+
               <div className="flex items-center gap-2 mt-1">
                 <span className={`text-xs ${status.color}`}>{status.text}</span>
+
                 {scan.status === "completed" && (
                   <span className="text-xs text-gray-500">
                     {scan.total_issues}개 이슈
                   </span>
                 )}
-                {(scan.status === "processing" ||
-                  scan.status === "pending") && (
-                  <div className="w-full h-1 overflow-hidden bg-gray-200 rounded-full">
-                    <div
-                      className="h-full transition-all duration-300 bg-blue-500"
-                      style={{
-                        width: `${Math.round(
-                          scan.completion_percentage || 0
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
+
             <ChevronRight className="w-4 h-4 text-gray-400" />
+
+            {/* 진행률 바: 버튼 하단에 가로 꽉 채우기 */}
+            {isWorking && (
+              <div
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={pct}
+                className="absolute inset-x-0 bottom-0 h-1 bg-gray-200"
+              >
+                <div
+                  className="h-full bg-blue-500 transition-[width] duration-500 ease-out"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            )}
           </Button>
         );
       })}
