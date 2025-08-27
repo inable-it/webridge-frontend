@@ -157,10 +157,6 @@ export const UrlScanForm = ({
         <div id="url-rules" className="space-y-1 text-xs text-gray-500">
           <div className="flex items-start gap-1">
             <Info className="mt-[2px] h-3.5 w-3.5" />
-            <span>필수 입력 항목입니다.</span>
-          </div>
-          <div className="flex items-start gap-1">
-            <Info className="mt-[2px] h-3.5 w-3.5" />
             <span>
               하나의 URL만 입력 가능합니다. (여러 개 붙여넣기 시 첫 번째만 사용)
             </span>
