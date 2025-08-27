@@ -304,13 +304,21 @@ export default function SurveyModal({ open, onClose }: Props) {
           </h3>
           <div className="h-48 p-4 overflow-auto text-sm leading-6 text-gray-700 border rounded-lg bg-gray-50">
             <p className="mb-2 font-medium">개인정보 수집/이용 동의서</p>
+            <p className="mb-2">
+              아래와 같이 귀하의 개인정보를 수집 및 이용 내용을 개인정보보호법
+              제15조(개인정보의 수집 및 이용) 및 통계법 33조(비밀의 보호 등)에
+              의거하여 안내 드립니다.
+            </p>
             <ul className="pl-5 space-y-1 list-disc">
-              <li>수집 항목: 이메일</li>
-              <li>이용 목적: MVP 테스트 및 피드백 분석</li>
-              <li>보유 기간: 응모자 선정까지</li>
               <li>
-                동의하지 않으셔도 되며, 동의하지 않을 경우 추첨 안내 메일을 받을
-                수 없습니다.
+                개인정보의 수집 및 이용 목적 : MVP 테스트 및 피드백을 받기 위함
+              </li>
+              <li>수집하려는 개인정보의 필수 항목 : 이메일</li>
+              <li>개인정보의 보유 및 이용 기간 : 필요시까지</li>
+              <li>
+                개인정보보호법에 의거하여 개인정보 수집 및 이용에 따른 동의를
+                거부할 수 있으나, 동의를 거부할 경우 서비스 정식 출시 알람을
+                받을 수 없습니다.
               </li>
             </ul>
           </div>
@@ -425,25 +433,26 @@ export default function SurveyModal({ open, onClose }: Props) {
             {[
               {
                 key: "overall",
-                label: "(1) 전반적으로 만족한다.",
+                label: "(1) WEBridge를 사용함에 있어 전반적으로 편리했다.",
                 value: satOverall,
                 setter: setSatOverall,
               },
               {
                 key: "accuracy",
-                label: "(2) 12가지 항목의 점검 결과가 전반적으로 정확했다.",
+                label:
+                  "(2) WEBridge의 웹 접근성 12가지 항목의 진단 결과가 전반적으로 정확했다.",
                 value: satAccuracy,
                 setter: setSatAccuracy,
               },
               {
                 key: "reuse",
-                label: "(3) 재사용할 의향이 있다.",
+                label: "(3) WEBridge를 재사용할 의향이 있다.",
                 value: satReuse,
                 setter: setSatReuse,
               },
               {
                 key: "recommend",
-                label: "(4) 다른 사람이나 기관에 추천하고 싶다.",
+                label: "(4) WEBridge를 다른 사람이나 기관에 추천하고 싶다.",
                 value: satRecommend,
                 setter: setSatRecommend,
               },
