@@ -59,7 +59,7 @@ export const ScanList = ({
                 )}
                 {(scan.status === "processing" ||
                   scan.status === "pending") && (
-                  <div className="w-8 h-1 overflow-hidden bg-gray-200 rounded-full">
+                  <div className="w-full h-1 overflow-hidden bg-gray-200 rounded-full">
                     <div
                       className="h-full transition-all duration-300 bg-blue-500"
                       style={{
