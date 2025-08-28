@@ -54,7 +54,7 @@ const DashboardPage = () => {
     refetchDetail,
   });
 
-  const { openSurvey, closeSurvey } = useSurveyTrigger({
+  const { openSurvey, closeSurvey, onSurveyCompleted } = useSurveyTrigger({
     scanListData,
     selectedScanDetail,
   });
@@ -210,7 +210,11 @@ const DashboardPage = () => {
         selectedScanDetail={selectedScanDetail}
       />
 
-      <SurveyModal open={openSurvey} onClose={closeSurvey} />
+      <SurveyModal
+        open={openSurvey}
+        onClose={closeSurvey}
+        onCompleted={onSurveyCompleted}
+      />
     </>
   );
 };

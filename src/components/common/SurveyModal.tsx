@@ -15,6 +15,8 @@ import { useCreateSurveyMutation } from "@/features/api/surveyApi";
 type Props = {
   open: boolean;
   onClose: () => void;
+  /** 마지막 '완료' 버튼 클릭 시 호출되어 즉시 서버 상태를 새로고침하도록 부모에서 넘겨주세요. */
+  onCompleted?: () => void;
 };
 
 // 1~5 리커트 타입
@@ -65,7 +67,7 @@ const Card: React.FC<{
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function SurveyModal({ open, onClose }: Props) {
+export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const [createSurvey, { isLoading }] = useCreateSurveyMutation();
 
   // 0 안내 → 1 이메일 → 2 동의 → 3~10(문항1~8) → 11 완료
@@ -82,7 +84,7 @@ export default function SurveyModal({ open, onClose }: Props) {
   const [usageReasons, setUsageReasons] = useState<string[]>([]);
   const [usageReasonOther, setUsageReasonOther] = useState("");
 
-  // Likert 타입으로 변경
+  // Likert 타입
   const [satOverall, setSatOverall] = useState<Likert | null>(null);
   const [satAccuracy, setSatAccuracy] = useState<Likert | null>(null);
   const [satReuse, setSatReuse] = useState<Likert | null>(null);
@@ -142,7 +144,6 @@ export default function SurveyModal({ open, onClose }: Props) {
       case 4:
         return usageReasons.length === 0 && !usageReasonOther.trim();
       case 5:
-        // null 체크가 더 명확하지만 기존 로직도 동작함
         return (
           satOverall === null ||
           satAccuracy === null ||
@@ -195,12 +196,12 @@ export default function SurveyModal({ open, onClose }: Props) {
 
   const goNext = async () => {
     if (step === LAST_STEP - 1) {
-      // 항상 string 보장
+      // 최종 제출(10단계) → 서버 전송만 하고 닫지 않음. 성공 시 11단계로 이동.
       const userTypeValue: string | undefined =
         purchaseWay || (purchaseWayOther.trim() ? "other" : undefined);
 
       const purchaseMethodValue: string =
-        priceModel || (priceModelOther.trim() ? "other" : "other"); // 항상 문자열
+        priceModel || (priceModelOther.trim() ? "other" : "other");
 
       const payload = {
         email,
@@ -217,11 +218,9 @@ export default function SurveyModal({ open, onClose }: Props) {
         satisfaction_reuse: satReuse!, // Likert
         satisfaction_recommend: satRecommend!, // Likert
 
-        // optional이면 그대로 두세요 (선택/기타 둘 다 없으면 undefined)
         user_type: userTypeValue,
         user_type_other: purchaseWayOther.trim() || undefined,
 
-        // 필수: 항상 string
         purchase_method: purchaseMethodValue,
         purchase_method_other: priceModelOther.trim() || undefined,
 
@@ -236,7 +235,7 @@ export default function SurveyModal({ open, onClose }: Props) {
 
       try {
         await createSurvey(payload).unwrap();
-        setStep(LAST_STEP);
+        setStep(LAST_STEP); // 감사 화면
       } catch (e: any) {
         const data = e?.data;
         const firstField = data && Object.keys(data)[0];
@@ -695,8 +694,15 @@ export default function SurveyModal({ open, onClose }: Props) {
           <p className="mt-2 text-sm text-gray-600">
             소중한 의견 감사합니다. 당첨 여부는 추첨 후 이메일로 안내드립니다.
           </p>
-          <Button className="w-full mt-6" onClick={onClose}>
-            닫기
+          {/* 마지막 버튼에서만 refetch 호출 + 모달 닫기 */}
+          <Button
+            className="w-full mt-6"
+            onClick={() => {
+              onCompleted?.(); // 서버 상태 즉시 새로고침(부모에서 구현)
+              onClose(); // 모달 닫기
+            }}
+          >
+            완료
           </Button>
         </div>
       )}

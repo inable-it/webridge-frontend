@@ -36,26 +36,32 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
     selectedScanDetail?.updated_at,
   ]);
 
-  // 1) 서버 우선 로직
+  /** 1) 서버 신호: "열기만" 한다 (닫지는 않음) */
   useEffect(() => {
     if (!data) return;
-
-    // 서버가 “표시해야 한다”면 열기 (완료 여부와 무관)
     const shouldOpen = data.should_show_survey && !data.survey_completed;
-    setOpen(shouldOpen);
-  }, [data]);
+    if (shouldOpen) setOpen(true);
+    // 이전처럼 setOpen(shouldOpen) 로 닫아버리지 않음!
+  }, [data?.should_show_survey, data?.survey_completed]);
 
-  // 2) 열렸다면 서버에 “표시함” 기록 (한 번만)
+  /** 2) 설문이 서버에서 "완료"로 바뀌면 닫는다 */
+  useEffect(() => {
+    if (data?.survey_completed) {
+      setOpen(false);
+    }
+  }, [data?.survey_completed]);
+
+  /** 3) 열렸다면 서버에 “표시함” 기록 (한 번만) */
   useEffect(() => {
     if (open && !markedRef.current) {
       markedRef.current = true;
       markShown().catch(() => {
-        // 표시함 기록 실패는 무시 (다음 틱에서 다시 서버가 막아줄 것)
+        // 표시함 기록 실패는 무시 (다음 틱에서 서버가 다시 막아줄 것)
       });
     }
   }, [open, markShown]);
 
-  // 3) 서버 실패 시 폴백: “첫 완료 1회 노출” (기존 로직 유지)
+  /** 4) 서버 실패 시 폴백: “첫 완료 1회 노출” */
   useEffect(() => {
     if (!isError || open) return;
 
@@ -63,7 +69,6 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
     const isCurrentCompleted = (() => {
       if (!s) return false;
       if (s.status === "completed") return true;
-      // 모든 완료 플래그(비디오 분리 포함)
       const completedFlags: (keyof AccessibilityScanDetail)[] = [
         "alt_text_completed",
         "contrast_completed",
@@ -82,7 +87,6 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
       return completedFlags.every((k) => Boolean((s as any)[k]));
     })();
 
-    // 선택 상세가 막 완료되었고 아직 안 보여줬다면 열기
     if (isCurrentCompleted && selectedScanDetail) {
       const seenKey = "webridge.survey.seenScanIds";
       let seen: string[] = [];
@@ -101,7 +105,6 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
         } catch {}
       }
     } else {
-      // 누적 완료 1건 이상 시 한 번 노출
       const results = scanListData?.results ?? [];
       const doneCount = results.filter((r) => r.status === "completed").length;
       const threshold = 1;
@@ -114,8 +117,19 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
     }
   }, [isError, open, scanListData?.results, selectedScanDetail]);
 
+  /**
+   * 설문 제출 성공 후 모달을 닫고 서버 상태를 즉시 새로고침하고 싶을 때 사용:
+   * onSurveyCompleted() 를 호출해 주세요.
+   */
+  const onSurveyCompleted = () => {
+    setOpen(false);
+    refetch(); // server의 survey_completed=true 반영
+  };
+
   return {
     openSurvey: open,
     closeSurvey: () => setOpen(false),
+    onSurveyCompleted, // 설문 완료시 호출용
+    refetchSurvey: refetch, // (옵션) 필요 시 외부에서 강제 새로고침
   };
 }
