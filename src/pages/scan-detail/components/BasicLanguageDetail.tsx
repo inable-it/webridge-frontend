@@ -69,7 +69,7 @@ const BasicLanguageDetail = ({ results }: Props) => {
           </CardHeader>
           <CardContent>
             <div>
-              <label className="text-xs font-medium text-gray-500">
+              <label className="text-xs font-medium text-gray-700">
                 검사 결과
               </label>
               <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">
@@ -78,7 +78,7 @@ const BasicLanguageDetail = ({ results }: Props) => {
             </div>
             {result.lang_attribute && (
               <div className="mt-3">
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   현재 언어 속성
                 </label>
                 <div className="p-2 mt-1 font-mono text-sm rounded bg-gray-50">

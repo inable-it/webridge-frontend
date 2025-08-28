@@ -110,10 +110,10 @@ const MyInfoPage = () => {
     }
   };
 
-  if (isLoading) return <div className="p-8">로딩 중...</div>;
+  if (isLoading) return <div className="p-8 text-gray-700">로딩 중...</div>;
   if (error)
     return (
-      <div className="p-8">사용자 정보를 불러오는 중 오류가 발생했습니다.</div>
+      <div className="p-8 text-gray-700">사용자 정보를 불러오는 중 오류가 발생했습니다.</div>
     );
 
   return (
@@ -125,7 +125,7 @@ const MyInfoPage = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* 이름 */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-gray-200 rounded-xl">
-            <div className="min-w-[56px] text-sm font-medium text-gray-600">
+            <div className="min-w-[56px] text-sm font-medium text-gray-700">
               이름
             </div>
 
@@ -169,7 +169,7 @@ const MyInfoPage = () => {
 
           {/* 비밀번호 */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-gray-200 rounded-xl">
-            <div className="min-w-[72px] text-sm font-medium text-gray-600">
+            <div className="min-w-[72px] text-sm font-medium text-gray-700">
               비밀번호
             </div>
 
@@ -231,7 +231,7 @@ const MyInfoPage = () => {
             disabled={toggleDisabled}
             className={[
               "relative inline-flex h-5 w-10 items-center rounded-full transition-colors",
-              marketingAgreed ? "bg-blue-600" : "bg-gray-300",
+              marketingAgreed ? "bg-blue-600" : "bg-gray-700",
               toggleDisabled
                 ? "opacity-60 cursor-not-allowed"
                 : "cursor-pointer",

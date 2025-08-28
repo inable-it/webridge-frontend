@@ -185,7 +185,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
   const FeedbackHoverContent = () => (
     <div className="w-[280px]">
-      <div className="rounded-xl bg-[#f5f7fb] py-3 px-4 text-center font-semibold">
+      <div className="rounded-xl bg-gray-100 py-3 px-4 text-center font-semibold">
         이 대체텍스트가 도움이 되었나요?
       </div>
       <p className="mt-2 text-sm text-center text-gray-600">
@@ -196,7 +196,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
   const CopiedHoverContent = () => (
     <div className="w-[320px]">
-      <div className="rounded-xl bg-[#f5f7fb] py-3 px-4 text-center font-semibold">
+      <div className="rounded-xl bg-gray-100 py-3 px-4 text-center font-semibold">
         대체텍스트 복사 완료
       </div>
       <p className="mt-2 text-sm text-center text-gray-600">
@@ -290,7 +290,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
               {/* … 이미지/정보 섹션 동일 … */}
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
-                  <label className="block mb-1 text-xs font-medium text-gray-500">
+                  <label className="block mb-1 text-xs font-medium text-gray-700">
                     이미지 미리보기
                   </label>
                   <div className="relative flex items-center justify-center w-32 h-24 overflow-hidden border rounded bg-gray-50">
@@ -306,14 +306,14 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                         if (next) next.style.display = "flex";
                       }}
                     />
-                    <div className="absolute inset-0 items-center justify-center hidden p-2 text-xs text-center text-gray-400">
+                    <div className="absolute inset-0 items-center justify-center hidden p-2 text-xs text-center text-gray-700">
                       <div>
                         <div className="mb-1">🖼️</div>
                         <div>이미지를 불러올 수 없습니다</div>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-1 text-xs text-center text-gray-400">
+                  <div className="mt-1 text-xs text-center text-gray-700">
                     {result.img_url.startsWith("http")
                       ? "외부 이미지"
                       : "사이트 내 이미지"}
@@ -322,7 +322,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
                 <div className="flex-1 space-y-3">
                   <div>
-                    <label className="text-xs font-medium text-gray-500">
+                    <label className="text-xs font-medium text-gray-700">
                       이미지 URL
                     </label>
                     <div className="p-2 mt-1 font-mono text-sm break-all rounded bg-gray-50">
@@ -333,7 +333,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-gray-500">
+                    <label className="text-xs font-medium text-gray-700">
                       현재 대체 텍스트
                     </label>
                     <div className="p-2 mt-1 text-sm rounded bg-gray-50">

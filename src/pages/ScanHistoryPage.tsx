@@ -110,7 +110,7 @@ export default function ScanHistoryPage() {
         {/* 카드 리스트 (이미지 스타일) */}
         <div className="overflow-hidden bg-white border rounded-xl">
           {/* 헤더 행 */}
-          <div className="grid items-center grid-cols-12 px-4 py-3 text-xs font-medium text-gray-500 border-b">
+          <div className="grid items-center grid-cols-12 px-4 py-3 text-xs font-medium text-gray-700 border-b">
             <div className="col-span-1">
               <input
                 type="checkbox"
@@ -125,9 +125,9 @@ export default function ScanHistoryPage() {
 
           {/* 로딩/빈 상태/행 */}
           {isFetching && !data ? (
-            <div className="p-6 text-sm text-gray-500">불러오는 중…</div>
+            <div className="p-6 text-sm text-gray-700">불러오는 중…</div>
           ) : (data?.results?.length ?? 0) === 0 ? (
-            <div className="p-6 text-sm text-gray-500">데이터가 없습니다.</div>
+            <div className="p-6 text-sm text-gray-700">데이터가 없습니다.</div>
           ) : (
             data?.results.map((row) => (
               <div
@@ -165,11 +165,11 @@ export default function ScanHistoryPage() {
                   >
                     {row.url}
                   </a>
-                  <ExternalLink className="w-4 h-4 text-gray-400 shrink-0" />
+                  <ExternalLink className="w-4 h-4 text-gray-700 shrink-0" />
                 </div>
 
                 {/* 일자 (완료일자 > 수정일자 > 생성일자) */}
-                <div className="col-span-1 text-right text-gray-500">
+                <div className="col-span-1 text-right text-gray-700">
                   {formatYMD(
                     row.completed_at || row.updated_at || row.created_at
                   )}
@@ -181,7 +181,7 @@ export default function ScanHistoryPage() {
 
         {/* 페이지네이션 (유지) */}
         <div className="flex items-center justify-between mt-4">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-700">
             총 {(data?.count ?? 0).toLocaleString()}건 · {page}/
             {Math.max(1, Math.ceil((data?.count ?? 0) / pageSize))}페이지
           </div>

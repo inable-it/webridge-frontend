@@ -25,7 +25,7 @@ export const ScanList = ({
 
   if (!scanList?.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+      <div className="flex flex-col items-center justify-center py-8 text-gray-700">
         <AlertCircle className="w-8 h-8 mb-2" />
         <p className="text-sm">검사 내역이 없습니다</p>
         <p className="text-xs">URL을 입력하여 검사를 시작해보세요</p>
@@ -59,14 +59,14 @@ export const ScanList = ({
                 <span className={`text-xs ${status.color}`}>{status.text}</span>
 
                 {scan.status === "completed" && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-700">
                     {scan.total_issues}개 이슈
                   </span>
                 )}
               </div>
             </div>
 
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className="w-4 h-4 text-gray-600" />
 
             {/* 진행률 바: 버튼 하단에 가로 꽉 채우기 */}
             {isWorking && (
@@ -78,7 +78,7 @@ export const ScanList = ({
                 className="absolute inset-x-0 bottom-0 h-1 bg-gray-200"
               >
                 <div
-                  className="h-full bg-blue-500 transition-[width] duration-500 ease-out"
+                  className="h-full bg-blue-600 transition-[width] duration-500 ease-out"
                   style={{ width: `${pct}%` }}
                 />
               </div>

@@ -41,11 +41,11 @@ const STYLES = {
     title:
       "text-zinc-800 text-6xl font-bold leading-[80px] font-['Pretendard_Variable'] text-center max-w-[1044px]",
     subtitle:
-      "text-gray-600 text-xl font-medium leading-loose font-['Pretendard_Variable'] text-center max-w-[754px]",
+      "text-gray-700 text-xl font-medium leading-loose font-['Pretendard_Variable'] text-center max-w-[754px]",
     button: "text-xl font-semibold leading-loose font-['Pretendard_Variable']",
     tableHeader:
-      "text-xs font-medium font-['Pretendard_Variable'] text-gray-600",
-    tableCell: "text-xs font-medium font-['Pretendard_Variable'] text-gray-600",
+      "text-xs font-medium font-['Pretendard_Variable'] text-gray-700",
+    tableCell: "text-xs font-medium font-['Pretendard_Variable'] text-gray-700",
   },
   button: {
     base: "flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-colors",
@@ -114,7 +114,7 @@ const ActionButtons = () => {
 const ReportLogo = () => (
   <div className="relative w-10 h-10 overflow-hidden bg-white border border-gray-200 rounded-lg">
     <div className="absolute w-3 h-3 rounded-full left-1 top-3 bg-sky-300" />
-    <div className="absolute left-2.5 top-3 w-3 h-3 rounded-full opacity-50 bg-blue-500" />
+    <div className="absolute left-2.5 top-3 w-3 h-3 rounded-full bg-blue-400" />
     <div className="absolute w-3 h-3 rounded-full left-6 top-3 bg-gradient-to-r from-cyan-300 to-blue-700" />
   </div>
 );
@@ -134,7 +134,7 @@ const URLInput = () => (
   <div className="w-full max-w-sm">
     <div className="relative p-3 bg-white border-2 border-blue-600 rounded-lg">
       <div className="flex items-center gap-2">
-        <span className="font-['Pretendard_Variable'] text-xs text-gray-500">
+        <span className="font-['Pretendard_Variable'] text-xs text-gray-700">
           https://
         </span>
         <div className="flex-1" />
@@ -144,12 +144,12 @@ const URLInput = () => (
 );
 
 const AccessibilityTestPanel = () => (
-  <div className="max-w-4xl p-4 border-t border-gray-200 rounded w-96 border-x bg-white/40">
+  <div className="max-w-4xl p-4 border-t border-gray-200 rounded w-96 border-x bg-white">
     <div className="mb-6">
       <h3 className="mb-1 font-['Pretendard_Variable'] text-lg font-semibold text-gray-800">
         접근성 검사
       </h3>
-      <p className="font-['Pretendard_Variable'] text-xs text-gray-600">
+      <p className="font-['Pretendard_Variable'] text-xs text-gray-700">
         접근성 보고서를 확인할 링크를 입력해 주세요.
       </p>
     </div>
@@ -211,7 +211,7 @@ const ResultsTable = () => (
 );
 
 const ResultsTablePanel = () => (
-  <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white/40 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+  <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
     <div className="border border-gray-200 rounded-lg">
       <div className="p-4 border-b border-gray-200">
         <h2 className="font-['Pretendard_Variable'] text-lg font-semibold text-black">
@@ -361,7 +361,7 @@ const AlternativeTextDemo = ({ variant }: { variant: "good" | "bad" }) => {
             : "대체텍스트가 적절하지 않습니다."}
         </div>
 
-        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-600">
+        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-700">
           {isGood
             ? `<img src="product.jpg" alt="유아용 흰색 운동화" />`
             : `<img src="product.jpg" alt="" />`}
@@ -381,7 +381,7 @@ const FeatureText = ({ title, description }: FeatureTextProps) => (
         </span>
       ))}
     </h2>
-    <p className="text-lg leading-8 text-gray-700">
+    <p className="text-lg leading-8 text-gray-800">
       {description.split("\n").map((line, i, arr) => (
         <span key={i}>
           {line}
@@ -395,7 +395,7 @@ const FeatureText = ({ title, description }: FeatureTextProps) => (
 const CTAButton = () => (
   <button
     onClick={() => window.open("https://forms.gle/auwBzhYqpfT9ixEG8", "_blank")}
-    className="flex items-center justify-center gap-3 px-6 py-4 text-lg font-semibold text-white transition-opacity rounded-xl bg-gradient-to-r from-blue-600 to-blue-400 hover:opacity-90"
+    className="flex items-center justify-center gap-3 px-6 py-4 text-lg font-semibold text-white transition-all rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
   >
     서비스 정식 출시 알림받기
   </button>
@@ -505,7 +505,7 @@ export const HomePage = () => {
           </h2>
         </FadeInSection>
         <FadeInSection>
-          <p className="mb-10 text-lg text-gray-300">
+          <p className="mb-10 text-lg text-gray-200">
             WEBridge와 함께 모두를 위한 웹을 만들어가요!
           </p>
         </FadeInSection>
@@ -529,7 +529,7 @@ export const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-12">
             {/* 좌측 */}
             <div className="md:col-span-6">
-              <ul className="text-[15px] leading-7 text-gray-700">
+              <ul className="text-[15px] leading-7 text-gray-800">
                 <li>웹 접근성 자가 검진 솔루션</li>
                 <li>
                   <span className="font-bold">상호</span>
@@ -550,7 +550,7 @@ export const HomePage = () => {
 
             {/* 가운데 */}
             <div className="mt-16 md:col-span-4">
-              <ul className="text-[15px] leading-7 text-gray-700">
+              <ul className="text-[15px] leading-7 text-gray-800">
                 <li>
                   <span className="font-bold">E-mail</span>
                   <span className="ml-2">: inable25@gmail.com</span>
@@ -572,12 +572,12 @@ export const HomePage = () => {
 
             {/* 우측 링크 */}
             <div className="flex mt-32 text-center -w-full md:col-span-2 md:text-left">
-              <ul className="text-[15px] leading-7 text-gray-700">
+              <ul className="text-[15px] leading-7 text-gray-800">
                 <li>
                   <button
                     type="button"
                     onClick={() => navigate("/terms/service")}
-                    className="font-['Pretendard_Variable'] text-gray-600 underline" // 굵게 제거
+                    className="font-['Pretendard_Variable'] text-gray-700 underline" // 굵게 제거
                   >
                     서비스 이용약관
                   </button>
@@ -587,7 +587,7 @@ export const HomePage = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/terms/privacy-processing")}
-                    className="font-['Pretendard_Variable'] font-bold text-gray-600 underline" // 이 항목만 굵게
+                    className="font-['Pretendard_Variable'] font-bold text-gray-700 underline" // 이 항목만 굵게
                   >
                     개인정보처리방침
                   </button>

@@ -189,14 +189,14 @@ const LoginPageContent = () => {
             <span className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 text-gray-500 bg-white">또는</span>
+            <span className="px-2 text-gray-700 bg-white">또는</span>
           </div>
         </div>
 
         {/* 구글 로그인 */}
         <button
           onClick={() => googleLogin()}
-          className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-[#f5f5f5] hover:bg-[#e0e0e0] shadow text-[#3c4043] text-[16px] font-medium"
+          className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-gray-100 hover:bg-gray-200 shadow text-gray-800 text-[16px] font-medium"
           type="button"
         >
           <img src="/google.svg" alt="Google Logo" className="w-6 h-6" />
@@ -204,7 +204,7 @@ const LoginPageContent = () => {
         </button>
 
         {/* 회원가입 링크 */}
-        <div className="text-sm text-center text-gray-600">
+        <div className="text-sm text-center text-gray-700">
           계정이 없으신가요?{" "}
           <Link
             to="/signup"

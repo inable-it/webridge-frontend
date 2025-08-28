@@ -77,7 +77,7 @@ const PauseControlDetail = ({ results }: Props) => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-500">
+              <label className="text-xs font-medium text-gray-700">
                 검사 결과
               </label>
               <div className="p-2 mt-1 text-sm rounded bg-gray-50">
@@ -87,7 +87,7 @@ const PauseControlDetail = ({ results }: Props) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   자동 콘텐츠 발견
                 </label>
                 <div className="mt-1 text-lg font-semibold">
@@ -96,7 +96,7 @@ const PauseControlDetail = ({ results }: Props) => {
               </div>
 
               <div>
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   정지 기능 없음
                 </label>
                 <div className="mt-1 text-lg font-semibold text-red-600">

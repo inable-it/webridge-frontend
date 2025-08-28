@@ -226,7 +226,7 @@ const TermsAgreementPage = () => {
           className={`w-full h-12 text-white ${
             canSubmit()
               ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-300 cursor-not-allowed"
+              : "bg-gray-600 cursor-not-allowed"
           }`}
         >
           {isLoading ? "처리 중..." : "회원가입"}
@@ -239,7 +239,7 @@ const TermsAgreementPage = () => {
           <div className="relative w-full max-w-md p-8 text-center bg-white rounded-2xl">
             <button
               onClick={handleContinueToSurvey}
-              className="absolute flex items-center justify-center w-10 h-10 text-gray-500 border-2 border-gray-300 rounded-full top-6 right-6 hover:text-gray-700 hover:border-gray-400"
+              className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
             >
               <X className="w-5 h-5" />
             </button>
@@ -249,12 +249,12 @@ const TermsAgreementPage = () => {
                 <h2 className="text-[22px] font-extrabold text-gray-900">
                   회원가입이 완료되었습니다!
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-700">
                   더 나은 맞춤형 서비스를 위해 간단한 설문에 참여해 주세요.
                 </p>
               </div>
 
-              <div className="p-4 text-sm text-gray-700 border rounded-xl bg-gray-50">
+              <div className="p-4 text-sm text-gray-800 border rounded-xl bg-gray-50">
                 설문은 30초 정도 소요됩니다.
               </div>
 

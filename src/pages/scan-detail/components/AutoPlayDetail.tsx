@@ -80,7 +80,7 @@ const AutoPlayDetail = ({ results }: Props) => {
               {/* 비디오 URL */}
               {result.video_url && (
                 <div>
-                  <label className="text-xs font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-700">
                     비디오 URL
                   </label>
                   <div className="p-2 mt-1 text-sm break-all rounded bg-gray-50">
@@ -91,7 +91,7 @@ const AutoPlayDetail = ({ results }: Props) => {
 
               {/* 요소 HTML (반드시 노출) */}
               <div>
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   요소 HTML
                 </label>
                 <div className="p-2 mt-1 font-mono text-sm break-all whitespace-pre-wrap rounded bg-gray-50">
@@ -129,7 +129,7 @@ const AutoPlayDetail = ({ results }: Props) => {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {result.message && (
                     <div>
-                      <label className="text-xs font-medium text-gray-500">
+                      <label className="text-xs font-medium text-gray-700">
                         메시지
                       </label>
                       <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">
@@ -139,7 +139,7 @@ const AutoPlayDetail = ({ results }: Props) => {
                   )}
                   {createdAt && (
                     <div>
-                      <label className="text-xs font-medium text-gray-500">
+                      <label className="text-xs font-medium text-gray-700">
                         검사 일시
                       </label>
                       <div className="p-2 mt-1 text-sm rounded bg-gray-50">

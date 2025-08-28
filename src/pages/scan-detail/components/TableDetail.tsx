@@ -90,7 +90,7 @@ const TableDetail = ({ results }: Props) => {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   헤더 수
                 </label>
                 <div className="mt-1 text-lg font-semibold">
@@ -98,7 +98,7 @@ const TableDetail = ({ results }: Props) => {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   행 수
                 </label>
                 <div className="mt-1 text-lg font-semibold">
@@ -108,7 +108,7 @@ const TableDetail = ({ results }: Props) => {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-gray-500">
+              <label className="text-xs font-medium text-gray-700">
                 검사 결과
               </label>
               <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">

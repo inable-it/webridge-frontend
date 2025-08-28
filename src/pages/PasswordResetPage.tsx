@@ -57,7 +57,7 @@ const PasswordResetPage = () => {
               비밀번호 재설정
             </h1>
           </div>
-          <div className="space-y-1 text-gray-600">
+          <div className="space-y-1 text-gray-700">
             <p>가입 시 등록한 이메일 주소를 입력해 주세요.</p>
             <p>비밀번호 재설정 링크를 보내드려요.</p>
           </div>
@@ -98,7 +98,7 @@ const PasswordResetPage = () => {
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
+            className="text-sm text-gray-700 hover:text-gray-900 hover:underline"
           >
             로그인으로 돌아가기
           </button>
@@ -111,7 +111,7 @@ const PasswordResetPage = () => {
           <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute flex items-center justify-center text-gray-500 border border-gray-300 rounded-full w-9 h-9 top-4 right-4 hover:text-gray-700 hover:border-gray-400"
+              className="absolute flex items-center justify-center text-gray-700 border-2 border-gray-600 rounded-full w-9 h-9 top-4 right-4 hover:text-gray-900 hover:border-gray-700"
               aria-label="닫기"
             >
               <X className="w-4 h-4" />

@@ -482,12 +482,12 @@ export const ResultTable = ({
                     </HoverCardTrigger>
                     <HoverCardContent
                       align="start"
-                      className="p-4 space-y-2 text-left text-gray-800 bg-white border border-gray-200 shadow-xl w-80 rounded-xl dark:bg-neutral-900 dark:border-neutral-800 dark:text-gray-100"
+                      className="p-4 space-y-2 text-left text-gray-900 bg-white border border-gray-200 shadow-xl w-80 rounded-xl dark:bg-neutral-900 dark:border-neutral-800 dark:text-gray-100"
                     >
                       <p className="text-[13px] font-semibold text-blue-600">
                         {withPostposition(item.name)} 왜 필요할까요?
                       </p>
-                      <p className="text-[13px] leading-5 text-gray-600 whitespace-pre-line text-left">
+                      <p className="text-[13px] leading-5 text-gray-700 whitespace-pre-line text-left">
                         {EXPLANATION_TEXT[item.id] ??
                           "이 항목에 대한 설명이 준비 중입니다."}
                       </p>
@@ -505,8 +505,8 @@ export const ResultTable = ({
                       item.type === "진행중"
                         ? "bg-yellow-500 text-white"
                         : item.type === "대기"
-                        ? "bg-gray-400 text-white"
-                        : "bg-[#6C9AFF] text-white"
+                        ? "bg-gray-600 text-white"
+                        : "bg-blue-600 text-white"
                     } whitespace-nowrap`}
                     disabled={
                       !displayScan ||
@@ -534,7 +534,7 @@ export const ResultTable = ({
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-xs text-gray-500">#{item.id}</div>
+                <div className="text-xs text-gray-700">#{item.id}</div>
                 <div className="text-sm font-medium break-words break-all">
                   {item.name}
                 </div>
@@ -563,7 +563,7 @@ export const ResultTable = ({
             </div>
 
             <div className="flex items-center justify-between mt-2">
-              <div className="text-xs text-gray-600 dark:text-gray-300">
+              <div className="text-xs text-gray-700 dark:text-gray-300">
                 준수율: <span className="font-medium">{item.score}</span>
               </div>
               <Button
@@ -571,10 +571,10 @@ export const ResultTable = ({
                 variant="outline"
                 className={`${
                   item.type === "진행중"
-                    ? "bg-yellow-500 text-white"
+                    ? "bg-yellow-600 text-white"
                     : item.type === "대기"
-                    ? "bg-gray-400 text-white"
-                    : "bg-[#6C9AFF] text-white"
+                    ? "bg-gray-600 text-white"
+                    : "bg-blue-600 text-white"
                 }`}
                 disabled={
                   !displayScan ||

@@ -131,7 +131,7 @@ const GoogleLoginButton = ({
   return (
     <button
       onClick={() => login()}
-      className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-[#f5f5f5] hover:bg-[#e0e0e0] shadow text-[#3c4043] text-[16px] font-medium"
+      className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-gray-100 hover:bg-gray-200 shadow text-gray-800 text-[16px] font-medium"
     >
       <img src="/google.svg" alt="Google Logo" className="w-6 h-6" />
       Google로 계속하기

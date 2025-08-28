@@ -154,7 +154,7 @@ export const UrlScanForm = ({
         </div>
 
         {/* 규칙 안내 */}
-        <div id="url-rules" className="space-y-1 text-xs text-gray-500">
+        <div id="url-rules" className="space-y-1 text-xs text-gray-700">
           <div className="flex items-start gap-1">
             <Info className="mt-[2px] h-3.5 w-3.5" />
             <span>

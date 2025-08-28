@@ -88,7 +88,7 @@ const KeyboardDetail = ({ results }: Props) => {
           </CardHeader>
           <CardContent>
             <div>
-              <label className="text-xs font-medium text-gray-500">
+              <label className="text-xs font-medium text-gray-700">
                 검사 결과
               </label>
               <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">

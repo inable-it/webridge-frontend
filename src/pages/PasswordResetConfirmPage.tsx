@@ -137,7 +137,7 @@ const PasswordResetConfirmPage = () => {
       <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
         <div className="space-y-4 text-center">
           <h1 className="text-2xl font-bold text-gray-900">새 비밀번호 설정</h1>
-          <p className="text-gray-600">이전과 다른 비밀번호를 입력해 주세요.</p>
+          <p className="text-gray-700">이전과 다른 비밀번호를 입력해 주세요.</p>
         </div>
 
         {errors.general && (
@@ -164,7 +164,7 @@ const PasswordResetConfirmPage = () => {
             <button
               type="button"
               onClick={() => setShowNewPassword(!showNewPassword)}
-              className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
+              className="absolute text-gray-700 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-900"
             >
               {showNewPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -204,7 +204,7 @@ const PasswordResetConfirmPage = () => {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute text-gray-400 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-600"
+              className="absolute text-gray-700 transform -translate-y-1/2 right-3 top-1/2 hover:text-gray-900"
             >
               {showConfirmPassword ? (
                 <EyeOff className="w-4 h-4" />

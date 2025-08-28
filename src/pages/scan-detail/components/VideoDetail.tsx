@@ -102,7 +102,7 @@ const VideoDetail = ({ results }: Props) => {
               {/* 비디오 URL */}
               {r?.video_url && (
                 <div>
-                  <label className="text-xs font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-700">
                     비디오 URL
                   </label>
                   <div className="p-2 mt-1 text-sm break-all rounded bg-gray-50">
@@ -114,7 +114,7 @@ const VideoDetail = ({ results }: Props) => {
               {/* 원본 엘리먼트 HTML 스니펫 */}
               {r?.element_html && (
                 <div>
-                  <label className="text-xs font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-700">
                     요소 HTML
                   </label>
                   <pre className="p-2 mt-1 overflow-auto text-xs rounded bg-gray-50">
@@ -140,7 +140,7 @@ const VideoDetail = ({ results }: Props) => {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {r?.message && (
                     <div>
-                      <label className="text-xs font-medium text-gray-500">
+                      <label className="text-xs font-medium text-gray-700">
                         메시지
                       </label>
                       <div className="p-2 mt-1 text-sm rounded bg-gray-50">
@@ -150,7 +150,7 @@ const VideoDetail = ({ results }: Props) => {
                   )}
                   {createdAt && (
                     <div>
-                      <label className="text-xs font-medium text-gray-500">
+                      <label className="text-xs font-medium text-gray-700">
                         검사 일시
                       </label>
                       <div className="p-2 mt-1 text-sm rounded bg-gray-50">

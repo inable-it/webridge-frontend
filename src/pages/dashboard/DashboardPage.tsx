@@ -151,7 +151,7 @@ const DashboardPage = () => {
               <h1 className="text-xl font-semibold">
                 WEBridge 웹 접근성 검사 요약 보고서
               </h1>
-              <p className="mt-1 text-sm text-gray-500 break-words">
+              <p className="mt-1 text-sm text-gray-700 break-words">
                 {displayScan ? (
                   <>
                     홈페이지명 : {displayScan.title || "(제목 없음)"} <br />
@@ -164,7 +164,7 @@ const DashboardPage = () => {
                   </>
                 )}
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-600">
                 {new Date().toLocaleDateString("ko-KR")} / 한국형 웹 콘텐츠
                 접근성 지침 2.2 기준
               </p>

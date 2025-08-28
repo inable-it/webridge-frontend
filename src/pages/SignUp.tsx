@@ -536,7 +536,7 @@ const SignupPageContent = () => {
           ${
             canSubmit()
               ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-300 cursor-not-allowed"
+              : "bg-gray-600 cursor-not-allowed"
           }`}
         >
           {isLoading ? "가입 중..." : "회원가입"}
@@ -545,14 +545,14 @@ const SignupPageContent = () => {
         {/* 구분선 */}
         <div className="flex items-center gap-2">
           <Separator className="flex-1" />
-          <span className="text-xs text-gray-400">또는</span>
+          <span className="text-xs text-gray-700">또는</span>
           <Separator className="flex-1" />
         </div>
 
         {/* 구글 로그인 */}
         <button
           onClick={() => googleLogin()}
-          className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-[#f5f5f5] hover:bg-[#e0e0e0] shadow text-[#3c4043] text-[16px] font-medium"
+          className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-gray-100 hover:bg-gray-200 shadow text-gray-800 text-[16px] font-medium"
           type="button"
         >
           <img src="/google.svg" alt="Google Logo" className="w-6 h-6" />
@@ -560,7 +560,7 @@ const SignupPageContent = () => {
         </button>
 
         {/* 하단 약관 링크 */}
-        <div className="flex justify-center gap-4 mt-2 text-xs text-gray-500">
+        <div className="flex justify-center gap-4 mt-2 text-xs text-gray-700">
           <button
             type="button"
             onClick={() => go("/terms/privacy-processing")}
@@ -585,7 +585,7 @@ const SignupPageContent = () => {
           <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute flex items-center justify-center w-10 h-10 text-gray-500 border-2 border-gray-300 rounded-full top-6 right-6 hover:text-gray-700 hover:border-gray-400"
+              className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
             >
               <X className="w-5 h-5" />
             </button>
@@ -623,7 +623,7 @@ const SignupPageContent = () => {
           <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
             <button
               onClick={() => setWelcomeOpen(false)}
-              className="absolute flex items-center justify-center w-10 h-10 text-gray-500 border-2 border-gray-300 rounded-full top-6 right-6 hover:text-gray-700 hover:border-gray-400"
+              className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
             >
               <X className="w-5 h-5" />
             </button>

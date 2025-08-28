@@ -155,7 +155,7 @@ const FeedbackPage = () => {
         <Star
           key={num}
           className={`w-5 h-5 ${readonly ? "" : "cursor-pointer"} ${
-            rating >= num ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+            rating >= num ? "text-yellow-400 fill-yellow-400" : "text-gray-700"
           }`}
           onClick={() => !readonly && onRatingChange?.(num)}
         />
@@ -192,7 +192,7 @@ const FeedbackPage = () => {
 
           {/* 하단 등록 버튼 */}
           <div className="flex items-center justify-end">
-            <span className="mr-2 text-sm text-gray-400">
+            <span className="mr-2 text-sm text-gray-700">
               {text.length} / 500
             </span>
             <Button
@@ -214,7 +214,7 @@ const FeedbackPage = () => {
               <p>피드백을 불러오는 중...</p>
             </div>
           ) : feedbackList?.results?.length === 0 ? (
-            <div className="py-8 text-center text-gray-500">
+            <div className="py-8 text-center text-gray-700">
               <p>아직 작성한 피드백이 없습니다.</p>
             </div>
           ) : (
@@ -240,7 +240,7 @@ const FeedbackPage = () => {
                         className="w-full px-4 pt-4 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-700">
                           {editText.length} / 500
                         </span>
                         <div className="flex gap-2">
@@ -297,7 +297,7 @@ const FeedbackPage = () => {
                         {feedback.content}
                       </p>
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-gray-700">
                       작성일:{" "}
                       {new Date(feedback.created_at).toLocaleDateString(
                         "ko-KR",
@@ -335,12 +335,12 @@ const FeedbackPage = () => {
 
         {/* 삭제 확인 모달 */}
         {deletingFeedbackId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="relative p-8 bg-white rounded-xl w-80">
               {/* X 버튼 */}
               <button
                 onClick={() => setDeletingFeedbackId(null)}
-                className="absolute text-gray-400 top-4 right-4 hover:text-gray-600"
+                className="absolute text-gray-700 top-4 right-4 hover:text-gray-900"
               >
                 <X className="w-5 h-5" />
               </button>

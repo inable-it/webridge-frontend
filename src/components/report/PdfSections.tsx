@@ -24,7 +24,7 @@ export const SummaryReport = ({
         WEBridge 웹 접근성 검사 보고서
       </h1>
       <div className="h-px mb-6 bg-gray-200" />
-      <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-600">
+      <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-700">
         <div className="space-y-1">
           <p>
             <span className="font-semibold">홈페이지명 :</span>{" "}
@@ -82,7 +82,7 @@ export const DetailReport = ({
         <h1 className="mb-6 text-2xl font-bold text-center">
           WEBridge 웹 접근성 검사 보고서
         </h1>
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
           <div className="space-y-1">
             <p>
               <span className="font-semibold">홈페이지명 :</span>{" "}
@@ -126,7 +126,7 @@ export const DetailReport = ({
                 <h2 className="text-base font-semibold">
                   [상세 보고서] {cat.id}. {cat.title}
                 </h2>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-700">
                   준수율 : {isContrast ? "-" : formatCompliance(pass, total)}
                 </div>
               </div>
@@ -170,7 +170,7 @@ export const DetailReport = ({
                         })
                       ) : (
                         <tr>
-                          <td className="p-4 text-gray-500" colSpan={2}>
+                          <td className="p-4 text-gray-700" colSpan={2}>
                             표기할 이슈가 없습니다.
                           </td>
                         </tr>
@@ -181,7 +181,7 @@ export const DetailReport = ({
               )}
 
               {/* 가이드 */}
-              <div className="rounded-2xl bg-[#eaf2ff] p-5 space-y-3">
+              <div className="rounded-2xl bg-blue-50 p-5 space-y-3">
                 <p className="font-semibold"> [{cat.title}] 수정 가이드</p>
 
                 <div className="space-y-2">

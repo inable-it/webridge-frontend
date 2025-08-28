@@ -114,7 +114,7 @@ export const Header = () => {
       <div className="flex items-center justify-start gap-8">
         {/* 로고 섹션 */}
         <div
-          className="flex justify-center items-center gap-3.5 cursor-pointer transition-opacity hover:opacity-80"
+          className="flex justify-center items-center gap-3.5 cursor-pointer transition-colors hover:bg-gray-100"
           onClick={handleLogoClick}
         >
           <img src="/logo.svg" alt="WEBridge Logo" className="w-11 h-11" />

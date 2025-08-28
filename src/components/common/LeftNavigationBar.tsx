@@ -20,7 +20,7 @@ export const LNB = () => {
     <div className="flex flex-col justify-between h-full p-4 w-[260px] bg-white border-r">
       <div className="space-y-6">
         <div>
-          <p className="mb-2 text-xs text-gray-500">메뉴</p>
+          <p className="mb-2 text-xs text-gray-700">메뉴</p>
           <div className="space-y-2">
             {menuItems.map(({ icon: Icon, label, path }) => (
               <Button
@@ -37,7 +37,7 @@ export const LNB = () => {
                   <Icon className="w-5 h-5" />
                   {label}
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
+                <ChevronRight className="w-4 h-4 text-gray-700" />
               </Button>
             ))}
           </div>

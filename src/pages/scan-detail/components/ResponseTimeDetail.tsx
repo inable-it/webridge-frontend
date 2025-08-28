@@ -86,7 +86,7 @@ const ResponseTimeDetail = ({ results }: Props) => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-500">
+              <label className="text-xs font-medium text-gray-700">
                 검사 결과
               </label>
               <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">
@@ -96,7 +96,7 @@ const ResponseTimeDetail = ({ results }: Props) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-gray-500">
+                <label className="text-xs font-medium text-gray-700">
                   시간 제한 여부
                 </label>
                 <div className="flex items-center gap-2 mt-1">
@@ -115,7 +115,7 @@ const ResponseTimeDetail = ({ results }: Props) => {
 
               {result.short_timeouts > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-700">
                     짧은 시간 제한
                   </label>
                   <div className="mt-1 text-lg font-semibold text-red-600">

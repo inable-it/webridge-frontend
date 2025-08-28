@@ -89,7 +89,7 @@ export const WithdrawModal = ({ open, onOpenChange }: WithdrawModalProps) => {
               checked={agree}
               onCheckedChange={(v) => setAgree(!!v)}
             />
-            <label htmlFor="agree" className="text-sm text-muted-foreground">
+            <label htmlFor="agree" className="text-sm text-gray-700">
               주의사항을 모두 확인하였습니다.
             </label>
           </div>
@@ -110,7 +110,7 @@ export const WithdrawModal = ({ open, onOpenChange }: WithdrawModalProps) => {
             <DialogTitle className="text-center">
               탈퇴가 완료되었습니다
             </DialogTitle>
-            <DialogDescription className="text-center text-gray-600">
+            <DialogDescription className="text-center text-gray-700">
               그동안 이용해 주셔서 감사합니다.
             </DialogDescription>
           </DialogHeader>
