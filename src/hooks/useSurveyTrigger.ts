@@ -28,40 +28,38 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
     refetch();
   }, [
     refetch,
-    // 완료/대기 건수 변화에도 재확인
     scanListData?.results?.length,
     scanListData?.results?.map((r) => r.status).join(","),
-    // 현재 상세의 상태 변화에도 재확인
     selectedScanDetail?.status,
     selectedScanDetail?.updated_at,
   ]);
 
-  /** 1) 서버 신호: "열기만" 한다 (닫지는 않음) */
+  // ✅ 서버 신호로는 "열기만" 하고, 자동으로 닫지 않는다.
   useEffect(() => {
     if (!data) return;
-    const shouldOpen = data.should_show_survey && !data.survey_completed;
-    if (shouldOpen) setOpen(true);
-    // 이전처럼 setOpen(shouldOpen) 로 닫아버리지 않음!
-  }, [data?.should_show_survey, data?.survey_completed]);
 
-  /** 2) 설문이 서버에서 "완료"로 바뀌면 닫는다 */
-  useEffect(() => {
-    if (data?.survey_completed) {
-      setOpen(false);
+    // 이미 완료된 사용자면 열지 않음
+    if (data.survey_completed) {
+      // 여기서 굳이 열려있는 걸 강제로 닫지 않는다 (사용자 액션으로만 닫음)
+      return;
     }
-  }, [data?.survey_completed]);
+    // 서버가 표시하라면 열기. 반대로 "표시X" 라고 와도 닫지 않는다.
+    if (data.should_show_survey) {
+      setOpen(true);
+    }
+  }, [data]);
 
-  /** 3) 열렸다면 서버에 “표시함” 기록 (한 번만) */
+  // 열렸다면 서버에 “표시함” 기록 (한 번만)
   useEffect(() => {
     if (open && !markedRef.current) {
       markedRef.current = true;
       markShown().catch(() => {
-        // 표시함 기록 실패는 무시 (다음 틱에서 서버가 다시 막아줄 것)
+        // 실패 무시
       });
     }
   }, [open, markShown]);
 
-  /** 4) 서버 실패 시 폴백: “첫 완료 1회 노출” */
+  // 서버 실패 시 폴백: “첫 완료 1회 노출”
   useEffect(() => {
     if (!isError || open) return;
 
@@ -92,9 +90,7 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
       let seen: string[] = [];
       try {
         seen = JSON.parse(localStorage.getItem(seenKey) || "[]");
-      } catch {
-        seen = [];
-      }
+      } catch {}
       if (!seen.includes(selectedScanDetail.id)) {
         setOpen(true);
         try {
@@ -117,19 +113,11 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
     }
   }, [isError, open, scanListData?.results, selectedScanDetail]);
 
-  /**
-   * 설문 제출 성공 후 모달을 닫고 서버 상태를 즉시 새로고침하고 싶을 때 사용:
-   * onSurveyCompleted() 를 호출해 주세요.
-   */
-  const onSurveyCompleted = () => {
-    setOpen(false);
-    refetch(); // server의 survey_completed=true 반영
-  };
-
   return {
     openSurvey: open,
+    // 닫기는 "반드시 사용자 액션"으로만
     closeSurvey: () => setOpen(false),
-    onSurveyCompleted, // 설문 완료시 호출용
-    refetchSurvey: refetch, // (옵션) 필요 시 외부에서 강제 새로고침
+    // 완료 후 부모에서 refetch 등 처리할 때도, 닫기는 여기로
+    onSurveyCompleted: () => setOpen(false),
   };
 }

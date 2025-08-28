@@ -196,7 +196,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
   const goNext = async () => {
     if (step === LAST_STEP - 1) {
-      // 최종 제출(10단계) → 서버 전송만 하고 닫지 않음. 성공 시 11단계로 이동.
+      // 최종 제출(10단계) → 서버 전송만, 닫기는 11단계 버튼에서만
       const userTypeValue: string | undefined =
         purchaseWay || (purchaseWayOther.trim() ? "other" : undefined);
 
@@ -214,9 +214,9 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         usage_reason_other: usageReasonOther.trim() || undefined,
 
         satisfaction_overall: satOverall!, // Likert
-        satisfaction_accuracy: satAccuracy!, // Likert
-        satisfaction_reuse: satReuse!, // Likert
-        satisfaction_recommend: satRecommend!, // Likert
+        satisfaction_accuracy: satAccuracy!,
+        satisfaction_reuse: satReuse!,
+        satisfaction_recommend: satRecommend!,
 
         user_type: userTypeValue,
         user_type_other: purchaseWayOther.trim() || undefined,
@@ -235,7 +235,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
       try {
         await createSurvey(payload).unwrap();
-        setStep(LAST_STEP); // 감사 화면
+        setStep(LAST_STEP); // 감사 화면으로 이동
       } catch (e: any) {
         const data = e?.data;
         const firstField = data && Object.keys(data)[0];
@@ -254,7 +254,8 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   if (!open) return null;
 
   return (
-    <Card onClose={onClose}>
+    // ✅ 완료 단계에서만 onClose 전달 → X 버튼 표시
+    <Card onClose={step === 11 ? onClose : undefined}>
       {step >= 3 && step <= 10 && <StepDots total={8} index={step - 3} />}
 
       {/* 0. 인트로 */}
