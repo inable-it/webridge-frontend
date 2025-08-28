@@ -89,51 +89,6 @@ const FlashingDetail = ({ results }: Props) => {
                 {result.element_html}
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-medium text-gray-500">
-                  깜빡임 요소
-                </label>
-                <div className="mt-1 text-lg font-semibold">
-                  {result.flashing_elements_count}개
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-gray-500">
-                  깜빡임 스크립트
-                </label>
-                <div className="flex items-center gap-2 mt-1">
-                  {result.has_flashing_script ? (
-                    <XCircle className="w-4 h-4 text-red-600" />
-                  ) : (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  )}
-                  <span className="text-sm">
-                    {result.has_flashing_script ? "발견됨" : "없음"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {result.issue_details && result.issue_details.length > 0 && (
-              <div>
-                <label className="text-xs font-medium text-gray-500">
-                  문제 상세
-                </label>
-                <div className="mt-1 space-y-1">
-                  {result.issue_details.map((issue, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2 text-sm rounded bg-rose-50 text-rose-700"
-                    >
-                      {issue}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       ))}
