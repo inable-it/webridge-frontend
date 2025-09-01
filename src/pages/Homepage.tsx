@@ -85,7 +85,7 @@ const ActionButton = ({
     className={`${STYLES.button.base} ${STYLES.button[variant]}`}
   >
     <span className={STYLES.text.button}>{children}</span>
-    {icon && <img src={icon} alt="다음으로 이동" className="w-6 h-6" />}
+    {icon && <img src={icon} alt="" className="w-6 h-6" />}
   </button>
 );
 
@@ -144,7 +144,7 @@ const URLInput = () => (
 );
 
 const AccessibilityTestPanel = () => (
-  <div className="max-w-4xl p-4 border-t border-gray-200 rounded w-96 border-x bg-white">
+  <div className="max-w-4xl p-4 bg-white border-t border-gray-200 rounded w-96 border-x">
     <div className="mb-6">
       <h3 className="mb-1 font-['Pretendard_Variable'] text-lg font-semibold text-gray-800">
         접근성 검사
