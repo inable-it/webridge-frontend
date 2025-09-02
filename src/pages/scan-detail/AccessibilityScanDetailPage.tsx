@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useGetScanDetailQuery } from "@/features/api/scanApi";
 import type { AccessibilityScanDetail } from "@/features/api/scanApi";
-import { getCategoryInfo } from "@/pages/scan-detail/categoryMap";
+import { getCategoryInfo } from "@/utils/categoryMap";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{

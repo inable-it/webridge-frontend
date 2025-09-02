@@ -1,6 +1,6 @@
 import HomePage from "@/pages/Homepage";
-import SignupPage from "@/pages/SignUp";
-import LoginPage from "@/pages/Login";
+import SignupPage from "@/pages/auth/SignUp";
+import LoginPage from "@/pages/auth/Login";
 import { useRoutes } from "react-router-dom";
 import { SimpleLayout } from "@/layout/SimpleLayout";
 import { BaseLayout } from "@/layout/BaseLayout";
@@ -9,11 +9,11 @@ import { Toaster } from "@/components/ui/toaster";
 import TeamIntro from "@/pages/notion/TeamIntro";
 import AccessibilityIntro from "@/pages/notion/AccessibilityIntro";
 import DashboardPage from "@/pages/dashboard/DashboardPage";
-import MyInfoPage from "@/pages/MyInfoPage";
-import PasswordResetPage from "@/pages/PasswordResetPage";
-import FeedbackPage from "@/pages/FeedbackPage";
-import PasswordResetConfirmPage from "@/pages/PasswordResetConfirmPage";
-import TermsAgreementPage from "@/pages/TermsAgreementPage";
+import MyInfoPage from "@/pages/Info/MyInfoPage";
+import PasswordResetPage from "@/pages/auth/PasswordResetPage";
+import FeedbackPage from "@/pages/feedback/FeedbackPage";
+import PasswordResetConfirmPage from "@/pages/auth/PasswordResetConfirmPage";
+import TermsAgreementPage from "@/pages/auth/TermsAgreementPage";
 import ServiceTermsPage from "@/pages/notion/ServiceTermsPage";
 import PrivacyPolicyPage from "@/pages/notion/PrivacyPolicyPage";
 import MarketingConsentPage from "@/pages/notion/MarketingConsentPage";
@@ -21,7 +21,7 @@ import PrivacyProcessingPage from "@/pages/notion/PrivacyProcessingPage";
 import NewsPage from "@/pages/notion/NewsPage";
 import AccessibilityScanDetailPage from "@/pages/scan-detail/AccessibilityScanDetailPage";
 import SurveyPage from "@/pages/SurveyPage";
-import ScanHistoryPage from "@/pages/ScanHistoryPage";
+import ScanHistoryPage from "@/pages/scan-history/ScanHistoryPage";
 import { useEffect } from "react";
 
 function RouteWithTitle({

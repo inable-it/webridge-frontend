@@ -60,8 +60,8 @@ const MyInfoPage = () => {
       await updateName({ name: v }).unwrap();
       setNameEdit(false);
       refetch();
-    } catch (e: any) {
-      alert(e?.data?.message || "이름 변경 중 오류가 발생했습니다.");
+    } catch (e) {
+      alert(e || "이름 변경 중 오류가 발생했습니다.");
     }
   };
 
@@ -88,8 +88,8 @@ const MyInfoPage = () => {
       alert("비밀번호가 변경되었습니다.");
       setPwdEdit(false);
       setNewPwd("");
-    } catch (e: any) {
-      alert(e?.data?.message || "비밀번호 변경 중 오류가 발생했습니다.");
+    } catch (e) {
+      alert(e || "비밀번호 변경 중 오류가 발생했습니다.");
     }
   };
 
