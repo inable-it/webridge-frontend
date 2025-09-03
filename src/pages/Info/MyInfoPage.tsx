@@ -113,7 +113,9 @@ const MyInfoPage = () => {
   if (isLoading) return <div className="p-8 text-gray-700">로딩 중...</div>;
   if (error)
     return (
-      <div className="p-8 text-gray-700">사용자 정보를 불러오는 중 오류가 발생했습니다.</div>
+      <div className="p-8 text-gray-700">
+        사용자 정보를 불러오는 중 오류가 발생했습니다.
+      </div>
     );
 
   return (
@@ -124,7 +126,7 @@ const MyInfoPage = () => {
         {/* 한 줄(데스크톱) 2칸 레이아웃 */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* 이름 */}
-          <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-gray-200 rounded-xl">
+          <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-[#727272] rounded-xl">
             <div className="min-w-[56px] text-sm font-medium text-gray-700">
               이름
             </div>
@@ -138,6 +140,7 @@ const MyInfoPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setNameEdit(true)}
+                  className="border border-[#727272]"
                 >
                   ✏️ 변경
                 </Button>
@@ -168,7 +171,7 @@ const MyInfoPage = () => {
           </div>
 
           {/* 비밀번호 */}
-          <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-gray-200 rounded-xl">
+          <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-[#727272] rounded-xl">
             <div className="min-w-[72px] text-sm font-medium text-gray-700">
               비밀번호
             </div>
@@ -180,6 +183,7 @@ const MyInfoPage = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setPwdEdit(true)}
+                  className="border border-[#727272]"
                 >
                   ✏️ 변경
                 </Button>

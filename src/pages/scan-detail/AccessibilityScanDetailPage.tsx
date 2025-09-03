@@ -101,7 +101,7 @@ const AccessibilityScanDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-white border-b border-[#727272] shadow-sm">
         <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -120,6 +120,7 @@ const AccessibilityScanDetailPage = () => {
               <Button
                 onClick={() => window.open(scanDetail.url, "_blank")}
                 variant="outline"
+                className="border-[#727272]"
                 size="sm"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
@@ -132,7 +133,7 @@ const AccessibilityScanDetailPage = () => {
 
       <div className="max-w-4xl px-4 py-8 mx-auto sm:px-6 lg:px-8">
         {/* 검사 항목 설명 */}
-        <div className="p-6 mb-8 bg-white border rounded-lg shadow-sm">
+        <div className="p-6 mb-8 bg-white border border-[#727272] rounded-lg shadow-sm">
           <h2 className="mb-2 text-lg font-semibold text-gray-900">
             {categoryInfo.title}
           </h2>
@@ -154,8 +155,8 @@ const AccessibilityScanDetailPage = () => {
         </div>
 
         {/* 검사 결과 상세 */}
-        <div className="bg-white border rounded-lg shadow-sm">
-          <div className="p-6 border-b">
+        <div className="bg-white border border-[#727272] rounded-lg shadow-sm">
+          <div className="p-6 border-b border-[#727272]">
             <h3 className="text-lg font-semibold text-gray-900">
               문제가 발견된 항목들
             </h3>

@@ -436,7 +436,9 @@ const SignupPageContent = () => {
             placeholder="이름"
             value={form.name}
             onChange={handleInputChange}
-            className={`w-full h-12 ${errors.name ? "border-red-500" : ""}`}
+            className={`w-full h-12 border border-[#727272]${
+              errors.name ? "border-red-500" : ""
+            }`}
           />
           {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
         </div>
@@ -453,7 +455,9 @@ const SignupPageContent = () => {
               placeholder="이메일"
               value={form.email}
               onChange={handleInputChange}
-              className={`flex-1 h-12 ${errors.email ? "border-red-500" : ""}`}
+              className={`flex-1 h-12 border border-[#727272] ${
+                errors.email ? "border-red-500" : ""
+              }`}
             />
             <Button
               type="button"
@@ -497,7 +501,9 @@ const SignupPageContent = () => {
             placeholder="비밀번호"
             value={form.password}
             onChange={handleInputChange}
-            className={`w-full h-12 ${errors.password ? "border-red-500" : ""}`}
+            className={`w-full h-12 border border-[#727272] ${
+              errors.password ? "border-red-500" : ""
+            }`}
           />
           {errors.password && (
             <p className="text-sm text-red-500">{errors.password}</p>
@@ -507,7 +513,7 @@ const SignupPageContent = () => {
         {/* 약관 동의 */}
         <div className="space-y-3">
           {/* 전체 동의 */}
-          <div className="flex items-center gap-2 my-6">
+          <div className="flex items-center gap-2 my-6 pb-5 border-b border-[#727272]">
             <Checkbox
               id="allAgree"
               checked={form.allAgree}
@@ -522,8 +528,6 @@ const SignupPageContent = () => {
               모두 동의합니다.
             </Label>
           </div>
-
-          <div className="h-px my-4 bg-gray-200" />
 
           {TERMS_CONFIG.map(renderTermsCheckbox)}
         </div>

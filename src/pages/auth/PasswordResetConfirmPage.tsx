@@ -157,7 +157,7 @@ const PasswordResetConfirmPage = () => {
               value={form.newPassword}
               onChange={handleChange}
               required
-              className={`h-12 pr-10 ${
+              className={`h-12 pr-10 border border-[#727272] ${
                 errors.newPassword ? "border-red-500 focus:border-red-500" : ""
               }`}
             />
@@ -195,7 +195,7 @@ const PasswordResetConfirmPage = () => {
               value={form.confirmPassword}
               onChange={handleChange}
               required
-              className={`h-12 pr-10 ${
+              className={`h-12 pr-10 border border-[#727272] ${
                 errors.confirmPassword
                   ? "border-red-500 focus:border-red-500"
                   : ""

@@ -109,7 +109,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="w-full px-6 py-4 bg-white border-b border-[#D9D9D9] flex justify-between items-center">
+    <header className="w-full px-6 py-4 bg-white border-b border-[#727272] flex justify-between items-center">
       {/* 좌측: 로고 + 메뉴 */}
       <div className="flex items-center justify-start gap-8">
         {/* 로고 섹션 */}

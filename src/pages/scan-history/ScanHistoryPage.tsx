@@ -100,7 +100,7 @@ export default function ScanHistoryPage() {
             variant="outline"
             onClick={onDeleteSelected}
             disabled={isFetching || !Object.values(selected).some(Boolean)}
-            className="p-2"
+            className="p-2 border border-[#727272]"
             title="선택 삭제"
           >
             <Trash2 className="w-5 h-5" />
@@ -108,7 +108,7 @@ export default function ScanHistoryPage() {
         </div>
 
         {/* 카드 리스트 (이미지 스타일) */}
-        <div className="overflow-hidden bg-white border rounded-xl">
+        <div className="overflow-hidden bg-white border border-[#727272] rounded-xl">
           {/* 헤더 행 */}
           <div className="grid items-center grid-cols-12 px-4 py-3 text-xs font-medium text-gray-700 border-b">
             <div className="col-span-1">
@@ -190,6 +190,7 @@ export default function ScanHistoryPage() {
               variant="outline"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || isFetching}
+              className="border border-[#727272]"
             >
               이전
             </Button>
@@ -207,6 +208,7 @@ export default function ScanHistoryPage() {
                 page >= Math.max(1, Math.ceil((data?.count ?? 0) / pageSize)) ||
                 isFetching
               }
+              className="border border-[#727272]"
             >
               다음
             </Button>

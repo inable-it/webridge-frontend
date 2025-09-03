@@ -93,12 +93,12 @@ export const UrlScanForm = ({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 ">
       <h2 className="text-lg font-semibold">접근성 검사</h2>
 
       <div className="space-y-2">
         {/* 주소 입력 + 시작 버튼 (한 줄) */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
           <Input
             type="url"
             inputMode="url"
@@ -106,7 +106,7 @@ export const UrlScanForm = ({
             aria-invalid={!!error}
             aria-describedby="url-rules url-error"
             placeholder="https://example.com"
-            className={`flex-1 ${
+            className={`flex-1 border border-[#727272]${
               error ? "border-red-500 focus-visible:ring-red-500" : ""
             }`}
             value={urlInput}
@@ -143,7 +143,7 @@ export const UrlScanForm = ({
             onClick={handleStart}
             disabled={isCreating || !urlInput.trim()}
             aria-label="검사 시작"
-            className="shrink-0"
+            className="shrink- border border-[#727272]"
           >
             {isCreating ? (
               <Loader2 className="w-5 h-5 animate-spin" />

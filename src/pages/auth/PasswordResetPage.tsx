@@ -75,7 +75,7 @@ const PasswordResetPage = () => {
             value={email}
             onChange={handleEmailChange}
             required
-            className={`h-12 ${
+            className={`h-12 border border-[#727272] ${
               emailError ? "border-red-500 focus:border-red-500" : ""
             }`}
           />

@@ -127,11 +127,11 @@ const DashboardPage = () => {
       <div className="flex min-h-screen bg-[#ecf3ff] p-8 gap-5">
         {/* 왼쪽: 입력 + 최근 검사 */}
         <div className="flex w-[320px] space-y-6 rounded-lg flex-col">
-          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg">
+          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg border-[#727272]">
             <UrlScanForm isCreating={isCreating} onStartScan={onStartScan} />
           </div>
 
-          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg">
+          <div className="w-[320px] bg-[#f4f8ff] border-2 p-6 space-y-6 rounded-lg border-[#727272]">
             <ScanList
               isLoading={isLoadingList}
               scanList={scanListData?.results || []}
@@ -144,7 +144,7 @@ const DashboardPage = () => {
         {/* 오른쪽: 검사 결과(대시보드) */}
         <div
           ref={resultPanelRef}
-          className="flex-1 min-w-0 p-8 bg-white border-2 rounded-lg shadow-md"
+          className="flex-1 min-w-0 p-8 bg-white border-2 rounded-lg shadow-md border-[#727272]"
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1 min-w-0 mr-4">
@@ -189,7 +189,7 @@ const DashboardPage = () => {
             </Button>
           </div>
 
-          <div className="p-6 bg-white border rounded-lg">
+          <div className="p-6 bg-white border rounded-lg border-[#727272]">
             <ResultTable
               displayScan={displayScan}
               isDisplayingScanDetail={isDisplayingScanDetail}

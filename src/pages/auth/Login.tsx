@@ -142,7 +142,7 @@ const LoginPageContent = () => {
             placeholder="이메일 주소"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12"
+            className="h-12 border border-[#727272]"
           />
         </div>
 
@@ -157,7 +157,7 @@ const LoginPageContent = () => {
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12"
+            className="h-12 border border-[#727272]"
           />
         </div>
 
@@ -186,7 +186,7 @@ const LoginPageContent = () => {
         {/* 구분선 */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300" />
+            <span className="w-full border-t border-[#727272]" />
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-2 text-gray-700 bg-white">또는</span>
