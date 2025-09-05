@@ -185,7 +185,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
   const FeedbackHoverContent = () => (
     <div className="w-[280px]">
-      <div className="rounded-xl bg-gray-100 py-3 px-4 text-center font-semibold">
+      <div className="px-4 py-3 font-semibold text-center bg-gray-100 rounded-xl">
         이 대체텍스트가 도움이 되었나요?
       </div>
       <p className="mt-2 text-sm text-center text-gray-600">
@@ -196,7 +196,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
   const CopiedHoverContent = () => (
     <div className="w-[320px]">
-      <div className="rounded-xl bg-gray-100 py-3 px-4 text-center font-semibold">
+      <div className="px-4 py-3 font-semibold text-center bg-gray-100 rounded-xl">
         대체텍스트 복사 완료
       </div>
       <p className="mt-2 text-sm text-center text-gray-600">
@@ -293,7 +293,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                   <label className="block mb-1 text-xs font-medium text-gray-700">
                     이미지 미리보기
                   </label>
-                  <div className="relative flex items-center justify-center w-32 h-24 overflow-hidden border rounded bg-gray-50">
+                  <div className="relative flex items-center justify-center w-32 h-24 overflow-hidden border rounded bg-gray-50 border-[#727272]">
                     <img
                       src={getAbsoluteImageUrl(result.img_url, scanUrl ?? "")}
                       alt="검사 대상 이미지"
@@ -325,7 +325,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                     <label className="text-xs font-medium text-gray-700">
                       이미지 URL
                     </label>
-                    <div className="p-2 mt-1 font-mono text-sm break-all rounded bg-gray-50">
+                    <div className="p-2 mt-1 font-mono text-sm break-all rounded bg-gray-50 border border-[#727272]">
                       {result.element_html.length > 100
                         ? result.element_html.substring(0, 100) + "..."
                         : result.element_html}
@@ -336,7 +336,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                     <label className="text-xs font-medium text-gray-700">
                       현재 대체 텍스트
                     </label>
-                    <div className="p-2 mt-1 text-sm rounded bg-gray-50">
+                    <div className="p-2 mt-1 text-sm rounded bg-gray-50 border border-[#727272]">
                       {result.alt_text || "(없음)"}
                     </div>
                   </div>
@@ -345,7 +345,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
               {/* --- 제안 박스 --- */}
               {result.suggested_alt && (
-                <div className="p-3 border border-blue-200 rounded bg-blue-50">
+                <div className="p-3 border border-[#727272] rounded bg-blue-50">
                   <div className="flex items-center justify-between mb-2">
                     {/* 좌측: 라벨 + 복사 */}
                     <div className="flex items-center gap-2">
@@ -423,7 +423,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                     </div>
                   </div>
 
-                  <div className="p-2 font-mono text-sm text-blue-800 bg-white border rounded">
+                  <div className="p-2 font-mono text-sm text-blue-800 bg-white border border-[#727272] rounded">
                     alt="{result.suggested_alt}"
                   </div>
                 </div>

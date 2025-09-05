@@ -439,45 +439,55 @@ export const ResultTable = ({
   return (
     <div className="w-full">
       {/* 데스크톱 테이블 */}
-        <div
-            role="region"
-            aria-label="요약 보고서 테이블"
-            className="hidden w-full overflow-x-auto md:block"
-        >
-            <table className="w-full min-w-full text-sm text-center table-fixed">
-                <caption className="sr-only">요약 보고서</caption>
-                <colgroup>
-                    <col className="w-16" />
-                    <col className="w-[32%]" />
-                    <col className="w-28" />
-                    <col className="w-24" />
-                    <col className="w-24" />
-                </colgroup>
-                <thead>
-                <tr className="border-b">
-                    <th scope="col" className="p-2 text-left">순번</th>
-                    <th scope="col" className="p-2 text-left">항목</th>
-                    <th scope="col" className="p-2">항목 설명</th>
-                    <th scope="col" className="p-2">준수율</th>
-                    <th scope="col" className="p-2">오류 확인</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows.map((item) => (
-                    <tr key={item.id} className="border-b">
-                        <td className="p-2 text-left">{item.id}</td>
-                        <td className="p-2 text-left">
-                            <span className="break-words break-all">{item.name}</span>
-                        </td>
-                        <td className="p-2">
-                            <HoverCard openDelay={100} closeDelay={60}>
-                                <HoverCardTrigger asChild>
-                                    <Button
-                                        aria-label={`${item.name} 항목 설명`}
-                                        variant="ghost"
-                                        size="icon"
-                                        className="rounded-full"
-                                    >
+      <div
+        role="region"
+        aria-label="요약 보고서 테이블"
+        className="hidden w-full overflow-x-auto md:block"
+      >
+        <table className="w-full min-w-full text-sm text-center table-fixed">
+          <caption className="sr-only">요약 보고서</caption>
+          <colgroup className="w-full">
+            <col className="w-16" />
+            <col className="w-[32%]" />
+            <col className="w-28" />
+            <col className="w-24" />
+            <col className="w-24" />
+          </colgroup>
+          <thead>
+            <tr className="border-b border-[#727272]">
+              <th scope="col" className="p-2 text-left">
+                순번
+              </th>
+              <th scope="col" className="p-2 text-left">
+                항목
+              </th>
+              <th scope="col" className="p-2">
+                항목 설명
+              </th>
+              <th scope="col" className="p-2">
+                준수율
+              </th>
+              <th scope="col" className="p-2">
+                오류 확인
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((item) => (
+              <tr key={item.id} className="border-b border-[#727272]">
+                <td className="p-2 text-left">{item.id}</td>
+                <td className="p-2 text-left">
+                  <span className="break-words break-all">{item.name}</span>
+                </td>
+                <td className="p-2">
+                  <HoverCard openDelay={100} closeDelay={60}>
+                    <HoverCardTrigger asChild>
+                      <Button
+                        aria-label={`${item.name} 항목 설명`}
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full"
+                      >
                         <Info className="w-4 h-4 text-blue-600" />
                       </Button>
                     </HoverCardTrigger>
