@@ -2,13 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { FadeInSection } from "@/components/common/FadeInSection";
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon.svg";
 import { useEffect, useRef, useState } from "react";
+import {STYLES, TABLE_DATA} from "@/constants/homepage.ts";
 
-// 타입 정의
-interface TableItem {
-  id: number;
-  item: string;
-  compliance: string;
-}
 interface ActionButtonProps {
   onClick: () => void;
   variant: "primary" | "secondary";
@@ -19,44 +14,6 @@ interface FeatureTextProps {
   title: string;
   description: string;
 }
-
-// 상수
-const TABLE_DATA: TableItem[] = [
-  { id: 1, item: "적절한 대체 텍스트 제공", compliance: "23/50" },
-  { id: 2, item: "자막 제공", compliance: "40/50" },
-  { id: 3, item: "표의 구성", compliance: "30/50" },
-  { id: 4, item: "자동 재생 금지", compliance: "이슈 내용" },
-  { id: 5, item: "텍스트 콘텐츠의 명도 대비", compliance: "Cell Text" },
-  { id: 6, item: "키보드 사용 보장", compliance: "Cell Text" },
-  { id: 7, item: "레이블 제공", compliance: "Cell Text" },
-];
-
-const STYLES = {
-  section: {
-    hero: "flex flex-col items-center justify-center w-full px-6",
-    feature: "w-full px-6 lg:px-8 py-24 bg-white",
-    cta: "flex flex-col items-center justify-center min-h-screen px-4 py-20 text-center text-white bg-gray-900",
-  },
-  text: {
-    title:
-      "text-zinc-800 text-6xl font-bold leading-[80px] font-['Pretendard_Variable'] text-center max-w-[1044px]",
-    subtitle:
-      "text-gray-700 text-xl font-medium leading-loose font-['Pretendard_Variable'] text-center max-w-[754px]",
-    button: "text-xl font-semibold leading-loose font-['Pretendard_Variable']",
-    tableHeader:
-      "text-xs font-medium font-['Pretendard_Variable'] text-gray-700",
-    tableCell: "text-xs font-medium font-['Pretendard_Variable'] text-gray-700",
-  },
-  button: {
-    base: "flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-colors",
-    primary:
-      "bg-gradient-to-b from-blue-700 to-indigo-400 text-white hover:from-blue-800 hover:to-indigo-700",
-    secondary:
-      "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50",
-    error:
-      "h-10 px-4 py-3 bg-blue-400 rounded-lg hover:bg-blue-500 transition-colors",
-  },
-} as const;
 
 // 메인 컴포넌트들
 const MainTitle = () => (
@@ -301,75 +258,167 @@ const ReportPreviewSection = () => {
 
 // Feature 구성 - 이미지처럼 좌우 2열 (상: 카드+텍스트, 하: 텍스트+이미지)
 const StatusIcon = ({ ok }: { ok: boolean }) =>
-  ok ? (
-    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M7 12l3 3 7-7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ) : (
-    <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M12 7v6m0 4h.01"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+    ok ? (
+        <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+            <path
+                d="M7 12l3 3 7-7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    ) : (
+        <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+            <path
+                d="M12 7v6m0 4h.01"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+        </svg>
+    );
 
-const AlternativeTextDemo = ({ variant }: { variant: "good" | "bad" }) => {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 20);
-    return () => clearTimeout(t);
-  }, [variant]);
-
-  const isGood = variant === "good";
-
-  return (
-    <div
-      className={[
-        "flex items-center w-full max-w-xl p-6 rounded-xl shadow-sm border transition-all duration-500 ease-out bg-white",
-        isGood
-          ? "border-blue-200 ring-1 ring-blue-100"
-          : "border-rose-200 ring-1 ring-rose-100",
-        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
-      ].join(" ")}
-    >
-      <img
-        src="/example-shoes.png"
-        alt="유아용 흰색 운동화"
-        className="object-cover rounded-md h-28 w-28"
-      />
-      <div className="flex flex-col gap-1 ml-6">
+// 기존 AlternativeTextDemo를 캐로우셀로 교체
+const AltCard = ({ variant, mounted }: { variant: "good" | "bad"; mounted: boolean }) => {
+    const isGood = variant === "good";
+    return (
         <div
-          className={[
-            "flex items-center gap-2 text-sm font-medium",
-            isGood ? "text-blue-600" : "text-rose-500",
-          ].join(" ")}
+            className={[
+                "flex items-center p-6 rounded-xl shadow-sm border transition-all duration-500 ease-out bg-white",
+                isGood
+                    ? "border-blue-200 ring-1 ring-blue-100"
+                    : "border-rose-200 ring-1 ring-rose-100",
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
+            ].join(" ")}
         >
-          <StatusIcon ok={isGood} />
-          {isGood
-            ? "적절한 대체텍스트를 추천드려요."
-            : "대체텍스트가 적절하지 않습니다."}
-        </div>
+            <img
+                src="/example-shoes.png"
+                alt="유아용 흰색 운동화"
+                className="object-cover rounded-md h-28 w-28"
+            />
+            <div className="flex flex-col gap-1 ml-6">
+                <div
+                    className={[
+                        "flex w-full items-center gap-2 text-sm font-medium",
+                        isGood ? "text-blue-600" : "text-rose-500",
+                    ].join(" ")}
+                >
+                    <StatusIcon ok={isGood} />
+                    {isGood
+                        ? "적절한 대체텍스트를 추천드려요."
+                        : "대체텍스트가 적절하지 않습니다."}
+                </div>
 
-        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-700">
-          {isGood
-            ? `<img src="product.jpg" alt="유아용 흰색 운동화" />`
-            : `<img src="product.jpg" alt="" />`}
+                <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-700">
+                    {isGood
+                        ? `<img src="product.jpg" alt="유아용 흰색 운동화" />`
+                        : `<img src="product.jpg" alt="" />`}
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
+
+// 이전/다음/정지 컨트롤이 있는 캐로우셀
+const AlternativeTextCarousel = () => {
+    const slides: Array<"good" | "bad"> = ["bad", "good"];
+    const [index, setIndex] = useState(0);
+    const [playing, setPlaying] = useState(true);
+    const [mounted, setMounted] = useState(false);
+    const timerRef = useRef<number | null>(null);
+
+    const next = () => setIndex((i) => (i + 1) % slides.length);
+    const prev = () => setIndex((i) => (i - 1 + slides.length) % slides.length);
+
+    // mount animation
+    useEffect(() => {
+        const t = window.setTimeout(() => setMounted(true), 20);
+        return () => window.clearTimeout(t);
+    }, [index]);
+
+    // autoplay
+    useEffect(() => {
+        if (!playing) {
+            if (timerRef.current) {
+                window.clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+            return;
+        }
+        timerRef.current = window.setInterval(() => {
+            setIndex((i) => (i + 1) % slides.length);
+        }, 4000) as unknown as number;
+
+        return () => {
+            if (timerRef.current) {
+                window.clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+        };
+    }, [playing, slides.length]);
+    return (
+        <div
+            className="w-full max-w-xl"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="대체 텍스트 예시 캐로우셀"
+        >
+            <div className="relative">
+                <AltCard key={slides[index]} variant={slides[index]} mounted={mounted} />
+
+                {/* 컨트롤러 */}
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        {slides.map((_, i) => (
+                            <button
+                                key={i}
+                                type="button"
+                                onClick={() => setIndex(i)}
+                                aria-label={`${i + 1}번째 슬라이드로 이동`}
+                                className={[
+                                    "h-2 w-2 rounded-full transition-colors",
+                                    i === index ? "bg-blue-600" : "bg-gray-300",
+                                ].join(" ")}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={prev}
+                            className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
+                            aria-label="이전 이미지"
+                        >
+                            이전
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setPlaying((p) => !p)}
+                            className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
+                            aria-pressed={!playing}
+                            aria-label={playing ? "자동 재생 정지" : "자동 재생 시작"}
+                        >
+                            {playing ? "정지" : "재생"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={next}
+                            className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
+                            aria-label="다음 이미지"
+                        >
+                            다음
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
 const FeatureText = ({ title, description }: FeatureTextProps) => (
   <div className="flex-1 max-w-xl text-left">
@@ -403,36 +452,25 @@ const CTAButton = () => (
 
 // Feature Section (번갈아 표시)
 const FeatureSectionAnimated = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [variant, setVariant] = useState<"good" | "bad">("bad"); // 시작 상태
-  const visibleRef = useRef(false);
+    const sectionRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        // 보임 상태로 "진입"할 때만 토글 (머무는 동안 반복 토글 방지)
-        if (entry.isIntersecting && !visibleRef.current) {
-          visibleRef.current = true;
-          setVariant((v) => (v === "good" ? "bad" : "good"));
-        } else if (!entry.isIntersecting && visibleRef.current) {
-          visibleRef.current = false;
-        }
-      },
-      { threshold: 0.35 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    useEffect(() => {
+        const el = sectionRef.current;
+        if (!el) return;
+        const io = new IntersectionObserver(
+            () => {},
+            { threshold: 0.35 }
+        );
+        io.observe(el);
+        return () => io.disconnect();
+    }, []);
 
   return (
     <section ref={sectionRef} className={STYLES.section.feature}>
       <div className="grid w-full grid-cols-1 mx-auto max-w-7xl place-items-start gap-x-24 gap-y-28 lg:grid-cols-2">
         {/* 상단 왼쪽: (토글되는) 카드 */}
         <FadeInSection>
-          {/* key로 재마운트 → 자연스러운 페이드/슬라이드 */}
-          <AlternativeTextDemo key={variant} variant={variant} />
+            <AlternativeTextCarousel />
         </FadeInSection>
 
         {/* 상단 오른쪽: 텍스트 */}

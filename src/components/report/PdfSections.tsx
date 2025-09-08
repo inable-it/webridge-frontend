@@ -1,5 +1,5 @@
 import { CATS } from "@/constants/accessibilityCats";
-import { GUIDE_TEXT, DEFAULT_GUIDE } from "@/constants/guideText";
+import { GUIDE_TEXT, DEFAULT_GUIDE } from "@/constants/guide.ts";
 import { formatCompliance } from "@/utils/format";
 import { extractIssueTextForPdf } from "@/utils/pdfIssueExtract";
 import type { DetailRow } from "@/types/report";
