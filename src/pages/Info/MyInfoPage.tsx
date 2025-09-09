@@ -1,5 +1,4 @@
-// src/pages/MyInfoPage.tsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,6 +28,11 @@ const MyInfoPage = () => {
   const [pwdEdit, setPwdEdit] = useState(false);
   const [newPwd, setNewPwd] = useState("");
   const [pwdErr, setPwdErr] = useState("");
+
+  // 레이블-입력 연결용 id
+  const nameInputId = useId();
+  const pwdInputId = useId();
+  const pwdErrorId = useId();
 
   // 약관 상태/업데이트
   const {
@@ -127,9 +131,13 @@ const MyInfoPage = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* 이름 */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-[#727272] rounded-xl">
-            <div className="min-w-[56px] text-sm font-medium text-gray-700">
+            {/* label로 전환 + htmlFor 연결 */}
+            <label
+              htmlFor={nameEdit ? nameInputId : undefined}
+              className="min-w-[56px] text-sm font-medium text-gray-700"
+            >
               이름
-            </div>
+            </label>
 
             {!nameEdit ? (
               <>
@@ -148,10 +156,14 @@ const MyInfoPage = () => {
             ) : (
               <div className="flex items-center w-full gap-2">
                 <Input
+                  id={nameInputId}
                   value={nameDraft}
                   onChange={(e) => setNameDraft(e.target.value)}
                   className="h-10 max-w-[240px]"
                   placeholder="새 이름"
+                  required
+                  maxLength={9} // 10자 미만 제약 보조
+                  aria-describedby={undefined}
                 />
                 <Button size="sm" onClick={handleSaveName}>
                   저장
@@ -172,9 +184,13 @@ const MyInfoPage = () => {
 
           {/* 비밀번호 */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-[#727272] rounded-xl">
-            <div className="min-w-[72px] text-sm font-medium text-gray-700">
+            {/* label로 전환 + htmlFor 연결 */}
+            <label
+              htmlFor={pwdEdit ? pwdInputId : undefined}
+              className="min-w-[72px] text-sm font-medium text-gray-700"
+            >
               비밀번호
-            </div>
+            </label>
 
             {!pwdEdit ? (
               <>
@@ -191,11 +207,16 @@ const MyInfoPage = () => {
             ) : (
               <div className="flex items-center w-full gap-2">
                 <Input
+                  id={pwdInputId}
                   type="password"
                   value={newPwd}
                   onChange={(e) => setNewPwd(e.target.value)}
                   className="h-10 max-w-[260px]"
                   placeholder="새 비밀번호"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  aria-describedby={pwdErr ? pwdErrorId : undefined}
                 />
                 <Button
                   size="sm"
@@ -220,10 +241,15 @@ const MyInfoPage = () => {
           </div>
         </div>
 
-        {pwdErr && <p className="mt-2 text-sm text-red-600">{pwdErr}</p>}
+        {/* 비밀번호 에러는 SR에 연결 */}
+        {pwdErr && (
+          <p id={pwdErrorId} className="mt-2 text-sm text-red-600" role="alert">
+            {pwdErr}
+          </p>
+        )}
       </div>
 
-      {/* ▼ 이미지처럼: 왼쪽 텍스트+토글, 오른쪽 탈퇴 링크 */}
+      {/* ▼ 왼쪽 텍스트+토글, 오른쪽 탈퇴 링크 */}
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-700">마케팅 정보 수신 동의</span>

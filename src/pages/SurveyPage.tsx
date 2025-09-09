@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useCreateUserExtraInfoMutation } from "@/features/api/extraInfoApi";
 import CustomSelect from "@/components/common/Select";
@@ -35,8 +36,13 @@ const SurveyPage = () => {
     jobOther?: string;
   }>({});
 
+  // 레이블-입력 연결용 id
+  const pathOtherId = useId();
+  const jobOtherId = useId();
+  const pathOtherErrId = `${pathOtherId}-err`;
+  const jobOtherErrId = `${jobOtherId}-err`;
+
   // 유효성 검사
-  // 규칙:
   // - path === 'f' 인 경우: pathOther 필수
   // - path !== 'f' 인 경우: path 또는 pathOther 둘 중 하나는 필수
   // - job도 동일 규칙
@@ -113,11 +119,12 @@ const SurveyPage = () => {
             WEBridge 솔루션을 알게 된 경로는 무엇인가요?{" "}
             <span className="text-red-500">*</span>
           </label>
+
+          {/* 셀렉트 (내부 기타 입력 비활성화) */}
           <CustomSelect
             value={path}
             onChange={(code) => {
               setPath(code as Code);
-              // f가 아니면 기타 입력값은 초기화
               if (code !== "f") setPathOther("");
               setErrors((p) => ({
                 ...p,
@@ -128,22 +135,39 @@ const SurveyPage = () => {
             options={PATH_OPTIONS}
             placeholder="경로를 선택해 주세요."
             error={errors.path}
-            otherValue={pathOther}
-            onChangeOther={(v) => {
-              setPathOther(v);
-              // 입력 발생 시 에러 제거
-              setErrors((p) => ({
-                ...p,
-                path: undefined,
-                pathOther: undefined,
-              }));
-            }}
-            otherPlaceholder="기타 응답을 작성해 주세요."
-            alwaysShowOtherInput
+            // 페이지에서 직접 기타 입력을 제공할 것이므로 끔
+            alwaysShowOtherInput={false as any}
           />
-          {errors.pathOther && (
-            <p className="text-sm text-red-500">{errors.pathOther}</p>
-          )}
+
+          {/* 기타 입력 (레이블 연결) */}
+          <div className="space-y-1">
+            <label
+              htmlFor={pathOtherId}
+              className="text-sm font-medium text-gray-700"
+            >
+              기타 경로 직접 입력
+            </label>
+            <Input
+              id={pathOtherId}
+              value={pathOther}
+              onChange={(e) => {
+                setPathOther(e.target.value);
+                setErrors((p) => ({
+                  ...p,
+                  path: undefined,
+                  pathOther: undefined,
+                }));
+              }}
+              placeholder="예: 지인 추천, 컨퍼런스 등"
+              aria-invalid={!!errors.pathOther}
+              aria-describedby={errors.pathOther ? pathOtherErrId : undefined}
+            />
+            {errors.pathOther && (
+              <p id={pathOtherErrId} className="text-sm text-red-500">
+                {errors.pathOther}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* 직군 */}
@@ -151,6 +175,8 @@ const SurveyPage = () => {
           <label className="text-sm font-medium text-gray-700">
             당신의 직군은 무엇인가요? <span className="text-red-500">*</span>
           </label>
+
+          {/* 셀렉트 (내부 기타 입력 비활성화) */}
           <CustomSelect
             value={job}
             onChange={(code) => {
@@ -161,17 +187,39 @@ const SurveyPage = () => {
             options={JOB_OPTIONS}
             placeholder="직군을 선택해 주세요."
             error={errors.job}
-            otherValue={jobOther}
-            onChangeOther={(v) => {
-              setJobOther(v);
-              setErrors((p) => ({ ...p, job: undefined, jobOther: undefined }));
-            }}
-            otherPlaceholder="기타 응답을 작성해 주세요."
-            alwaysShowOtherInput
+            // 페이지에서 직접 기타 입력을 제공할 것이므로 끔
+            alwaysShowOtherInput={false as any}
           />
-          {errors.jobOther && (
-            <p className="text-sm text-red-500">{errors.jobOther}</p>
-          )}
+
+          {/* 기타 입력 (레이블 연결) */}
+          <div className="space-y-1">
+            <label
+              htmlFor={jobOtherId}
+              className="text-sm font-medium text-gray-700"
+            >
+              기타 직군 직접 입력
+            </label>
+            <Input
+              id={jobOtherId}
+              value={jobOther}
+              onChange={(e) => {
+                setJobOther(e.target.value);
+                setErrors((p) => ({
+                  ...p,
+                  job: undefined,
+                  jobOther: undefined,
+                }));
+              }}
+              placeholder="예: 연구원, PMM, QA 등"
+              aria-invalid={!!errors.jobOther}
+              aria-describedby={errors.jobOther ? jobOtherErrId : undefined}
+            />
+            {errors.jobOther && (
+              <p id={jobOtherErrId} className="text-sm text-red-500">
+                {errors.jobOther}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* 제출 */}

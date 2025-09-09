@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useId } from "react";
 import {
   useGetScanListQuery,
   useDeleteScanMutation,
@@ -29,9 +29,9 @@ export default function ScanHistoryPage() {
 
   // 페이징만 유지
   const [page, setPage] = useState(1);
-  const pageSize = 10; // 필요하면 조정 (이미지에선 고정값처럼 보임)
+  const pageSize = 10;
 
-  // 목록 가져오기 (필터/정렬 미사용)
+  // 목록 가져오기
   const { data, isFetching, refetch } = useGetScanListQuery({
     page,
     page_size: pageSize,
@@ -84,9 +84,11 @@ export default function ScanHistoryPage() {
   };
 
   const goDetail = (scanId: string, siteTitle?: string) => {
-    // Dashboard 로 이동하면서 선택한 scanId와 사이트명을 state로 전달
     navigate("/dashboard", { state: { scanId, siteTitle } });
   };
+
+  // 전체선택 체크박스 id (고유)
+  const headerCheckId = useId();
 
   return (
     <div className="flex h-screen flex-col bg-[#ecf3ff] p-8 gap-5">
@@ -107,16 +109,33 @@ export default function ScanHistoryPage() {
           </Button>
         </div>
 
-        {/* 카드 리스트 (이미지 스타일) */}
+        {/* 카드 리스트 */}
         <div className="overflow-hidden bg-white border border-[#727272] rounded-xl">
           {/* 헤더 행 */}
           <div className="grid items-center grid-cols-12 px-4 py-3 text-xs font-medium text-gray-700 border-b">
             <div className="col-span-1">
-              <input
-                type="checkbox"
-                checked={!!data?.results?.length && allChecked}
-                onChange={toggleAll}
-              />
+              {/* 전체 선택 레이블 연결 */}
+              <label
+                htmlFor={headerCheckId}
+                className="inline-flex items-center gap-2 cursor-pointer"
+                title={
+                  allChecked
+                    ? "현재 페이지 항목 전체 선택 해제"
+                    : "현재 페이지 항목 전체 선택"
+                }
+              >
+                <input
+                  id={headerCheckId}
+                  type="checkbox"
+                  checked={!!data?.results?.length && allChecked}
+                  onChange={toggleAll}
+                />
+                <span className="sr-only">
+                  {allChecked
+                    ? "현재 페이지 항목 전체 선택 해제"
+                    : "현재 페이지 항목 전체 선택"}
+                </span>
+              </label>
             </div>
             <div className="col-span-4 sm:col-span-4">사이트명</div>
             <div className="col-span-6 sm:col-span-6">주소</div>
@@ -129,57 +148,72 @@ export default function ScanHistoryPage() {
           ) : (data?.results?.length ?? 0) === 0 ? (
             <div className="p-6 text-sm text-gray-700">데이터가 없습니다.</div>
           ) : (
-            data?.results.map((row) => (
-              <div
-                key={row.id}
-                className="grid items-center grid-cols-12 px-4 py-3 text-sm border-t first:border-t-0 hover:bg-gray-50"
-              >
-                {/* 체크박스 */}
-                <div className="col-span-1">
-                  <input
-                    type="checkbox"
-                    checked={!!selected[row.id]}
-                    onChange={() => toggleOne(row.id)}
-                  />
-                </div>
+            data?.results.map((row) => {
+              // 각 행 체크박스 id (고유)
+              const rowCheckId = `row-check-${row.id}`;
+              const labelText = `${row.title || "사이트"} 선택`;
 
-                {/* 사이트명 (링크 버튼) */}
-                <div className="col-span-4">
-                  <button
-                    onClick={() => goDetail(row.id, row.title)}
-                    className="font-medium text-blue-600 hover:underline"
-                    title="상세 보기"
-                  >
-                    {row.title || "사이트"}
-                  </button>
-                </div>
+              return (
+                <div
+                  key={row.id}
+                  className="grid items-center grid-cols-12 px-4 py-3 text-sm border-t first:border-t-0 hover:bg-gray-50"
+                >
+                  {/* 체크박스 */}
+                  <div className="col-span-1">
+                    {/* 행 선택 레이블 연결 */}
+                    <label
+                      htmlFor={rowCheckId}
+                      className="inline-flex items-center gap-2 cursor-pointer"
+                      title={labelText}
+                    >
+                      <input
+                        id={rowCheckId}
+                        type="checkbox"
+                        checked={!!selected[row.id]}
+                        onChange={() => toggleOne(row.id)}
+                      />
+                      <span className="sr-only">{labelText}</span>
+                    </label>
+                  </div>
 
-                {/* 주소 (새 창) */}
-                <div className="flex items-center col-span-6 gap-2 truncate">
-                  <a
-                    href={row.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="truncate hover:underline"
-                    title={row.url}
-                  >
-                    {row.url}
-                  </a>
-                  <ExternalLink className="w-4 h-4 text-gray-700 shrink-0" />
-                </div>
+                  {/* 사이트명 (링크 버튼) */}
+                  <div className="col-span-4">
+                    <button
+                      onClick={() => goDetail(row.id, row.title)}
+                      className="font-medium text-blue-600 hover:underline"
+                      title="상세 보기"
+                    >
+                      {row.title || "사이트"}
+                    </button>
+                  </div>
 
-                {/* 일자 (완료일자 > 수정일자 > 생성일자) */}
-                <div className="col-span-1 text-right text-gray-700">
-                  {formatYMD(
-                    row.completed_at || row.updated_at || row.created_at
-                  )}
+                  {/* 주소 (새 창) */}
+                  <div className="flex items-center col-span-6 gap-2 truncate">
+                    <a
+                      href={row.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="truncate hover:underline"
+                      title={row.url}
+                    >
+                      {row.url}
+                    </a>
+                    <ExternalLink className="w-4 h-4 text-gray-700 shrink-0" />
+                  </div>
+
+                  {/* 일자 */}
+                  <div className="col-span-1 text-right text-gray-700">
+                    {formatYMD(
+                      row.completed_at || row.updated_at || row.created_at
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
-        {/* 페이지네이션 (유지) */}
+        {/* 페이지네이션 */}
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-gray-700">
             총 {(data?.count ?? 0).toLocaleString()}건 · {page}/

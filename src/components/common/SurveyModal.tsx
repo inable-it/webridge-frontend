@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
@@ -103,6 +103,22 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const [futureFeatureOther, setFutureFeatureOther] = useState("");
 
   const [opinion, setOpinion] = useState("");
+
+  // ---------- 고유 id들 (레이블 연결용) ----------
+  const emailId = useId();
+
+  const privacyId = useId();
+
+  const q1Prefix = useId();
+  const q1OtherId = useId();
+
+  const q2Prefix = useId();
+  const q2OtherId = useId();
+
+  const q3overallPrefix = useId();
+  const q3accuracyPrefix = useId();
+  const q3reusePrefix = useId();
+  const q3recommendPrefix = useId();
 
   // 열릴 때 초기화
   useEffect(() => {
@@ -254,7 +270,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   if (!open) return null;
 
   return (
-    // ✅ 완료 단계에서만 onClose 전달 → X 버튼 표시
+    // 완료 단계에서만 onClose 전달 → X 버튼 표시
     <Card onClose={step === 11 ? onClose : undefined}>
       {step >= 3 && step <= 10 && <StepDots total={8} index={step - 3} />}
 
@@ -273,18 +289,25 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 1. 이메일 */}
+      {/* 1. 이메일 (입력 + 레이블 연결) */}
       {step === 1 && (
         <div>
           <h3 className="mb-4 text-[18px] font-semibold text-center">
             당첨 안내를 받으실 이메일 주소를 입력해 주세요.
           </h3>
+
+          <label htmlFor={emailId} className="block mb-2 text-sm font-medium">
+            이메일 주소
+          </label>
           <Input
+            id={emailId}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="webridge@example.com"
-            className="h-11 *:border border-[#727272]"
+            inputMode="email"
+            className="h-11 border border-[#727272]"
           />
+
           <div className="flex justify-between mt-6">
             <Button variant="secondary" disabled>
               이전
@@ -296,14 +319,19 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 2. 개인정보 동의 */}
+      {/* 2. 개인정보 동의 (체크박스 + 레이블 연결) */}
       {step === 2 && (
         <div>
           <h3 className="mb-3 text-[18px] font-semibold text-center">
             개인정보 수집/이용 동의서
           </h3>
-          <div className="h-48 p-4 overflow-auto text-sm leading-6 text-gray-700 border rounded-lg bg-gray-50">
-            <p className="mb-2 font-medium">개인정보 수집/이용 동의서</p>
+          <div
+            className="h-48 p-4 overflow-auto text-sm leading-6 text-gray-700 border rounded-lg bg-gray-50"
+            aria-labelledby={privacyId + "-legend"}
+          >
+            <p id={privacyId + "-legend"} className="mb-2 font-medium">
+              개인정보 수집/이용 동의서 본문
+            </p>
             <p className="mb-2">
               아래와 같이 귀하의 개인정보를 수집 및 이용 내용을 개인정보보호법
               제15조(개인정보의 수집 및 이용) 및 통계법 33조(비밀의 보호 등)에
@@ -322,48 +350,73 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               </li>
             </ul>
           </div>
+
+          <div className="flex items-center gap-2 mt-4">
+            <input
+              id={privacyId}
+              type="checkbox"
+              checked={privacyAgreed}
+              onChange={(e) => setPrivacyAgreed(e.target.checked)}
+              className="w-4 h-4"
+            />
+            <label
+              htmlFor={privacyId}
+              className="text-sm text-gray-900 cursor-pointer"
+            >
+              위 내용에 동의합니다.
+            </label>
+          </div>
+
           <div className="flex justify-between mt-6">
             <Button variant="secondary" onClick={goPrev}>
-              비동의
+              이전
             </Button>
-            <Button
-              onClick={() => {
-                setPrivacyAgreed(true);
-                goNext();
-              }}
-              disabled={isLoading}
-            >
-              동의
+            <Button onClick={goNext} disabled={nextDisabled}>
+              다음
             </Button>
           </div>
         </div>
       )}
 
-      {/* 3. 회사 유형 (복수) */}
+      {/* 3. 회사 유형 (복수) - 체크박스 & 기타 입력 레이블 */}
       {step === 3 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
             1. 귀하가 속한 회사(기관)의 유형을 선택해 주세요. (복수 선택 가능)
           </p>
           <div className="p-2 bg-white rounded-xl border border-[#727272]">
-            {Q1_COMPANY_TYPES.map((o) => (
-              <label
-                key={o.code}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
-              >
-                <input
-                  type="checkbox"
-                  checked={companyTypes.includes(o.code)}
-                  onChange={() =>
-                    toggleMulti(companyTypes, setCompanyTypes, o.code)
-                  }
-                />
-                <span className="text-sm">{o.label}</span>
-              </label>
-            ))}
-            <div className="my-2 border-t border border-[#727272]" />
+            {Q1_COMPANY_TYPES.map((o) => {
+              const id = `${q1Prefix}-${o.code}`;
+              return (
+                <div
+                  key={o.code}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                >
+                  <input
+                    id={id}
+                    type="checkbox"
+                    checked={companyTypes.includes(o.code)}
+                    onChange={() =>
+                      toggleMulti(companyTypes, setCompanyTypes, o.code)
+                    }
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor={id} className="text-sm cursor-pointer">
+                    {o.label}
+                  </label>
+                </div>
+              );
+            })}
+            <div className="my-2 border-t border-[#727272]" />
             <div className="px-3 pb-2">
+              <label
+                htmlFor={q1OtherId}
+                className="block mb-1 text-sm font-medium"
+              >
+                기타 응답
+              </label>
               <Input
+                id={q1OtherId}
                 placeholder="기타 응답을 작성해 주세요."
                 value={companyTypeOther}
                 onChange={(e) => setCompanyTypeOther(e.target.value)}
@@ -382,31 +435,45 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 4. 사용 이유 (복수) */}
+      {/* 4. 사용 이유 (복수) - 체크박스 & 기타 입력 레이블 */}
       {step === 4 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
             2. WEBridge를 사용한 주된 이유를 선택해 주세요. (복수 선택 가능)
           </p>
           <div className="p-2 bg-white rounded-xl border border-[#727272]">
-            {Q2_USAGE_REASONS.map((o) => (
+            {Q2_USAGE_REASONS.map((o) => {
+              const id = `${q2Prefix}-${o.code}`;
+              return (
+                <div
+                  key={o.code}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                >
+                  <input
+                    id={id}
+                    type="checkbox"
+                    checked={usageReasons.includes(o.code)}
+                    onChange={() =>
+                      toggleMulti(usageReasons, setUsageReasons, o.code)
+                    }
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor={id} className="text-sm cursor-pointer">
+                    {o.label}
+                  </label>
+                </div>
+              );
+            })}
+            <div className="my-2 border-t border-[#727272]" />
+            <div className="px-3 pb-2">
               <label
-                key={o.code}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                htmlFor={q2OtherId}
+                className="block mb-1 text-sm font-medium"
               >
-                <input
-                  type="checkbox"
-                  checked={usageReasons.includes(o.code)}
-                  onChange={() =>
-                    toggleMulti(usageReasons, setUsageReasons, o.code)
-                  }
-                />
-                <span className="text-sm">{o.label}</span>
+                기타 응답
               </label>
-            ))}
-            <div className="my-2 border-t border border-[#727272]" />
-            <div className="px-3 pb-2 ">
               <Input
+                id={q2OtherId}
                 placeholder="기타 응답을 작성해 주세요."
                 value={usageReasonOther}
                 onChange={(e) => setUsageReasonOther(e.target.value)}
@@ -425,61 +492,124 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 5. 만족도 (리커트 1~5) */}
+      {/* 5. 만족도 (리커트 1~5) - fieldset/legend + 라디오 레이블 */}
       {step === 5 && (
         <div>
           <p className="mb-4 text-[18px] font-semibold">
             3. WEBridge 만족도를 평가해 주세요.
           </p>
+
           <div className="space-y-4">
-            {[
-              {
-                key: "overall",
-                label: "(1) WEBridge를 사용함에 있어 전반적으로 편리했다.",
-                value: satOverall,
-                setter: setSatOverall,
-              },
-              {
-                key: "accuracy",
-                label:
-                  "(2) WEBridge의 웹 접근성 12가지 항목의 진단 결과가 전반적으로 정확했다.",
-                value: satAccuracy,
-                setter: setSatAccuracy,
-              },
-              {
-                key: "reuse",
-                label: "(3) WEBridge를 재사용할 의향이 있다.",
-                value: satReuse,
-                setter: setSatReuse,
-              },
-              {
-                key: "recommend",
-                label: "(4) WEBridge를 다른 사람이나 기관에 추천하고 싶다.",
-                value: satRecommend,
-                setter: setSatRecommend,
-              },
-            ].map((row) => (
-              <div
-                key={row.key}
-                className="p-3 border rounded-lg border-[#727272]"
-              >
-                <div className="mb-2 text-sm">{row.label}</div>
-                <div className="flex items-center justify-between">
-                  {LIKERT.map((n) => (
-                    <label key={n} className="flex flex-col items-center gap-1">
+            {/* (1) 전반적 편의 */}
+            <fieldset className="p-3 border rounded-lg border-[#727272]">
+              <legend className="mb-2 text-sm">
+                (1) WEBridge를 사용함에 있어 전반적으로 편리했다.
+              </legend>
+              <div className="flex items-center justify-between">
+                {LIKERT.map((n) => {
+                  const id = `${q3overallPrefix}-${n}`;
+                  return (
+                    <div key={id} className="flex flex-col items-center gap-1">
                       <input
+                        id={id}
                         type="radio"
-                        name={row.key}
-                        checked={row.value === n}
-                        onChange={() => row.setter(n)}
+                        name="sat-overall"
+                        checked={satOverall === n}
+                        onChange={() => setSatOverall(n)}
+                        className="w-4 h-4"
                       />
-                      <span className="text-xs">{n}</span>
-                    </label>
-                  ))}
-                </div>
+                      <label htmlFor={id} className="text-xs cursor-pointer">
+                        {n}
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            </fieldset>
+
+            {/* (2) 정확도 */}
+            <fieldset className="p-3 border rounded-lg border-[#727272]">
+              <legend className="mb-2 text-sm">
+                (2) WEBridge의 웹 접근성 12가지 항목의 진단 결과가 전반적으로
+                정확했다.
+              </legend>
+              <div className="flex items-center justify-between">
+                {LIKERT.map((n) => {
+                  const id = `${q3accuracyPrefix}-${n}`;
+                  return (
+                    <div key={id} className="flex flex-col items-center gap-1">
+                      <input
+                        id={id}
+                        type="radio"
+                        name="sat-accuracy"
+                        checked={satAccuracy === n}
+                        onChange={() => setSatAccuracy(n)}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor={id} className="text-xs cursor-pointer">
+                        {n}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            {/* (3) 재사용 의향 */}
+            <fieldset className="p-3 border rounded-lg border-[#727272]">
+              <legend className="mb-2 text-sm">
+                (3) WEBridge를 재사용할 의향이 있다.
+              </legend>
+              <div className="flex items-center justify-between">
+                {LIKERT.map((n) => {
+                  const id = `${q3reusePrefix}-${n}`;
+                  return (
+                    <div key={id} className="flex flex-col items-center gap-1">
+                      <input
+                        id={id}
+                        type="radio"
+                        name="sat-reuse"
+                        checked={satReuse === n}
+                        onChange={() => setSatReuse(n)}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor={id} className="text-xs cursor-pointer">
+                        {n}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            {/* (4) 추천 의향 */}
+            <fieldset className="p-3 border rounded-lg border-[#727272]">
+              <legend className="mb-2 text-sm">
+                (4) WEBridge를 다른 사람이나 기관에 추천하고 싶다.
+              </legend>
+              <div className="flex items-center justify-between">
+                {LIKERT.map((n) => {
+                  const id = `${q3recommendPrefix}-${n}`;
+                  return (
+                    <div key={id} className="flex flex-col items-center gap-1">
+                      <input
+                        id={id}
+                        type="radio"
+                        name="sat-recommend"
+                        checked={satRecommend === n}
+                        onChange={() => setSatRecommend(n)}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor={id} className="text-xs cursor-pointer">
+                        {n}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </fieldset>
           </div>
+
           <div className="flex justify-between mt-6">
             <Button variant="secondary" onClick={goPrev}>
               이전

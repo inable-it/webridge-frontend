@@ -374,48 +374,57 @@ const SignupPageContent = () => {
     }
   };
 
-  // 약관 체크박스 렌더링
-  const renderTermsCheckbox = (term: TermConfig) => (
-    <div key={term.id} className="flex items-start gap-3">
-      <Checkbox
-        id={term.id}
-        checked={form[term.id as keyof typeof form] as boolean}
-        onCheckedChange={(checked) =>
-          handleCheckboxChange(term.id, checked === true)
-        }
-        className="mt-0.5 w-5 h-5 rounded border-gray-300
+  // 약관 체크박스 렌더링 (레이블 분리, 링크는 레이블 밖)
+  const renderTermsCheckbox = (term: TermConfig) => {
+    const isRequired = term.id === "ageAgree" || term.required;
+    const labelText =
+      term.id === "ageAgree"
+        ? "(필수) 만 14세 이상입니다."
+        : `${term.label}에 동의합니다.`;
+
+    return (
+      <div key={term.id} className="flex items-start gap-3">
+        <Checkbox
+          id={term.id}
+          checked={form[term.id as keyof typeof form] as boolean}
+          onCheckedChange={(checked) =>
+            handleCheckboxChange(term.id, checked === true)
+          }
+          aria-describedby={term.linkText ? `${term.id}-helper` : undefined}
+          className="mt-0.5 w-5 h-5 rounded border-gray-300
                  data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
                  data-[state=checked]:text-white"
-      />
+        />
 
-      <Label htmlFor={term.id} className="text-[15px] text-gray-800">
-        {term.id === "ageAgree" ? (
-          <>
-            (필수){" "}
-            <span className="underline underline-offset-2">만 14세 이상</span>
-            입니다.
-          </>
-        ) : (
-          <>
-            {term.label}
-            {term.linkText && (
-              <>
-                {" "}
-                <button
-                  type="button"
-                  onClick={() => go(term.route!)}
-                  className="underline underline-offset-2"
-                >
-                  {term.linkText}
-                </button>
-                에 동의합니다.
-              </>
-            )}
-          </>
-        )}
-      </Label>
-    </div>
-  );
+        <div className="grid gap-1.5 leading-none">
+          <Label
+            htmlFor={term.id}
+            className="text-[15px] text-gray-800 cursor-pointer"
+          >
+            {labelText}
+          </Label>
+
+          {term.linkText && (
+            <div id={`${term.id}-helper`} className="text-xs text-gray-700">
+              {/* 링크는 레이블 밖에 위치시켜 클릭 시 체크박스가 토글되지 않도록 */}
+              <button
+                type="button"
+                onClick={() => go(term.route!)}
+                className="underline underline-offset-2 hover:text-blue-700"
+              >
+                {term.linkText} 전문 보기
+              </button>
+              {isRequired ? (
+                <span className="ml-1 text-red-500">(필수)</span>
+              ) : (
+                <span className="ml-1">(선택)</span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
@@ -437,7 +446,7 @@ const SignupPageContent = () => {
             value={form.name}
             onChange={handleInputChange}
             className={`w-full h-12 border border-[#727272]${
-              errors.name ? "border-red-500" : ""
+              errors.name ? " border-red-500" : ""
             }`}
           />
           {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
@@ -448,44 +457,41 @@ const SignupPageContent = () => {
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
             이메일<span className="ml-1 text-red-500">*</span>
           </Label>
-          <div className="flex gap-2">
-            <Input
-              id="email"
-              type="email"
-              placeholder="이메일"
-              value={form.email}
-              onChange={handleInputChange}
-              className={`flex-1 h-12 border border-[#727272] ${
-                errors.email ? "border-red-500" : ""
-              }`}
-            />
-            <Button
-              type="button"
-              onClick={handleEmailVerification}
-              disabled={
-                isRequestingVerification ||
-                !form.email ||
-                emailVerified ||
-                isGoogleUser
-              }
-              className="h-12 text-white bg-blue-500 border-0 whitespace-nowrap hover:bg-blue-600"
-            >
-              {isRequestingVerification
-                ? "인증 중..."
-                : emailVerified || isGoogleUser
-                ? "인증완료"
-                : "이메일 인증"}
-            </Button>
-          </div>
-
-          {errors.email && (
-            <p className="text-sm text-red-500">{errors.email}</p>
-          )}
-
-          {(emailVerified || isGoogleUser) && !errors.email && (
-            <p className="mt-1 text-sm text-blue-600">인증되었습니다.</p>
-          )}
         </div>
+        <div className="flex gap-2">
+          <Input
+            id="email"
+            type="email"
+            placeholder="이메일"
+            value={form.email}
+            onChange={handleInputChange}
+            className={`flex-1 h-12 border border-[#727272]${
+              errors.email ? " border-red-500" : ""
+            }`}
+          />
+          <Button
+            type="button"
+            onClick={handleEmailVerification}
+            disabled={
+              isRequestingVerification ||
+              !form.email ||
+              emailVerified ||
+              isGoogleUser
+            }
+            className="h-12 text-white bg-blue-500 border-0 whitespace-nowrap hover:bg-blue-600"
+          >
+            {isRequestingVerification
+              ? "인증 중..."
+              : emailVerified || isGoogleUser
+              ? "인증완료"
+              : "이메일 인증"}
+          </Button>
+        </div>
+
+        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+        {(emailVerified || isGoogleUser) && !errors.email && (
+          <p className="mt-1 text-sm text-blue-600">인증되었습니다.</p>
+        )}
 
         {/* 비밀번호 */}
         <div className="space-y-1 text-left">
@@ -501,8 +507,8 @@ const SignupPageContent = () => {
             placeholder="비밀번호"
             value={form.password}
             onChange={handleInputChange}
-            className={`w-full h-12 border border-[#727272] ${
-              errors.password ? "border-red-500" : ""
+            className={`w-full h-12 border border-[#727272]${
+              errors.password ? " border-red-500" : ""
             }`}
           />
           {errors.password && (

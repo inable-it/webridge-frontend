@@ -34,7 +34,7 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
     selectedScanDetail?.updated_at,
   ]);
 
-  // ✅ 서버 신호로는 "열기만" 하고, 자동으로 닫지 않는다.
+  // 서버 신호로는 "열기만" 하고, 자동으로 닫지 않는다.
   useEffect(() => {
     if (!data) return;
 

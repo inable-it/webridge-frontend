@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Star, Edit, Trash2, X } from "lucide-react";
 import {
@@ -42,6 +42,14 @@ const FeedbackPage = () => {
     page: 1,
     page_size: 20,
   });
+
+  // 의견 작성 textarea/카운터용 id (고유)
+  const createTextId = useId();
+  const createCountId = useId();
+
+  // 의견 수정 textarea/카운터용 id (고유)
+  const editTextId = useId();
+  const editCountId = useId();
 
   // 피드백 등록
   const handleSubmit = async () => {
@@ -150,7 +158,7 @@ const FeedbackPage = () => {
     onRatingChange?: (rating: number) => void;
     readonly?: boolean;
   }) => (
-    <div className="flex gap-1">
+    <div className="flex gap-1" aria-label={readonly ? "평점" : undefined}>
       {[1, 2, 3, 4, 5].map((num) => (
         <Star
           key={num}
@@ -180,19 +188,30 @@ const FeedbackPage = () => {
 
           {/* 의견 작성 영역 */}
           <div>
+            {/* 레이블 추가 */}
+            <label htmlFor={createTextId} className="block mb-2 font-semibold">
+              의견
+            </label>
             <textarea
+              id={createTextId}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="자유로운 의견을 500자 이내로 남겨주세요!"
               maxLength={500}
               rows={5}
+              required
+              aria-describedby={createCountId}
               className="w-full px-4 pt-4 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* 하단 등록 버튼 */}
+          {/* 하단 등록 버튼 + 글자수 */}
           <div className="flex items-center justify-end">
-            <span className="mr-2 text-sm text-gray-700">
+            <span
+              id={createCountId}
+              className="mr-2 text-sm text-gray-700"
+              aria-live="polite"
+            >
               {text.length} / 500
             </span>
             <Button
@@ -231,16 +250,30 @@ const FeedbackPage = () => {
                       />
                     </div>
                     <div>
+                      {/* 수정 textarea에도 레이블 추가 */}
+                      <label
+                        htmlFor={editTextId}
+                        className="block mb-2 font-semibold"
+                      >
+                        의견 수정
+                      </label>
                       <textarea
+                        id={editTextId}
                         value={editText}
                         onChange={(e) => setEditText(e.target.value)}
                         placeholder="피드백 내용을 입력해주세요"
                         maxLength={500}
                         rows={4}
+                        required
+                        aria-describedby={editCountId}
                         className="w-full px-4 pt-4 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-sm text-gray-700">
+                        <span
+                          id={editCountId}
+                          className="text-sm text-gray-700"
+                          aria-live="polite"
+                        >
                           {editText.length} / 500
                         </span>
                         <div className="flex gap-2">
@@ -341,6 +374,8 @@ const FeedbackPage = () => {
               <button
                 onClick={() => setDeletingFeedbackId(null)}
                 className="absolute text-gray-700 top-4 right-4 hover:text-gray-900"
+                aria-label="닫기"
+                title="닫기"
               >
                 <X className="w-5 h-5" />
               </button>
