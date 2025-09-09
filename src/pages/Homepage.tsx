@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { FadeInSection } from "@/components/common/FadeInSection";
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon.svg";
 import { useEffect, useRef, useState } from "react";
-import {STYLES, TABLE_DATA} from "@/constants/homepage.ts";
+import { STYLES } from "@/constants/homepage.ts";
 
 interface ActionButtonProps {
   onClick: () => void;
@@ -101,7 +101,7 @@ const URLInput = () => (
 );
 
 const AccessibilityTestPanel = () => (
-  <div className="max-w-4xl p-4 bg-white border-t border-gray-200 rounded w-96 border-x">
+  <div className="flex flex-col h-full p-4 bg-white border border-gray-200 rounded">
     <div className="mb-6">
       <h3 className="mb-1 font-['Pretendard_Variable'] text-lg font-semibold text-gray-800">
         접근성 검사
@@ -114,74 +114,18 @@ const AccessibilityTestPanel = () => (
   </div>
 );
 
-const TableHeader = ({ children }: { children: React.ReactNode }) => (
-  <th className="border-t border-b border-gray-300 px-4 py-2.5 text-left">
-    <span className={STYLES.text.tableHeader}>{children}</span>
-  </th>
-);
-const TableCell = ({ children }: { children: React.ReactNode }) => (
-  <td className="px-4 py-4 border-b border-gray-300">
-    <span className={STYLES.text.tableCell}>{children}</span>
-  </td>
-);
-
-const ErrorCheckButton = () => (
-  <button
-    className={`${STYLES.button.error} font-['Pretendard_Variable'] text-xs font-medium text-white`}
-  >
-    오류 확인
-  </button>
-);
-
-const ResultsTable = () => (
-  <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-    <div className="p-4 border-b border-gray-200">
-      <h3 className="font-['Pretendard_Variable'] text-base font-semibold text-gray-800">
-        항목별 결과
-      </h3>
-    </div>
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr>
-            <TableHeader>순번</TableHeader>
-            <TableHeader>항목</TableHeader>
-            <TableHeader>준수율</TableHeader>
-            <TableHeader>오류 확인</TableHeader>
-          </tr>
-        </thead>
-        <tbody>
-          {TABLE_DATA.map((item) => (
-            <tr key={item.id}>
-              <TableCell>{item.id}</TableCell>
-              <TableCell>{item.item}</TableCell>
-              <TableCell>{item.compliance}</TableCell>
-              <TableCell>
-                <ErrorCheckButton />
-              </TableCell>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
-
+/**
+ * 변경: ResultsTablePanel을 '이미지'로 교체 (포커스/클릭 불가)
+ * - 전체 패널을 시각적 예시 이미지로 대체
+ */
 const ResultsTablePanel = () => (
-  <div className="w-full max-w-4xl overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
-    <div className="border border-gray-200 rounded-lg">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="font-['Pretendard_Variable'] text-lg font-semibold text-black">
-          WEBridge 웹 접근성 검사 요약 보고서
-        </h2>
-      </div>
-      <div className="p-6">
-        <div className="h-64 overflow-hidden">
-          <ResultsTable />
-        </div>
-      </div>
-    </div>
-  </div>
+  <img
+    src="/report-summary-mock.png" // <- 여기를 실제 이미지 경로로 교체
+    alt=""
+    aria-hidden="true"
+    draggable={false}
+    className="w-full max-w-4xl rounded-2xl select-none pointer-events-none shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-gray-100"
+  />
 );
 
 const ReportPreviewSection = () => {
@@ -229,10 +173,10 @@ const ReportPreviewSection = () => {
       </div>
 
       {/* 본문 2열: 좌 → 우 순차 등장 */}
-      <div className="flex flex-row gap-4 px-4 pt-4">
+      <div className="flex flex-row items-stretch h-full gap-4 px-4 pt-4">
         <div
           className={[
-            "transition-all duration-700 ease-out transform",
+            "transition-all duration-700 ease-out transform flex-1 flex",
             showLeft ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6",
           ].join(" ")}
         >
@@ -250,7 +194,6 @@ const ReportPreviewSection = () => {
       </div>
 
       {/* 바닥 그라데이션/라인 */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none bg-gradient-to-t from-sky-50 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-300" />
     </div>
   );
@@ -258,167 +201,176 @@ const ReportPreviewSection = () => {
 
 // Feature 구성 - 이미지처럼 좌우 2열 (상: 카드+텍스트, 하: 텍스트+이미지)
 const StatusIcon = ({ ok }: { ok: boolean }) =>
-    ok ? (
-        <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-            <path
-                d="M7 12l3 3 7-7"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-    ) : (
-        <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-            <path
-                d="M12 7v6m0 4h.01"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-            />
-        </svg>
-    );
+  ok ? (
+    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M7 12l3 3 7-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ) : (
+    <svg className="w-5 h-5 text-rose-500" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M12 7v6m0 4h.01"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 
 // 기존 AlternativeTextDemo를 캐로우셀로 교체
-const AltCard = ({ variant, mounted }: { variant: "good" | "bad"; mounted: boolean }) => {
-    const isGood = variant === "good";
-    return (
+const AltCard = ({
+  variant,
+  mounted,
+}: {
+  variant: "good" | "bad";
+  mounted: boolean;
+}) => {
+  const isGood = variant === "good";
+  return (
+    <div
+      className={[
+        "flex items-center p-6 rounded-xl shadow-sm border transition-all duration-500 ease-out bg-white",
+        isGood
+          ? "border-blue-200 ring-1 ring-blue-100"
+          : "border-rose-200 ring-1 ring-rose-100",
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
+      ].join(" ")}
+    >
+      <img
+        src="/example-shoes.png"
+        alt="유아용 흰색 운동화"
+        className="object-cover rounded-md h-28 w-28"
+      />
+      <div className="flex flex-col gap-1 ml-6">
         <div
-            className={[
-                "flex items-center p-6 rounded-xl shadow-sm border transition-all duration-500 ease-out bg-white",
-                isGood
-                    ? "border-blue-200 ring-1 ring-blue-100"
-                    : "border-rose-200 ring-1 ring-rose-100",
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
-            ].join(" ")}
+          className={[
+            "flex w-full items-center gap-2 text-sm font-medium",
+            isGood ? "text-blue-600" : "text-rose-500",
+          ].join(" ")}
         >
-            <img
-                src="/example-shoes.png"
-                alt="유아용 흰색 운동화"
-                className="object-cover rounded-md h-28 w-28"
-            />
-            <div className="flex flex-col gap-1 ml-6">
-                <div
-                    className={[
-                        "flex w-full items-center gap-2 text-sm font-medium",
-                        isGood ? "text-blue-600" : "text-rose-500",
-                    ].join(" ")}
-                >
-                    <StatusIcon ok={isGood} />
-                    {isGood
-                        ? "적절한 대체텍스트를 추천드려요."
-                        : "대체텍스트가 적절하지 않습니다."}
-                </div>
-
-                <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-700">
-                    {isGood
-                        ? `<img src="product.jpg" alt="유아용 흰색 운동화" />`
-                        : `<img src="product.jpg" alt="" />`}
-                </div>
-            </div>
+          <StatusIcon ok={isGood} />
+          {isGood
+            ? "적절한 대체텍스트를 추천드려요."
+            : "대체텍스트가 적절하지 않습니다."}
         </div>
-    );
+
+        <div className="mt-1 rounded-md bg-gray-50 px-3 py-1.5 font-mono text-xs text-gray-700">
+          {isGood
+            ? `<img src="product.jpg" alt="유아용 흰색 운동화" />`
+            : `<img src="product.jpg" alt="" />`}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // 이전/다음/정지 컨트롤이 있는 캐로우셀
 const AlternativeTextCarousel = () => {
-    const slides: Array<"good" | "bad"> = ["bad", "good"];
-    const [index, setIndex] = useState(0);
-    const [playing, setPlaying] = useState(true);
-    const [mounted, setMounted] = useState(false);
-    const timerRef = useRef<number | null>(null);
+  const slides: Array<"good" | "bad"> = ["bad", "good"];
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const timerRef = useRef<number | null>(null);
 
-    const next = () => setIndex((i) => (i + 1) % slides.length);
-    const prev = () => setIndex((i) => (i - 1 + slides.length) % slides.length);
+  const next = () => setIndex((i) => (i + 1) % slides.length);
+  const prev = () => setIndex((i) => (i - 1 + slides.length) % slides.length);
 
-    // mount animation
-    useEffect(() => {
-        const t = window.setTimeout(() => setMounted(true), 20);
-        return () => window.clearTimeout(t);
-    }, [index]);
+  // mount animation
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 20);
+    return () => window.clearTimeout(t);
+  }, [index]);
 
-    // autoplay
-    useEffect(() => {
-        if (!playing) {
-            if (timerRef.current) {
-                window.clearInterval(timerRef.current);
-                timerRef.current = null;
-            }
-            return;
-        }
-        timerRef.current = window.setInterval(() => {
-            setIndex((i) => (i + 1) % slides.length);
-        }, 4000) as unknown as number;
+  // autoplay
+  useEffect(() => {
+    if (!playing) {
+      if (timerRef.current) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+    timerRef.current = window.setInterval(() => {
+      setIndex((i) => (i + 1) % slides.length);
+    }, 4000) as unknown as number;
 
-        return () => {
-            if (timerRef.current) {
-                window.clearInterval(timerRef.current);
-                timerRef.current = null;
-            }
-        };
-    }, [playing, slides.length]);
-    return (
-        <div
-            className="w-full max-w-xl"
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="대체 텍스트 예시 캐로우셀"
-        >
-            <div className="relative">
-                <AltCard key={slides[index]} variant={slides[index]} mounted={mounted} />
+    return () => {
+      if (timerRef.current) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [playing, slides.length]);
+  return (
+    <div
+      className="w-full max-w-xl"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="대체 텍스트 예시 캐로우셀"
+    >
+      <div className="relative">
+        <AltCard
+          key={slides[index]}
+          variant={slides[index]}
+          mounted={mounted}
+        />
 
-                {/* 컨트롤러 */}
-                <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        {slides.map((_, i) => (
-                            <button
-                                key={i}
-                                type="button"
-                                onClick={() => setIndex(i)}
-                                aria-label={`${i + 1}번째 슬라이드로 이동`}
-                                className={[
-                                    "h-2 w-2 rounded-full transition-colors",
-                                    i === index ? "bg-blue-600" : "bg-gray-300",
-                                ].join(" ")}
-                            />
-                        ))}
-                    </div>
+        {/* 컨트롤러 */}
+        <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`${i + 1}번째 슬라이드로 이동`}
+                className={[
+                  "h-2 w-2 rounded-full transition-colors",
+                  i === index ? "bg-blue-600" : "bg-gray-300",
+                ].join(" ")}
+              />
+            ))}
+          </div>
 
-                    <div className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={prev}
-                            className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
-                            aria-label="이전 이미지"
-                        >
-                            이전
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPlaying((p) => !p)}
-                            className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
-                            aria-pressed={!playing}
-                            aria-label={playing ? "자동 재생 정지" : "자동 재생 시작"}
-                        >
-                            {playing ? "정지" : "재생"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={next}
-                            className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
-                            aria-label="다음 이미지"
-                        >
-                            다음
-                        </button>
-                    </div>
-                </div>
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={prev}
+              className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
+              aria-label="이전 이미지"
+            >
+              이전
+            </button>
+            <button
+              type="button"
+              onClick={() => setPlaying((p) => !p)}
+              className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
+              aria-pressed={!playing}
+              aria-label={playing ? "자동 재생 정지" : "자동 재생 시작"}
+            >
+              {playing ? "정지" : "재생"}
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="px-3 py-1.5 text-xs rounded-md border border-gray-300 hover:bg-gray-50"
+              aria-label="다음 이미지"
+            >
+              다음
+            </button>
+          </div>
         </div>
-    );
-}
-
+      </div>
+    </div>
+  );
+};
 
 const FeatureText = ({ title, description }: FeatureTextProps) => (
   <div className="flex-1 max-w-xl text-left">
@@ -452,25 +404,22 @@ const CTAButton = () => (
 
 // Feature Section (번갈아 표시)
 const FeatureSectionAnimated = () => {
-    const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const el = sectionRef.current;
-        if (!el) return;
-        const io = new IntersectionObserver(
-            () => {},
-            { threshold: 0.35 }
-        );
-        io.observe(el);
-        return () => io.disconnect();
-    }, []);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(() => {}, { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <section ref={sectionRef} className={STYLES.section.feature}>
       <div className="grid w-full grid-cols-1 mx-auto max-w-7xl place-items-start gap-x-24 gap-y-28 lg:grid-cols-2">
         {/* 상단 왼쪽: (토글되는) 카드 */}
         <FadeInSection>
-            <AlternativeTextCarousel />
+          <AlternativeTextCarousel />
         </FadeInSection>
 
         {/* 상단 오른쪽: 텍스트 */}
@@ -552,7 +501,7 @@ export const HomePage = () => {
         </FadeInSection>
       </section>
 
-      {/* Footer (2번 이미지 레이아웃) */}
+      {/* Footer */}
       <footer className="w-full bg-white">
         <div className="mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-20 py-16">
           {/* 헤더(브랜드) */}
@@ -563,7 +512,7 @@ export const HomePage = () => {
             </span>
           </div>
 
-          {/* 본문 3열: 좌(설명/주소) | 중(연락처/사업자) | 우(링크) */}
+          {/* 본문 3열 */}
           <div className="grid grid-cols-1 md:grid-cols-12">
             {/* 좌측 */}
             <div className="md:col-span-6">
@@ -615,7 +564,7 @@ export const HomePage = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/terms/service")}
-                    className="font-['Pretendard_Variable'] text-gray-700 underline" // 굵게 제거
+                    className="font-['Pretendard_Variable'] text-gray-700 underline"
                   >
                     서비스 이용약관
                   </button>
@@ -625,7 +574,7 @@ export const HomePage = () => {
                   <button
                     type="button"
                     onClick={() => navigate("/terms/privacy-processing")}
-                    className="font-['Pretendard_Variable'] font-bold text-gray-700 underline" // 이 항목만 굵게
+                    className="font-['Pretendard_Variable'] font-bold text-gray-700 underline"
                   >
                     개인정보처리방침
                   </button>

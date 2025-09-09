@@ -1,4 +1,4 @@
-import { useState, useId } from "react";
+import { useState, useId, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Star, Edit, Trash2, X } from "lucide-react";
 import {
@@ -33,7 +33,7 @@ const FeedbackPage = () => {
   const [deleteFeedback, { isLoading: isDeleting }] =
     useDeleteFeedbackMutation();
 
-  // 피드백 목록 조회 (자동으로 refetch됨)
+  // 피드백 목록 조회
   const {
     data: feedbackList,
     isLoading: isLoadingList,
@@ -43,38 +43,120 @@ const FeedbackPage = () => {
     page_size: 20,
   });
 
-  // 의견 작성 textarea/카운터용 id (고유)
+  // 의견 작성/수정용 id
   const createTextId = useId();
   const createCountId = useId();
-
-  // 의견 수정 textarea/카운터용 id (고유)
   const editTextId = useId();
   const editCountId = useId();
 
-  // 피드백 등록
+  // ─────────────────────────────
+  // 접근성 지원 StarRating (한 칸씩 토글, Space/Enter OK, Tab 이동 OK)
+  // ─────────────────────────────
+  const StarRating = ({
+    rating,
+    onRatingChange,
+    readonly = false,
+    groupLabel = "평점 선택",
+  }: {
+    rating: number;
+    onRatingChange?: (rating: number) => void;
+    readonly?: boolean;
+    groupLabel?: string;
+  }) => {
+    const ignoreNextClick = useRef(false);
+
+    const activate = (value: number) => {
+      if (!onRatingChange) return;
+      // 같은 별을 다시 누르면 한 칸 취소, 아니면 해당 별로 설정
+      onRatingChange(value === rating ? Math.max(0, value - 1) : value);
+    };
+
+    const handleKey = (e: React.KeyboardEvent, value: number) => {
+      // 버튼에서 Space/Enter는 기본적으로 click을 발생시킴(키보드 클릭)
+      // 여기서 직접 처리하고, 뒤이어 발생하는 click은 무시하여 중복 토글 방지
+      if (e.key === " " || e.key === "Spacebar" || e.key === "Enter") {
+        e.preventDefault();
+        ignoreNextClick.current = true;
+        activate(value);
+      }
+    };
+
+    const handleClick = (
+      e: React.MouseEvent<HTMLButtonElement>,
+      value: number
+    ) => {
+      // 키보드 click이면 detail === 0
+      if (ignoreNextClick.current || (e as any).detail === 0) {
+        ignoreNextClick.current = false;
+        return;
+      }
+      activate(value);
+    };
+
+    if (readonly) {
+      return (
+        <div
+          role="img"
+          aria-label="평점"
+          aria-readonly="true"
+          className="flex gap-1"
+        >
+          {[1, 2, 3, 4, 5].map((num) => (
+            <Star
+              key={num}
+              aria-hidden="true"
+              className={`w-5 h-5 ${
+                rating >= num
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-gray-700"
+              }`}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div role="radiogroup" aria-label={groupLabel} className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((num) => {
+          const selected = rating >= num; // 채움 표시
+          const current = rating === num; // 실제 선택(라디오)
+          return (
+            <button
+              key={num}
+              type="button"
+              role="radio"
+              aria-checked={current}
+              aria-label={`${num}점`}
+              title={`${num}점`}
+              onKeyDown={(e) => handleKey(e, num)} // ✅ Space/Enter로 선택/취소
+              onClick={(e) => handleClick(e, num)} // ✅ 마우스 클릭
+              className={`p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                current ? "ring-1 ring-blue-500" : ""
+              }`}
+            >
+              <Star
+                aria-hidden="true"
+                className={`w-5 h-5 ${
+                  selected ? "text-yellow-400 fill-yellow-400" : "text-gray-700"
+                }`}
+              />
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // 등록
   const handleSubmit = async () => {
-    if (!text.trim()) {
-      alert("피드백 내용을 입력해주세요.");
-      return;
-    }
-
-    if (rating === 0) {
-      alert("평점을 선택해주세요.");
-      return;
-    }
-
+    if (!text.trim()) return alert("피드백 내용을 입력해주세요.");
+    if (rating === 0) return alert("평점을 선택해주세요.");
     try {
-      await createFeedback({
-        content: text,
-        rating: rating,
-      }).unwrap();
-
-      // 성공 시 폼 초기화
+      await createFeedback({ content: text, rating }).unwrap();
       setText("");
       setRating(0);
       alert("피드백이 등록되었습니다!");
-
-      // 목록 새로고침
       refetch();
     } catch (error) {
       console.error("피드백 등록 오류:", error);
@@ -82,61 +164,39 @@ const FeedbackPage = () => {
     }
   };
 
-  // 피드백 수정 시작
+  // 수정 시작/취소/저장
   const startEdit = (feedback: FeedbackResponse) => {
     setEditingFeedback(feedback);
     setEditRating(feedback.rating);
     setEditText(feedback.content);
   };
-
-  // 피드백 수정 취소
   const cancelEdit = () => {
     setEditingFeedback(null);
     setEditRating(0);
     setEditText("");
   };
-
-  // 피드백 수정 저장
   const saveEdit = async () => {
     if (!editingFeedback) return;
-
-    if (!editText.trim()) {
-      alert("피드백 내용을 입력해주세요.");
-      return;
-    }
-
-    if (editRating === 0) {
-      alert("평점을 선택해주세요.");
-      return;
-    }
-
+    if (!editText.trim()) return alert("피드백 내용을 입력해주세요.");
+    if (editRating === 0) return alert("평점을 선택해주세요.");
     try {
       await updateFeedback({
         id: editingFeedback.id,
-        data: {
-          content: editText,
-          rating: editRating,
-        },
+        data: { content: editText, rating: editRating },
       }).unwrap();
-
       alert("피드백이 수정되었습니다!");
       cancelEdit();
       refetch();
     } catch (error) {
-      console.error("피드백 수정 오류:", error);
+      console.error("피드edback 수정 오류:", error);
       alert("피드백 수정 중 오류가 발생했습니다.");
     }
   };
 
-  // 피드백 삭제 확인
-  const confirmDelete = (id: number) => {
-    setDeletingFeedbackId(id);
-  };
-
-  // 피드백 삭제
+  // 삭제
+  const confirmDelete = (id: number) => setDeletingFeedbackId(id);
   const handleDelete = async () => {
     if (!deletingFeedbackId) return;
-
     try {
       await deleteFeedback(deletingFeedbackId).unwrap();
       alert("피드백이 삭제되었습니다!");
@@ -148,29 +208,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // 별점 렌더링 컴포넌트
-  const StarRating = ({
-    rating,
-    onRatingChange,
-    readonly = false,
-  }: {
-    rating: number;
-    onRatingChange?: (rating: number) => void;
-    readonly?: boolean;
-  }) => (
-    <div className="flex gap-1" aria-label={readonly ? "평점" : undefined}>
-      {[1, 2, 3, 4, 5].map((num) => (
-        <Star
-          key={num}
-          className={`w-5 h-5 ${readonly ? "" : "cursor-pointer"} ${
-            rating >= num ? "text-yellow-400 fill-yellow-400" : "text-gray-700"
-          }`}
-          onClick={() => !readonly && onRatingChange?.(num)}
-        />
-      ))}
-    </div>
-  );
-
   return (
     <div className="p-8 bg-[#ecf3ff] min-h-screen">
       <div className="mx-auto">
@@ -178,17 +215,20 @@ const FeedbackPage = () => {
           WEBridge 사용 후 느낀 점을 남겨주세요.
         </h2>
 
-        {/* 피드백 작성 영역 */}
+        {/* 작성 영역 */}
         <div className="p-6 mb-6 space-y-4 bg-white border rounded-lg">
-          {/* 평점 영역 */}
           <div>
-            <p className="mb-2 font-semibold">평점</p>
-            <StarRating rating={rating} onRatingChange={setRating} />
+            <p id="create-rating-label" className="mb-2 font-semibold">
+              평점
+            </p>
+            <StarRating
+              rating={rating}
+              onRatingChange={setRating}
+              groupLabel="평점 선택"
+            />
           </div>
 
-          {/* 의견 작성 영역 */}
           <div>
-            {/* 레이블 추가 */}
             <label htmlFor={createTextId} className="block mb-2 font-semibold">
               의견
             </label>
@@ -205,7 +245,6 @@ const FeedbackPage = () => {
             />
           </div>
 
-          {/* 하단 등록 버튼 + 글자수 */}
           <div className="flex items-center justify-end">
             <span
               id={createCountId}
@@ -240,17 +279,16 @@ const FeedbackPage = () => {
             feedbackList?.results?.map((feedback) => (
               <div key={feedback.id} className="p-6 bg-white border rounded-lg">
                 {editingFeedback?.id === feedback.id ? (
-                  // 수정 모드
                   <div className="space-y-4">
                     <div>
                       <p className="mb-2 font-semibold">평점</p>
                       <StarRating
                         rating={editRating}
                         onRatingChange={setEditRating}
+                        groupLabel="평점 수정"
                       />
                     </div>
                     <div>
-                      {/* 수정 textarea에도 레이블 추가 */}
                       <label
                         htmlFor={editTextId}
                         className="block mb-2 font-semibold"
@@ -297,7 +335,6 @@ const FeedbackPage = () => {
                     </div>
                   </div>
                 ) : (
-                  // 보기 모드
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div>
@@ -370,7 +407,6 @@ const FeedbackPage = () => {
         {deletingFeedbackId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="relative p-8 bg-white rounded-xl w-80">
-              {/* X 버튼 */}
               <button
                 onClick={() => setDeletingFeedbackId(null)}
                 className="absolute text-gray-700 top-4 right-4 hover:text-gray-900"
@@ -379,15 +415,11 @@ const FeedbackPage = () => {
               >
                 <X className="w-5 h-5" />
               </button>
-
-              {/* 제목 */}
               <div className="mt-4 mb-8 text-center">
                 <h3 className="text-lg font-medium text-gray-900">
                   정말로 삭제하시겠습니까?
                 </h3>
               </div>
-
-              {/* 삭제하기 버튼 */}
               <Button
                 onClick={handleDelete}
                 disabled={isDeleting}
