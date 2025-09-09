@@ -414,6 +414,11 @@ export const ResultTable = ({
     isDisplayingScanDetail ? selectedScanDetail : null
   );
 
+  const getActionLabel = (item: ResultItem) => {
+    // 예: "자막 제공 오류 확인"
+    return `${item.name} ${item.type}`;
+  };
+
   const onItemClick = (item: ResultItem) => {
     if (displayScan && displayScan.status === "completed" && item.category) {
       onNavigate(`/scan/${displayScan.id}/${item.category}`);
@@ -448,7 +453,7 @@ export const ResultTable = ({
           <caption className="sr-only">요약 보고서</caption>
           <colgroup className="w-full">
             <col className="w-16" />
-            <col className="w-[32%]" />
+            <col className="w-32" />
             <col className="w-28" />
             <col className="w-24" />
             <col className="w-24" />
@@ -519,6 +524,8 @@ export const ResultTable = ({
                         ? "bg-gray-600 text-white"
                         : "bg-blue-600 text-white"
                     } whitespace-nowrap`}
+                    aria-label={getActionLabel(item)}
+                    title={getActionLabel(item)} // 길어질 때 툴팁 노출
                     disabled={
                       !displayScan ||
                       (displayScan.status !== "completed" &&
@@ -527,7 +534,7 @@ export const ResultTable = ({
                     }
                     onClick={() => onItemClick(item)}
                   >
-                    {item.type}
+                    {getActionLabel(item)}
                   </Button>
                 </td>
               </tr>
@@ -587,6 +594,8 @@ export const ResultTable = ({
                     ? "bg-gray-600 text-white"
                     : "bg-blue-600 text-white"
                 }`}
+                aria-label={getActionLabel(item)}
+                title={getActionLabel(item)} // 모바일에서도 길 때 길이 안내
                 disabled={
                   !displayScan ||
                   (displayScan.status !== "completed" &&
@@ -595,7 +604,7 @@ export const ResultTable = ({
                 }
                 onClick={() => onItemClick(item)}
               >
-                {item.type}
+                {getActionLabel(item)}
               </Button>
             </div>
           </div>

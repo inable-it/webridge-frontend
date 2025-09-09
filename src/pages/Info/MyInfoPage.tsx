@@ -142,7 +142,7 @@ const MyInfoPage = () => {
                   onClick={() => setNameEdit(true)}
                   className="border border-[#727272]"
                 >
-                  ✏️ 변경
+                  ✏️ 이름 변경
                 </Button>
               </>
             ) : (
@@ -185,7 +185,7 @@ const MyInfoPage = () => {
                   onClick={() => setPwdEdit(true)}
                   className="border border-[#727272]"
                 >
-                  ✏️ 변경
+                  ✏️ 비밀번호 변경
                 </Button>
               </>
             ) : (
