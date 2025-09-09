@@ -6,6 +6,19 @@ import CustomSelect from "@/components/common/Select";
 import { PATH_OPTIONS, JOB_OPTIONS } from "@/constants/survey";
 import type { Code } from "@/types/shared";
 
+const isBlank = (v?: string) => !v || v.trim().length === 0;
+
+const toMessage = (err: unknown) => {
+  if (!err) return "";
+  const anyErr = err as any;
+  return (
+    anyErr?.data?.message ??
+    anyErr?.error ??
+    anyErr?.message ??
+    (typeof err === "string" ? err : JSON.stringify(err))
+  );
+};
+
 const SurveyPage = () => {
   const navigate = useNavigate();
   const [createExtraInfo, { isLoading }] = useCreateUserExtraInfoMutation();
@@ -22,19 +35,28 @@ const SurveyPage = () => {
     jobOther?: string;
   }>({});
 
-  // 유효성 검사: 기타 값이 있으면 코드 f, 없으면 일반 선택 필수
+  // 유효성 검사
+  // 규칙:
+  // - path === 'f' 인 경우: pathOther 필수
+  // - path !== 'f' 인 경우: path 또는 pathOther 둘 중 하나는 필수
+  // - job도 동일 규칙
   const validate = () => {
     const next: typeof errors = {};
-    const usePathOther = !!pathOther.trim();
-    const useJobOther = !!jobOther.trim();
 
-    if (!usePathOther && !path) next.path = "경로를 선택해 주세요.";
-    if (usePathOther && !pathOther.trim())
-      next.pathOther = "기타 경로를 입력해 주세요.";
+    // PATH
+    if (path === "f") {
+      if (isBlank(pathOther)) next.pathOther = "기타 경로를 입력해 주세요.";
+    } else {
+      if (isBlank(path) && isBlank(pathOther))
+        next.path = "경로를 선택해 주세요.";
+    }
 
-    if (!useJobOther && !job) next.job = "직군을 선택해 주세요.";
-    if (useJobOther && !jobOther.trim())
-      next.jobOther = "기타 직군을 입력해 주세요.";
+    // JOB
+    if (job === "f") {
+      if (isBlank(jobOther)) next.jobOther = "기타 직군을 입력해 주세요.";
+    } else {
+      if (isBlank(job) && isBlank(jobOther)) next.job = "직군을 선택해 주세요.";
+    }
 
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -44,7 +66,7 @@ const SurveyPage = () => {
     e.preventDefault();
     if (!validate()) return;
 
-    // 안전장치: other 입력이 있으면 f로 치환
+    // other 값이 존재하면 f 코드로 전송
     const finalPath: Code = pathOther.trim() ? "f" : (path as Code);
     const finalJob: Code = jobOther.trim() ? "f" : (job as Code);
 
@@ -59,9 +81,19 @@ const SurveyPage = () => {
 
       navigate("/dashboard");
     } catch (err) {
-      alert(err || "제출 중 오류가 발생했습니다.");
+      alert(toMessage(err) || "제출 중 오류가 발생했습니다.");
     }
   };
+
+  // 옵션: 현재 입력으로 제출 가능 여부 (UX 향상용)
+  const canSubmit =
+    !isLoading &&
+    // PATH 가능 조건
+    (path === "f"
+      ? !isBlank(pathOther)
+      : !isBlank(path) || !isBlank(pathOther)) &&
+    // JOB 가능 조건
+    (job === "f" ? !isBlank(jobOther) : !isBlank(job) || !isBlank(jobOther));
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
@@ -85,6 +117,7 @@ const SurveyPage = () => {
             value={path}
             onChange={(code) => {
               setPath(code as Code);
+              // f가 아니면 기타 입력값은 초기화
               if (code !== "f") setPathOther("");
               setErrors((p) => ({
                 ...p,
@@ -98,7 +131,7 @@ const SurveyPage = () => {
             otherValue={pathOther}
             onChangeOther={(v) => {
               setPathOther(v);
-              // 기타 입력이 생기면 에러 제거
+              // 입력 발생 시 에러 제거
               setErrors((p) => ({
                 ...p,
                 path: undefined,
@@ -144,8 +177,8 @@ const SurveyPage = () => {
         {/* 제출 */}
         <Button
           type="submit"
-          disabled={isLoading}
-          className="w-full h-12 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          disabled={!canSubmit}
+          className="w-full h-12 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-60"
         >
           {isLoading ? "제출 중..." : "제출하기"}
         </Button>
