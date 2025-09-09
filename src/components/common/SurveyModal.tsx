@@ -283,7 +283,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="webridge@example.com"
-            className="h-11"
+            className="h-11 *:border border-[#727272]"
           />
           <div className="flex justify-between mt-6">
             <Button variant="secondary" disabled>
@@ -679,7 +679,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             작성해 주세요.
           </p>
           <textarea
-            className="w-full p-3 border rounded-lg outline-none h-36 focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-[#727272] rounded-lg outline-none h-36 focus:ring-2 focus:ring-blue-500"
             value={opinion}
             onChange={(e) => setOpinion(e.target.value)}
             placeholder="의견을 입력해 주세요."
