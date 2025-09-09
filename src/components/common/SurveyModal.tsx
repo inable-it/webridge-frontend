@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useId } from "react";
+import { useEffect, useMemo, useState, useId, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
@@ -15,11 +15,9 @@ import { useCreateSurveyMutation } from "@/features/api/surveyApi";
 type Props = {
   open: boolean;
   onClose: () => void;
-  /** 마지막 '완료' 버튼 클릭 시 호출되어 즉시 서버 상태를 새로고침하도록 부모에서 넘겨주세요. */
   onCompleted?: () => void;
 };
 
-// 1~5 리커트 타입
 type Likert = 1 | 2 | 3 | 4 | 5;
 const LIKERT: readonly Likert[] = [1, 2, 3, 4, 5] as const;
 
@@ -36,23 +34,37 @@ const StepDots = ({ total, index }: { total: number; index: number }) => (
   </div>
 );
 
+/** Card: 닫기 버튼 + dialogRef 전달 + 키보드 트랩(onKeyDown) */
 const Card: React.FC<{
   title?: string;
   onClose?: () => void;
-  children: any;
-}> = ({ title, onClose, children }) => (
+  children: React.ReactNode;
+  dialogRef?: React.Ref<HTMLDivElement>;
+  closeButtonRef?: React.Ref<HTMLButtonElement>;
+  onDialogKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+}> = ({
+  title,
+  onClose,
+  children,
+  dialogRef,
+  closeButtonRef,
+  onDialogKeyDown,
+}) => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center">
     <div className="absolute inset-0 bg-black/40" role="presentation" />
     <div
       role="dialog"
       aria-modal="true"
       className="relative w-[460px] max-w-[90vw] bg-white rounded-2xl shadow-xl p-6"
+      ref={dialogRef} // 그대로 사용 가능
+      onKeyDown={onDialogKeyDown}
     >
       {onClose && (
         <button
           aria-label="닫기"
           onClick={onClose}
-          className="absolute p-1 text-gray-500 rounded-full right-3 top-3 hover:bg-gray-100"
+          ref={closeButtonRef} // ✅ 그대로 사용 가능
+          className="absolute p-1 text-gray-500 rounded-full right-3 top-3 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <X className="w-5 h-5" />
         </button>
@@ -67,7 +79,6 @@ const Card: React.FC<{
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// 🔑 Space/Enter로 라디오를 선택/해제 토글하는 헬퍼
 function handleRadioToggleKeyDown(
   e: React.KeyboardEvent<HTMLInputElement>,
   isChecked: boolean,
@@ -80,16 +91,33 @@ function handleRadioToggleKeyDown(
     e.code === "Space" ||
     e.key === "Enter"
   ) {
-    e.preventDefault(); // 기본 라디오 선택 동작/스크롤 방지 (중복 방지)
+    e.preventDefault();
     if (isChecked) onDeselect();
     else onSelect();
   }
 }
 
+/** 모달 내부 포커스 가능한 요소 수집 */
+function getFocusableEls(container: HTMLElement | null): HTMLElement[] {
+  if (!container) return [];
+  const nodes = container.querySelectorAll<HTMLElement>(
+    [
+      'a[href]:not([tabindex="-1"])',
+      'button:not([disabled]):not([tabindex="-1"])',
+      'input:not([disabled]):not([tabindex="-1"])',
+      'select:not([disabled]):not([tabindex="-1"])',
+      'textarea:not([disabled]):not([tabindex="-1"])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(",")
+  );
+  return Array.from(nodes).filter(
+    (el) => !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length)
+  );
+}
+
 export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const [createSurvey, { isLoading }] = useCreateSurveyMutation();
 
-  // 0 안내 → 1 이메일 → 2 동의 → 3~10(문항1~8) → 11 완료
   const LAST_STEP = 11;
   const [step, setStep] = useState(0);
 
@@ -103,7 +131,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const [usageReasons, setUsageReasons] = useState<string[]>([]);
   const [usageReasonOther, setUsageReasonOther] = useState("");
 
-  // Likert 타입
   const [satOverall, setSatOverall] = useState<Likert | null>(null);
   const [satAccuracy, setSatAccuracy] = useState<Likert | null>(null);
   const [satReuse, setSatReuse] = useState<Likert | null>(null);
@@ -123,7 +150,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
   const [opinion, setOpinion] = useState("");
 
-  // ---------- 고유 id들 (레이블 연결용) ----------
+  // ids
   const emailId = useId();
   const privacyId = useId();
   const q1Prefix = useId();
@@ -135,7 +162,12 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const q3reusePrefix = useId();
   const q3recommendPrefix = useId();
 
-  // 열릴 때 초기화
+  // refs: 포커스 제어
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const joinBtnRef = useRef<HTMLButtonElement>(null); // 0단계 "참여하기"
+
+  // 열릴 때 상태 초기화
   useEffect(() => {
     if (open) {
       setStep(0);
@@ -160,6 +192,39 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
       setOpinion("");
     }
   }, [open]);
+
+  /** 모달이 열리고 step이 바뀔 때 초기 포커스 */
+  useEffect(() => {
+    if (!open) return;
+    const toFocus =
+      step === 0
+        ? joinBtnRef.current ?? closeBtnRef.current
+        : closeBtnRef.current;
+    // 다음 프레임에 포커스 (DOM 준비 후)
+    const t = window.setTimeout(() => {
+      toFocus?.focus();
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [open, step]);
+
+  /** 포커스 트랩: Tab 이동을 모달 내부로 고정 */
+  const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Tab") return;
+    const focusables = getFocusableEls(dialogRef.current);
+    if (focusables.length === 0) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    } else if (e.shiftKey && active === first) {
+      e.preventDefault();
+      last.focus();
+    }
+  };
 
   const nextDisabled = useMemo(() => {
     if (!open) return true;
@@ -244,7 +309,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         usage_reason: usageReasons,
         usage_reason_other: usageReasonOther.trim() || undefined,
 
-        satisfaction_overall: satOverall!, // Likert
+        satisfaction_overall: satOverall!,
         satisfaction_accuracy: satAccuracy!,
         satisfaction_reuse: satReuse!,
         satisfaction_recommend: satRecommend!,
@@ -266,7 +331,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
       try {
         await createSurvey(payload).unwrap();
-        setStep(LAST_STEP); // 감사 화면으로 이동
+        setStep(LAST_STEP);
       } catch (e: any) {
         const data = e?.data;
         const firstField = data && Object.keys(data)[0];
@@ -285,7 +350,12 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   if (!open) return null;
 
   return (
-    <Card onClose={step === 11 ? onClose : undefined}>
+    <Card
+      onClose={onClose} // 항상 닫기 버튼 노출
+      dialogRef={dialogRef} // 포커스 트랩 대상
+      closeButtonRef={closeBtnRef} // 닫기 버튼 포커스 타깃
+      onDialogKeyDown={handleDialogKeyDown} // Tab 키 트랩
+    >
       {step >= 3 && step <= 10 && <StepDots total={8} index={step - 3} />}
 
       {/* 0. 인트로 */}
@@ -297,7 +367,11 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           <p className="mt-2 text-sm text-gray-600">
             참여하신 분 중 추첨을 통해 30분께 커피 기프티콘을 드립니다. ☕️
           </p>
-          <Button className="w-full mt-6" onClick={goNext}>
+          <Button
+            className="w-full mt-6"
+            onClick={goNext}
+            ref={joinBtnRef} // 모달 오픈 시 최초 포커스
+          >
             참여하기
           </Button>
         </div>
@@ -323,7 +397,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           />
 
           <div className="flex justify-between mt-6">
-            <Button variant="secondary" disabled>
+            <Button variant="secondary" onClick={goPrev}>
               이전
             </Button>
             <Button onClick={goNext} disabled={nextDisabled}>
@@ -506,7 +580,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 5. 만족도 (리커트 1~5) - 라디오 Space/Enter 토글 지원 */}
+      {/* 5. 만족도 (리커트 1~5) */}
       {step === 5 && (
         <div>
           <p className="mb-4 text-[18px] font-semibold">
@@ -514,7 +588,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           </p>
 
           <div className="space-y-4">
-            {/* (1) 전반적 편의 */}
             <fieldset className="p-3 border rounded-lg border-[#727272]">
               <legend className="mb-2 text-sm">
                 (1) WEBridge를 사용함에 있어 전반적으로 편리했다.
@@ -550,7 +623,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               </div>
             </fieldset>
 
-            {/* (2) 정확도 */}
             <fieldset className="p-3 border rounded-lg border-[#727272]">
               <legend className="mb-2 text-sm">
                 (2) WEBridge의 웹 접근성 12가지 항목의 진단 결과가 전반적으로
@@ -587,7 +659,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               </div>
             </fieldset>
 
-            {/* (3) 재사용 의향 */}
             <fieldset className="p-3 border rounded-lg border-[#727272]">
               <legend className="mb-2 text-sm">
                 (3) WEBridge를 재사용할 의향이 있다.
@@ -623,7 +694,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               </div>
             </fieldset>
 
-            {/* (4) 추천 의향 */}
             <fieldset className="p-3 border rounded-lg border-[#727272]">
               <legend className="mb-2 text-sm">
                 (4) WEBridge를 다른 사람이나 기관에 추천하고 싶다.
@@ -671,7 +741,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 6. 구매 방식 (단일) - 라디오 Space/Enter 토글 지원 */}
+      {/* 6. 구매 방식 (단일) */}
       {step === 6 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
@@ -696,7 +766,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                         e,
                         checked,
                         () => setPurchaseWay(o.code),
-                        () => setPurchaseWay("") // 해제
+                        () => setPurchaseWay("")
                       )
                     }
                     className="w-4 h-4"
@@ -729,7 +799,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 7. 이용료 형태 (단일) - 라디오 Space/Enter 토글 지원 */}
+      {/* 7. 이용료 형태 (단일) */}
       {step === 7 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
@@ -754,7 +824,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                         e,
                         checked,
                         () => setPriceModel(o.code),
-                        () => setPriceModel("") // 해제
+                        () => setPriceModel("")
                       )
                     }
                     className="w-4 h-4"

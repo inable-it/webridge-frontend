@@ -129,8 +129,8 @@ const FeedbackPage = () => {
               aria-checked={current}
               aria-label={`${num}점`}
               title={`${num}점`}
-              onKeyDown={(e) => handleKey(e, num)} // ✅ Space/Enter로 선택/취소
-              onClick={(e) => handleClick(e, num)} // ✅ 마우스 클릭
+              onKeyDown={(e) => handleKey(e, num)} // Space/Enter로 선택/취소
+              onClick={(e) => handleClick(e, num)} // 마우스 클릭
               className={`p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 current ? "ring-1 ring-blue-500" : ""
               }`}
