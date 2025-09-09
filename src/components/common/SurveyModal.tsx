@@ -345,7 +345,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           <p className="mb-3 text-[18px] font-semibold">
             1. 귀하가 속한 회사(기관)의 유형을 선택해 주세요. (복수 선택 가능)
           </p>
-          <div className="p-2 bg-white border rounded-xl">
+          <div className="p-2 bg-white rounded-xl border border-[#727272]">
             {Q1_COMPANY_TYPES.map((o) => (
               <label
                 key={o.code}
@@ -361,12 +361,13 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 <span className="text-sm">{o.label}</span>
               </label>
             ))}
-            <div className="my-2 border-t" />
+            <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
                 placeholder="기타 응답을 작성해 주세요."
                 value={companyTypeOther}
                 onChange={(e) => setCompanyTypeOther(e.target.value)}
+                className="border border-[#727272]"
               />
             </div>
           </div>
@@ -387,7 +388,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           <p className="mb-3 text-[18px] font-semibold">
             2. WEBridge를 사용한 주된 이유를 선택해 주세요. (복수 선택 가능)
           </p>
-          <div className="p-2 bg-white border rounded-xl">
+          <div className="p-2 bg-white rounded-xl border border-[#727272]">
             {Q2_USAGE_REASONS.map((o) => (
               <label
                 key={o.code}
@@ -403,12 +404,13 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 <span className="text-sm">{o.label}</span>
               </label>
             ))}
-            <div className="my-2 border-t" />
-            <div className="px-3 pb-2">
+            <div className="my-2 border-t border border-[#727272]" />
+            <div className="px-3 pb-2 ">
               <Input
                 placeholder="기타 응답을 작성해 주세요."
                 value={usageReasonOther}
                 onChange={(e) => setUsageReasonOther(e.target.value)}
+                className="border border-[#727272]"
               />
             </div>
           </div>
@@ -457,7 +459,10 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 setter: setSatRecommend,
               },
             ].map((row) => (
-              <div key={row.key} className="p-3 border rounded-lg">
+              <div
+                key={row.key}
+                className="p-3 border rounded-lg border-[#727272]"
+              >
                 <div className="mb-2 text-sm">{row.label}</div>
                 <div className="flex items-center justify-between">
                   {LIKERT.map((n) => (
@@ -493,7 +498,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             4. WEBridge를 구매한다면, 어떤 방식으로 사용하고 싶으신가요? (단일
             선택)
           </p>
-          <div className="p-2 bg-white border rounded-xl">
+          <div className="p-2 bg-white rounded-xl border border-[#727272]">
             {Q4_PURCHASE_WAY.map((o) => (
               <label
                 key={o.code}
@@ -508,7 +513,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 <span className="text-sm">{o.label}</span>
               </label>
             ))}
-            <div className="my-2 border-t" />
+            <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
                 placeholder="기타 응답을 작성해 주세요."
@@ -517,6 +522,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                   setPurchaseWay("");
                   setPurchaseWayOther(e.target.value);
                 }}
+                className="border border-[#727272]"
               />
             </div>
           </div>
@@ -538,7 +544,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             5. WEBridge를 구매한다면, 어떤 이용료 형태를 선호하시나요? (단일
             선택)
           </p>
-          <div className="p-2 bg-white border rounded-xl">
+          <div className="p-2 bg-white rounded-xl border border-[#727272]">
             {Q5_PRICE_MODEL.map((o) => (
               <label
                 key={o.code}
@@ -553,7 +559,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 <span className="text-sm">{o.label}</span>
               </label>
             ))}
-            <div className="my-2 border-t" />
+            <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
                 placeholder="기타 응답을 작성해 주세요."
@@ -562,6 +568,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                   setPriceModel("");
                   setPriceModelOther(e.target.value);
                 }}
+                className="border border-[#727272]"
               />
             </div>
           </div>
@@ -583,7 +590,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             6. 앞으로 WEBridge를 어떤 방식으로 이용하시길 원하나요? (복수 선택
             가능)
           </p>
-          <div className="p-2 bg-white border rounded-xl">
+          <div className="p-2 bg-white rounded-xl border border-[#727272]">
             {Q6_USAGE_METHOD.map((o) => (
               <label
                 key={o.code}
@@ -599,12 +606,13 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 <span className="text-sm">{o.label}</span>
               </label>
             ))}
-            <div className="my-2 border-t" />
+            <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
                 placeholder="기타 응답을 작성해 주세요."
                 value={useMethodOther}
                 onChange={(e) => setUseMethodOther(e.target.value)}
+                className="border border-[#727272]"
               />
             </div>
           </div>
@@ -626,7 +634,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             7. WEBridge에 추가로 도입되기를 원하는 AI 기능은 무엇입니까? (복수
             선택 가능)
           </p>
-          <div className="p-2 bg-white border rounded-xl">
+          <div className="p-2 bg-white rounded-xl border border-[#727272]">
             {Q7_EXTRA_AI.map((o) => (
               <label
                 key={o.code}
@@ -642,12 +650,13 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 <span className="text-sm">{o.label}</span>
               </label>
             ))}
-            <div className="my-2 border-t" />
+            <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
                 placeholder="기타 응답을 작성해 주세요."
                 value={futureFeatureOther}
                 onChange={(e) => setFutureFeatureOther(e.target.value)}
+                className="border border-[#727272]"
               />
             </div>
           </div>
