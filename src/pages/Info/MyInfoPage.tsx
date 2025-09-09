@@ -73,7 +73,7 @@ const MyInfoPage = () => {
     if (newPwd.length < 8) return "비밀번호는 최소 8자 이상이어야 합니다.";
     const hasLetter = /[a-zA-Z]/.test(newPwd);
     const hasNumber = /\d/.test(newPwd);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPwd);
+    const hasSpecial = /[!@#$%^&*(),.?\":{}|<>]/.test(newPwd);
     if ([hasLetter, hasNumber, hasSpecial].filter(Boolean).length < 2) {
       return "영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.";
     }
@@ -257,7 +257,15 @@ const MyInfoPage = () => {
             type="button"
             role="switch"
             aria-checked={marketingAgreed}
+            aria-label="마케팅 정보 수신 동의"
             onClick={onToggleMarketing}
+            onKeyDown={(e) => {
+              // Space 누르면 즉시 토글 (기본 동작 방지로 중복 토글 방지)
+              if (e.key === " " || e.key === "Spacebar" || e.code === "Space") {
+                e.preventDefault();
+                if (!toggleDisabled) onToggleMarketing();
+              }
+            }}
             disabled={toggleDisabled}
             className={[
               "relative inline-flex h-5 w-10 items-center rounded-full transition-colors",

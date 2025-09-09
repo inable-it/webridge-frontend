@@ -76,7 +76,6 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
     try {
       setSendingKey(key);
       if (isActive) {
-        // 활성화 → 비활성화 (DELETE)
         await deleteAltTextFeedback(current!.likeId!).unwrap();
         setFeedbackState((prev) => {
           const next = { ...(prev[altTextResultId] || {}) };
@@ -84,7 +83,6 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
           return { ...prev, [altTextResultId]: next };
         });
       } else {
-        // 비활성화 → 활성화 (POST)
         const created = await createAltTextFeedback({
           alt_text_result: altTextResultId,
           rating: "like",
@@ -111,6 +109,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
       setSendingKey(null);
     }
   };
+
   const getAbsoluteImageUrl = (imgUrl: string, baseUrl: string) => {
     try {
       if (imgUrl.startsWith("http://") || imgUrl.startsWith("https://"))
@@ -122,6 +121,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
       return imgUrl;
     }
   };
+
   const toggleDislike = async (altTextResultId: number) => {
     const key = `${altTextResultId}:dislike`;
     const current = feedbackState[altTextResultId];
@@ -130,7 +130,6 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
     try {
       setSendingKey(key);
       if (isActive) {
-        // 활성화 → 비활성화 (DELETE)
         await deleteAltTextFeedback(current!.dislikeId!).unwrap();
         setFeedbackState((prev) => {
           const next = { ...(prev[altTextResultId] || {}) };
@@ -138,7 +137,6 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
           return { ...prev, [altTextResultId]: next };
         });
       } else {
-        // 비활성화 → 활성화 (POST)
         const created = await createAltTextFeedback({
           alt_text_result: altTextResultId,
           rating: "dislike",
@@ -207,8 +205,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
   return (
     <div className="space-y-4">
-      {/* … 상단 가이드는 동일 … */}
-      {/* 상단 가이드: 그대로 유지 */}
+      {/* 상단 가이드 */}
       <div className="p-4 mb-6 border border-blue-200 rounded-lg bg-blue-50">
         <div className="flex items-center gap-2 mb-2">
           <span className="font-bold text-blue-700 text-md">
@@ -263,6 +260,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
           </li>
         </ul>
       </div>
+
       {results.map((result, index) => {
         const fb = feedbackState[result.id] || {};
         const isLiked = !!fb.likeId;
@@ -287,7 +285,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
             </CardHeader>
 
             <CardContent className="space-y-3">
-              {/* … 이미지/정보 섹션 동일 … */}
+              {/* 이미지/정보 섹션 */}
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
                   <label className="block mb-1 text-xs font-medium text-gray-700">
@@ -343,11 +341,10 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                 </div>
               </div>
 
-              {/* --- 제안 박스 --- */}
+              {/* 제안 박스 */}
               {result.suggested_alt && (
                 <div className="p-3 border border-[#727272] rounded bg-blue-50">
                   <div className="flex items-center justify-between mb-2">
-                    {/* 좌측: 라벨 + 복사 */}
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-medium text-blue-700">
                         ⭐ WEBridge AI 대체텍스트 제안
@@ -379,18 +376,33 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                       </HoverCard>
                     </div>
 
-                    {/* 우측: 좋아요/싫어요 (서로 독립 토글) */}
+                    {/* 좋아요/싫어요: 키보드 스페이스로 즉시 토글 */}
                     <div className="flex items-center gap-1">
                       <HoverCard openDelay={150}>
                         <HoverCardTrigger asChild>
                           <button
+                            type="button"
                             aria-label="도움이 되었어요"
+                            aria-pressed={isLiked}
                             className={`p-2 rounded-full transition hover:bg-blue-100/60 ${
                               isLiked
                                 ? "text-blue-600 bg-blue-100"
                                 : "text-gray-700"
                             }`}
                             onClick={() => toggleLike(result.id)}
+                            onKeyDown={(e) => {
+                              // Space 키로 즉시 토글 (keyup 클릭 방지)
+                              if (
+                                e.key === " " ||
+                                e.key === "Spacebar" ||
+                                e.code === "Space"
+                              ) {
+                                e.preventDefault();
+                                if (sendingKey !== `${result.id}:like`) {
+                                  toggleLike(result.id);
+                                }
+                              }
+                            }}
                             disabled={sendingKey === `${result.id}:like`}
                           >
                             <ThumbsUp className="w-5 h-5" />
@@ -404,13 +416,27 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                       <HoverCard openDelay={150}>
                         <HoverCardTrigger asChild>
                           <button
+                            type="button"
                             aria-label="도움이 되지 않았어요"
+                            aria-pressed={isDisliked}
                             className={`p-2 rounded-full transition hover:bg-red-100/60 ${
                               isDisliked
                                 ? "text-red-600 bg-red-100"
                                 : "text-gray-700"
                             }`}
                             onClick={() => toggleDislike(result.id)}
+                            onKeyDown={(e) => {
+                              if (
+                                e.key === " " ||
+                                e.key === "Spacebar" ||
+                                e.code === "Space"
+                              ) {
+                                e.preventDefault();
+                                if (sendingKey !== `${result.id}:dislike`) {
+                                  toggleDislike(result.id);
+                                }
+                              }
+                            }}
                             disabled={sendingKey === `${result.id}:dislike`}
                           >
                             <ThumbsDown className="w-5 h-5" />

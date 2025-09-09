@@ -67,6 +67,25 @@ const Card: React.FC<{
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// 🔑 Space/Enter로 라디오를 선택/해제 토글하는 헬퍼
+function handleRadioToggleKeyDown(
+  e: React.KeyboardEvent<HTMLInputElement>,
+  isChecked: boolean,
+  onSelect: () => void,
+  onDeselect: () => void
+) {
+  if (
+    e.key === " " ||
+    e.key === "Spacebar" ||
+    e.code === "Space" ||
+    e.key === "Enter"
+  ) {
+    e.preventDefault(); // 기본 라디오 선택 동작/스크롤 방지 (중복 방지)
+    if (isChecked) onDeselect();
+    else onSelect();
+  }
+}
+
 export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const [createSurvey, { isLoading }] = useCreateSurveyMutation();
 
@@ -106,15 +125,11 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
   // ---------- 고유 id들 (레이블 연결용) ----------
   const emailId = useId();
-
   const privacyId = useId();
-
   const q1Prefix = useId();
   const q1OtherId = useId();
-
   const q2Prefix = useId();
   const q2OtherId = useId();
-
   const q3overallPrefix = useId();
   const q3accuracyPrefix = useId();
   const q3reusePrefix = useId();
@@ -212,7 +227,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
   const goNext = async () => {
     if (step === LAST_STEP - 1) {
-      // 최종 제출(10단계) → 서버 전송만, 닫기는 11단계 버튼에서만
+      // 최종 제출(10단계)
       const userTypeValue: string | undefined =
         purchaseWay || (purchaseWayOther.trim() ? "other" : undefined);
 
@@ -270,7 +285,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   if (!open) return null;
 
   return (
-    // 완료 단계에서만 onClose 전달 → X 버튼 표시
     <Card onClose={step === 11 ? onClose : undefined}>
       {step >= 3 && step <= 10 && <StepDots total={8} index={step - 3} />}
 
@@ -289,7 +303,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 1. 이메일 (입력 + 레이블 연결) */}
+      {/* 1. 이메일 */}
       {step === 1 && (
         <div>
           <h3 className="mb-4 text-[18px] font-semibold text-center">
@@ -319,7 +333,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 2. 개인정보 동의 (체크박스 + 레이블 연결) */}
+      {/* 2. 개인정보 동의 */}
       {step === 2 && (
         <div>
           <h3 className="mb-3 text-[18px] font-semibold text-center">
@@ -378,7 +392,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 3. 회사 유형 (복수) - 체크박스 & 기타 입력 레이블 */}
+      {/* 3. 회사 유형 (복수) */}
       {step === 3 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
@@ -435,7 +449,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 4. 사용 이유 (복수) - 체크박스 & 기타 입력 레이블 */}
+      {/* 4. 사용 이유 (복수) */}
       {step === 4 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
@@ -492,7 +506,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 5. 만족도 (리커트 1~5) - fieldset/legend + 라디오 레이블 */}
+      {/* 5. 만족도 (리커트 1~5) - 라디오 Space/Enter 토글 지원 */}
       {step === 5 && (
         <div>
           <p className="mb-4 text-[18px] font-semibold">
@@ -508,14 +522,23 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               <div className="flex items-center justify-between">
                 {LIKERT.map((n) => {
                   const id = `${q3overallPrefix}-${n}`;
+                  const checked = satOverall === n;
                   return (
                     <div key={id} className="flex flex-col items-center gap-1">
                       <input
                         id={id}
                         type="radio"
                         name="sat-overall"
-                        checked={satOverall === n}
+                        checked={checked}
                         onChange={() => setSatOverall(n)}
+                        onKeyDown={(e) =>
+                          handleRadioToggleKeyDown(
+                            e,
+                            checked,
+                            () => setSatOverall(n),
+                            () => setSatOverall(null)
+                          )
+                        }
                         className="w-4 h-4"
                       />
                       <label htmlFor={id} className="text-xs cursor-pointer">
@@ -536,14 +559,23 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               <div className="flex items-center justify-between">
                 {LIKERT.map((n) => {
                   const id = `${q3accuracyPrefix}-${n}`;
+                  const checked = satAccuracy === n;
                   return (
                     <div key={id} className="flex flex-col items-center gap-1">
                       <input
                         id={id}
                         type="radio"
                         name="sat-accuracy"
-                        checked={satAccuracy === n}
+                        checked={checked}
                         onChange={() => setSatAccuracy(n)}
+                        onKeyDown={(e) =>
+                          handleRadioToggleKeyDown(
+                            e,
+                            checked,
+                            () => setSatAccuracy(n),
+                            () => setSatAccuracy(null)
+                          )
+                        }
                         className="w-4 h-4"
                       />
                       <label htmlFor={id} className="text-xs cursor-pointer">
@@ -563,14 +595,23 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               <div className="flex items-center justify-between">
                 {LIKERT.map((n) => {
                   const id = `${q3reusePrefix}-${n}`;
+                  const checked = satReuse === n;
                   return (
                     <div key={id} className="flex flex-col items-center gap-1">
                       <input
                         id={id}
                         type="radio"
                         name="sat-reuse"
-                        checked={satReuse === n}
+                        checked={checked}
                         onChange={() => setSatReuse(n)}
+                        onKeyDown={(e) =>
+                          handleRadioToggleKeyDown(
+                            e,
+                            checked,
+                            () => setSatReuse(n),
+                            () => setSatReuse(null)
+                          )
+                        }
                         className="w-4 h-4"
                       />
                       <label htmlFor={id} className="text-xs cursor-pointer">
@@ -590,14 +631,23 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               <div className="flex items-center justify-between">
                 {LIKERT.map((n) => {
                   const id = `${q3recommendPrefix}-${n}`;
+                  const checked = satRecommend === n;
                   return (
                     <div key={id} className="flex flex-col items-center gap-1">
                       <input
                         id={id}
                         type="radio"
                         name="sat-recommend"
-                        checked={satRecommend === n}
+                        checked={checked}
                         onChange={() => setSatRecommend(n)}
+                        onKeyDown={(e) =>
+                          handleRadioToggleKeyDown(
+                            e,
+                            checked,
+                            () => setSatRecommend(n),
+                            () => setSatRecommend(null)
+                          )
+                        }
                         className="w-4 h-4"
                       />
                       <label htmlFor={id} className="text-xs cursor-pointer">
@@ -621,7 +671,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 6. 구매 방식 (단일) */}
+      {/* 6. 구매 방식 (단일) - 라디오 Space/Enter 토글 지원 */}
       {step === 6 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
@@ -629,20 +679,32 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             선택)
           </p>
           <div className="p-2 bg-white rounded-xl border border-[#727272]">
-            {Q4_PURCHASE_WAY.map((o) => (
-              <label
-                key={o.code}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
-              >
-                <input
-                  type="radio"
-                  name="purchase-way"
-                  checked={purchaseWay === o.code}
-                  onChange={() => setPurchaseWay(o.code)}
-                />
-                <span className="text-sm">{o.label}</span>
-              </label>
-            ))}
+            {Q4_PURCHASE_WAY.map((o) => {
+              const checked = purchaseWay === o.code;
+              return (
+                <label
+                  key={o.code}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                >
+                  <input
+                    type="radio"
+                    name="purchase-way"
+                    checked={checked}
+                    onChange={() => setPurchaseWay(o.code)}
+                    onKeyDown={(e) =>
+                      handleRadioToggleKeyDown(
+                        e,
+                        checked,
+                        () => setPurchaseWay(o.code),
+                        () => setPurchaseWay("") // 해제
+                      )
+                    }
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">{o.label}</span>
+                </label>
+              );
+            })}
             <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
@@ -667,7 +729,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         </div>
       )}
 
-      {/* 7. 이용료 형태 (단일) */}
+      {/* 7. 이용료 형태 (단일) - 라디오 Space/Enter 토글 지원 */}
       {step === 7 && (
         <div>
           <p className="mb-3 text-[18px] font-semibold">
@@ -675,20 +737,32 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             선택)
           </p>
           <div className="p-2 bg-white rounded-xl border border-[#727272]">
-            {Q5_PRICE_MODEL.map((o) => (
-              <label
-                key={o.code}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
-              >
-                <input
-                  type="radio"
-                  name="price-model"
-                  checked={priceModel === o.code}
-                  onChange={() => setPriceModel(o.code)}
-                />
-                <span className="text-sm">{o.label}</span>
-              </label>
-            ))}
+            {Q5_PRICE_MODEL.map((o) => {
+              const checked = priceModel === o.code;
+              return (
+                <label
+                  key={o.code}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                >
+                  <input
+                    type="radio"
+                    name="price-model"
+                    checked={checked}
+                    onChange={() => setPriceModel(o.code)}
+                    onKeyDown={(e) =>
+                      handleRadioToggleKeyDown(
+                        e,
+                        checked,
+                        () => setPriceModel(o.code),
+                        () => setPriceModel("") // 해제
+                      )
+                    }
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">{o.label}</span>
+                </label>
+              );
+            })}
             <div className="my-2 border-t border border-[#727272]" />
             <div className="px-3 pb-2">
               <Input
@@ -732,6 +806,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                   onChange={() =>
                     toggleMulti(useMethods, setUseMethods, o.code)
                   }
+                  className="w-4 h-4"
                 />
                 <span className="text-sm">{o.label}</span>
               </label>
@@ -776,6 +851,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                   onChange={() =>
                     toggleMulti(futureFeatures, setFutureFeatures, o.code)
                   }
+                  className="w-4 h-4"
                 />
                 <span className="text-sm">{o.label}</span>
               </label>
@@ -834,12 +910,11 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           <p className="mt-2 text-sm text-gray-600">
             소중한 의견 감사합니다. 당첨 여부는 추첨 후 이메일로 안내드립니다.
           </p>
-          {/* 마지막 버튼에서만 refetch 호출 + 모달 닫기 */}
           <Button
             className="w-full mt-6"
             onClick={() => {
-              onCompleted?.(); // 서버 상태 즉시 새로고침(부모에서 구현)
-              onClose(); // 모달 닫기
+              onCompleted?.();
+              onClose();
             }}
           >
             완료
