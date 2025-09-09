@@ -132,7 +132,7 @@ const AutoPlayDetail = ({ results }: Props) => {
                       <label className="text-xs font-medium text-gray-700">
                         메시지
                       </label>
-                      <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50">
+                      <div className="p-2 mt-1 text-sm break-all whitespace-pre-wrap rounded bg-gray-50 border border-[#727272]">
                         {result.message}
                       </div>
                     </div>
