@@ -9,7 +9,7 @@ import { Mutex } from "async-mutex";
 const mutex = new Mutex();
 
 // 일반 API 요청 시 항상 이 baseQuery를 사용함
-const baseQuery = fetchBaseQuery({
+export const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_BASE_URL,
   prepareHeaders: (headers) => {
     // accessToken이 있으면 Authorization 헤더에 포함
