@@ -241,6 +241,7 @@ const FeedbackPage = () => {
               rows={5}
               required
               aria-describedby={createCountId}
+              aria-label="자유로운 의견을 500자 이내로 남겨주세요!"
               className="w-full px-4 pt-4 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
