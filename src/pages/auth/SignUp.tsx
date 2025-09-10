@@ -99,6 +99,7 @@ const SignupPageContent = () => {
           setEmailVerified(true);
         } catch {
           // 인증되지 않음 (정상)
+            return;
         }
       }
     };
@@ -121,7 +122,9 @@ const SignupPageContent = () => {
           isGoogleUser: draftIsGoogleUser,
         })
       );
-    } catch {}
+    } catch (_err) {
+
+    }
   };
 
   const go = (to: string) => {
@@ -374,57 +377,62 @@ const SignupPageContent = () => {
     }
   };
 
-  // 약관 체크박스 렌더링 (레이블 분리, 링크는 레이블 밖)
-  const renderTermsCheckbox = (term: TermConfig) => {
-    const isRequired = term.id === "ageAgree" || term.required;
-    const labelText =
-      term.id === "ageAgree"
-        ? "(필수) 만 14세 이상입니다."
-        : `${term.label}에 동의합니다.`;
+    // 약관 체크박스 렌더링 (레이블 안에 링크 위치, (필수)/(선택)은 "에 동의합니다." 옆으로)
+    const renderTermsCheckbox = (term: TermConfig) => {
+        const isRequired = term.required;
 
-    return (
-      <div key={term.id} className="flex items-start gap-3">
-        <Checkbox
-          id={term.id}
-          checked={form[term.id as keyof typeof form] as boolean}
-          onCheckedChange={(checked) =>
-            handleCheckboxChange(term.id, checked === true)
-          }
-          aria-describedby={term.linkText ? `${term.id}-helper` : undefined}
-          className="mt-0.5 w-5 h-5 rounded border-gray-300
+        return (
+            <div key={term.id} className="flex items-start gap-3">
+                <Checkbox
+                    id={term.id}
+                    checked={form[term.id as keyof typeof form] as boolean}
+                    onCheckedChange={(checked) =>
+                        handleCheckboxChange(term.id, checked === true)
+                    }
+                    className="mt-0.5 w-5 h-5 rounded border-gray-300
                  data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
                  data-[state=checked]:text-white"
-        />
+                />
 
-        <div className="grid gap-1.5 leading-none">
-          <Label
-            htmlFor={term.id}
-            className="text-[15px] text-gray-800 cursor-pointer"
-          >
-            {labelText}
-          </Label>
-
-          {term.linkText && (
-            <div id={`${term.id}-helper`} className="text-xs text-gray-700">
-              {/* 링크는 레이블 밖에 위치시켜 클릭 시 체크박스가 토글되지 않도록 */}
-              <button
-                type="button"
-                onClick={() => go(term.route!)}
-                className="underline underline-offset-2 hover:text-blue-700"
-              >
-                {term.linkText} 전문 보기
-              </button>
-              {isRequired ? (
-                <span className="ml-1 text-red-500">(필수)</span>
-              ) : (
-                <span className="ml-1">(선택)</span>
-              )}
+                <div className="grid gap-1.5 leading-none">
+                    <Label
+                        htmlFor={term.id}
+                        className="text-[15px] text-gray-800 cursor-pointer"
+                    >
+                        {/* ageAgree는 별도 문구 처리 */}
+                        {term.id === "ageAgree" ? (
+                            <>
+                                {isRequired ? "(필수)" : "(선택)"}
+                                <button className="underline">만 14세 이상</button>
+                                <span className="text-gray-800">입니다.</span>
+                            </>
+                        ) : (
+                            <>
+                                {isRequired ? "(필수)" : "(선택)"}
+                                {/* 링크(레이블 내부) + 클릭 시 체크박스 토글 방지 */}
+                                {term.linkText && (
+                                    <button
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (term.route) go(term.route);
+                                        }}
+                                        className="underline underline-offset-2 hover:text-blue-700"
+                                    >
+                                        {term.linkText}
+                                    </button>
+                                )}
+                                <span>에 동의합니다.&nbsp;</span>
+                                <span className="text-gray-800">
+                </span>
+                            </>
+                        )}
+                    </Label>
+                </div>
             </div>
-          )}
-        </div>
-      </div>
-    );
-  };
+        );
+    };
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
