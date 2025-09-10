@@ -416,7 +416,7 @@ export const ResultTable = ({
 
   const getActionLabel = (item: ResultItem) => {
     // 예: "자막 제공 오류 확인"
-    return `${item.name} ${item.type}`;
+    return `${item.type}`;
   };
 
   const onItemClick = (item: ResultItem) => {
