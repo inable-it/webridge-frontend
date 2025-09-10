@@ -131,7 +131,6 @@ const MyInfoPage = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* 이름 */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-[#727272] rounded-xl">
-            {/* label로 전환 + htmlFor 연결 */}
             <label
               htmlFor={nameEdit ? nameInputId : undefined}
               className="min-w-[56px] text-sm font-medium text-gray-700"
@@ -145,12 +144,14 @@ const MyInfoPage = () => {
                   {user?.name}
                 </div>
                 <Button
+                  type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setNameEdit(true)}
                   className="border border-[#727272]"
+                  aria-label="이름 변경"
                 >
-                  ✏️ 이름 변경
+                  변경
                 </Button>
               </>
             ) : (
@@ -162,13 +163,14 @@ const MyInfoPage = () => {
                   className="h-10 max-w-[240px]"
                   placeholder="새 이름"
                   required
-                  maxLength={9} // 10자 미만 제약 보조
+                  maxLength={9}
                   aria-describedby={undefined}
                 />
-                <Button size="sm" onClick={handleSaveName}>
+                <Button type="button" size="sm" onClick={handleSaveName}>
                   저장
                 </Button>
                 <Button
+                  type="button"
                   size="sm"
                   variant="outline"
                   onClick={() => {
@@ -184,7 +186,6 @@ const MyInfoPage = () => {
 
           {/* 비밀번호 */}
           <div className="flex items-center justify-between gap-3 px-5 py-4 bg-white border border-[#727272] rounded-xl">
-            {/* label로 전환 + htmlFor 연결 */}
             <label
               htmlFor={pwdEdit ? pwdInputId : undefined}
               className="min-w-[72px] text-sm font-medium text-gray-700"
@@ -196,12 +197,14 @@ const MyInfoPage = () => {
               <>
                 <div className="flex-1 px-2 text-gray-900">**********</div>
                 <Button
+                  type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setPwdEdit(true)}
                   className="border border-[#727272]"
+                  aria-label="비밀번호 변경"
                 >
-                  ✏️ 비밀번호 변경
+                  변경
                 </Button>
               </>
             ) : (
@@ -219,6 +222,7 @@ const MyInfoPage = () => {
                   aria-describedby={pwdErr ? pwdErrorId : undefined}
                 />
                 <Button
+                  type="button"
                   size="sm"
                   onClick={handleSavePassword}
                   disabled={!newPwd}
@@ -226,6 +230,7 @@ const MyInfoPage = () => {
                   저장
                 </Button>
                 <Button
+                  type="button"
                   size="sm"
                   variant="outline"
                   onClick={() => {
@@ -260,7 +265,6 @@ const MyInfoPage = () => {
             aria-label="마케팅 정보 수신 동의"
             onClick={onToggleMarketing}
             onKeyDown={(e) => {
-              // Space 누르면 즉시 토글 (기본 동작 방지로 중복 토글 방지)
               if (e.key === " " || e.key === "Spacebar" || e.code === "Space") {
                 e.preventDefault();
                 if (!toggleDisabled) onToggleMarketing();
