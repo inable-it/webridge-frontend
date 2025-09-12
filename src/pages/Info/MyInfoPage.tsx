@@ -47,10 +47,10 @@ const MyInfoPage = () => {
   const privacyAgreed = termsStatus?.user_agreements?.privacy_policy ?? false;
   const marketingAgreed = termsStatus?.user_agreements?.marketing ?? false;
 
-  const toggleDisabled = useMemo(
-    () => isTermsLoading || isUpdatingTerms || !termsStatus,
-    [isTermsLoading, isUpdatingTerms, termsStatus]
-  );
+    const toggleDisabled = useMemo(
+        () => isTermsLoading || !termsStatus, // 요청 진행 중(isUpdatingTerms)에는 비활성화하지 않음
+        [isTermsLoading, termsStatus]
+    );
 
   useEffect(() => {
     if (user && !nameEdit) setNameDraft(user.name ?? "");
@@ -69,18 +69,18 @@ const MyInfoPage = () => {
     }
   };
 
-  const validatePwd = () => {
-    if (newPwd.length < 8) return "비밀번호는 최소 8자 이상이어야 합니다.";
-    const hasLetter = /[a-zA-Z]/.test(newPwd);
-    const hasNumber = /\d/.test(newPwd);
-    const hasSpecial = /[!@#$%^&*(),.?\":{}|<>]/.test(newPwd);
-    if ([hasLetter, hasNumber, hasSpecial].filter(Boolean).length < 2) {
-      return "영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.";
-    }
-    return "";
-  };
+    const validatePwd = () => {
+        if (newPwd.length < 8) return "비밀번호는 최소 8자 이상이어야 합니다.";
+        const hasLetter = /[a-zA-Z]/.test(newPwd);
+        const hasNumber = /\d/.test(newPwd);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPwd); // 불필요한 이스케이프 제거
+        if ([hasLetter, hasNumber, hasSpecial].filter(Boolean).length < 2) {
+            return "영문/숫자/특수문자 중 2가지 이상을 포함해야 합니다.";
+        }
+        return "";
+    };
 
-  const handleSavePassword = async () => {
+    const handleSavePassword = async () => {
     const err = validatePwd();
     if (err) {
       setPwdErr(err);
@@ -97,24 +97,26 @@ const MyInfoPage = () => {
     }
   };
 
-  // 마케팅 정보 수신 동의 토글
-  const onToggleMarketing = async () => {
-    if (toggleDisabled) return;
-    const next = !marketingAgreed;
-    try {
-      await updateTerms({
-        service_terms_agreed: serviceAgreed,
-        privacy_policy_agreed: privacyAgreed,
-        marketing_agreed: next, // 이 값만 변경
-      }).unwrap();
-      refetchTerms();
-    } catch (e) {
-      console.error(e);
-      alert("마케팅 정보 수신 동의 상태 변경에 실패했습니다.");
-    }
-  };
+    // 마케팅 정보 수신 동의 토글
+    const onToggleMarketing = async () => {
+        // 진행 중에는 내부에서만 가드(포커스 유지)
+        if (isTermsLoading || isUpdatingTerms || !termsStatus) return;
 
-  if (isLoading) return <div className="p-8 text-gray-700">로딩 중...</div>;
+        const next = !marketingAgreed;
+        try {
+            await updateTerms({
+                service_terms_agreed: serviceAgreed,
+                privacy_policy_agreed: privacyAgreed,
+                marketing_agreed: next, // 이 값만 변경
+            }).unwrap();
+            refetchTerms();
+        } catch (e) {
+            console.error(e);
+            alert("마케팅 정보 수신 동의 상태 변경에 실패했습니다.");
+        }
+    };
+
+    if (isLoading) return <div className="p-8 text-gray-700">로딩 중...</div>;
   if (error)
     return (
       <div className="p-8 text-gray-700">
@@ -258,41 +260,46 @@ const MyInfoPage = () => {
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-700">마케팅 정보 수신 동의</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={marketingAgreed}
-            aria-label="마케팅 정보 수신 동의"
-            onClick={onToggleMarketing}
-            onKeyDown={(e) => {
-              if (e.key === " " || e.key === "Spacebar" || e.code === "Space") {
-                e.preventDefault();
-                if (!toggleDisabled) onToggleMarketing();
-              }
-            }}
-            disabled={toggleDisabled}
-            className={[
-              "relative inline-flex h-5 w-10 items-center rounded-full transition-colors",
-              marketingAgreed ? "bg-blue-600" : "bg-gray-700",
-              toggleDisabled
-                ? "opacity-60 cursor-not-allowed"
-                : "cursor-pointer",
-            ].join(" ")}
-            title={
-              isUpdatingTerms
-                ? "업데이트 중..."
-                : marketingAgreed
-                ? "해제하기"
-                : "동의하기"
-            }
-          >
+            <button
+                type="button"
+                role="switch"
+                aria-checked={marketingAgreed}
+                aria-label="마케팅 정보 수신 동의"
+                onClick={onToggleMarketing}
+                onKeyDown={(e) => {
+                    if (
+                        e.key === " " ||
+                        e.key === "Spacebar" ||
+                        e.code === "Space" ||
+                        e.key === "Enter"
+                    ) {
+                        e.preventDefault(); // 기본 클릭/포커스 이동 방지
+                        onToggleMarketing(); // 내부 가드로 중복/진행 중 처리
+                    }
+                }}
+                disabled={toggleDisabled} // 로딩 초기/데이터 없음 때만 비활성화
+                aria-busy={isUpdatingTerms || undefined}
+                className={[
+                    "relative inline-flex h-5 w-10 items-center rounded-full transition-colors",
+                    marketingAgreed ? "bg-blue-600" : "bg-gray-700",
+                    toggleDisabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
+                ].join(" ")}
+                title={
+                    isUpdatingTerms
+                        ? "업데이트 중..."
+                        : marketingAgreed
+                            ? "해제하기"
+                            : "동의하기"
+                }
+            >
             <span
-              className={[
-                "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                marketingAgreed ? "translate-x-5" : "translate-x-1",
-              ].join(" ")}
+                className={[
+                    "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                    marketingAgreed ? "translate-x-5" : "translate-x-1",
+                ].join(" ")}
             />
-          </button>
+            </button>
+
         </div>
 
         <button
