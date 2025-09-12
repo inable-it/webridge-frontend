@@ -11,7 +11,7 @@ import {
   useCreateScanMutation,
   useGetScanListQuery,
 } from "@/features/api/scanApi";
-import SurveyModal from "@/components/common/SurveyModal";
+import SurveyModal from "@/pages/dashboard/SurveyModal.tsx";
 import { toast } from "@/hooks/use-toast";
 
 import { UrlScanForm } from "@/pages/dashboard/UrlScanForm";
