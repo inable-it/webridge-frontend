@@ -513,30 +513,31 @@ export const ResultTable = ({
                 <td className="p-2">
                   <span className="break-words break-all">{item.score}</span>
                 </td>
-                <td className="p-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className={`${
-                      item.type === "진행중"
-                        ? "bg-yellow-500 text-white"
-                        : item.type === "대기"
-                        ? "bg-gray-600 text-white"
-                        : "bg-blue-600 text-white"
-                    } whitespace-nowrap`}
-                    aria-label={getActionLabel(item)}
-                    title={getActionLabel(item)} // 길어질 때 툴팁 노출
-                    disabled={
-                      !displayScan ||
-                      (displayScan.status !== "completed" &&
-                        item.type !== "진행중") ||
-                      item.type === "대기"
-                    }
-                    onClick={() => onItemClick(item)}
-                  >
-                    {getActionLabel(item)}
-                  </Button>
-                </td>
+                  <td className="p-2">
+                      <Button
+                          size="sm"
+                          variant="outline"
+                          className={`${
+                              item.type === "진행중"
+                                  ? "bg-yellow-500 text-white"
+                                  : item.type === "대기"
+                                      ? "bg-gray-600 text-white"
+                                      : "bg-blue-600 text-white"
+                          } whitespace-nowrap`}
+                          aria-label={`${item.name} ${getActionLabel(item)}`}
+                          title={`${item.name} ${getActionLabel(item)}`} // 길어질 때 툴팁 노출
+                          disabled={
+                              !displayScan ||
+                              (displayScan.status !== "completed" &&
+                                  item.type !== "진행중") ||
+                              item.type === "대기"
+                          }
+                          onClick={() => onItemClick(item)}
+                      >
+                          {getActionLabel(item)}
+                      </Button>
+                  </td>
+
               </tr>
             ))}
           </tbody>
