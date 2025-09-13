@@ -98,8 +98,8 @@ const SignupPageContent = () => {
           await checkEmailVerification({ email: form.email }).unwrap();
           setEmailVerified(true);
         } catch {
-          // 인증되지 않음 (정상)
-            return;
+          // 인증되지 않음(정상)
+          return;
         }
       }
     };
@@ -122,13 +122,11 @@ const SignupPageContent = () => {
           isGoogleUser: draftIsGoogleUser,
         })
       );
-    } catch (_err) {
-
-    }
+    } catch {}
   };
 
   const go = (to: string) => {
-    saveDraftNow(); // 이동 직전 강제 저장
+    saveDraftNow(); // 이동 직전 저장
     navigate(to);
   };
 
@@ -363,7 +361,7 @@ const SignupPageContent = () => {
         marketing_agreed: form.marketingAgree,
       }).unwrap();
 
-      // 성공 처리: 초안 삭제 + 웰컴 모달 열기
+      // 성공 처리
       sessionStorage.removeItem(DRAFT_KEY);
       localStorage.setItem("accessToken", response.access);
       localStorage.setItem("refreshToken", response.refresh);
@@ -377,66 +375,73 @@ const SignupPageContent = () => {
     }
   };
 
-    // 약관 체크박스 렌더링 (레이블 안에 링크 위치, (필수)/(선택)은 "에 동의합니다." 옆으로)
-    const renderTermsCheckbox = (term: TermConfig) => {
-        const isRequired = term.required;
+  // 약관 체크박스 렌더링 (Checkbox input에도 aria-label 추가)
+  const renderTermsCheckbox = (term: TermConfig) => {
+    const isRequired = term.required;
+    const ariaLabel =
+      term.id === "ageAgree"
+        ? "만 14세 이상입니다에 동의"
+        : `${isRequired ? "필수" : "선택"} 약관 ${
+            term.linkText ?? term.id
+          }에 동의`;
 
-        return (
-            <div key={term.id} className="flex items-start gap-3">
-                <Checkbox
-                    id={term.id}
-                    checked={form[term.id as keyof typeof form] as boolean}
-                    onCheckedChange={(checked) =>
-                        handleCheckboxChange(term.id, checked === true)
-                    }
-                    className="mt-0.5 w-5 h-5 rounded border-gray-300
-                 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
-                 data-[state=checked]:text-white"
-                />
+    return (
+      <div key={term.id} className="flex items-start gap-3">
+        <Checkbox
+          id={term.id}
+          aria-label={ariaLabel}
+          checked={form[term.id as keyof typeof form] as boolean}
+          onCheckedChange={(checked) =>
+            handleCheckboxChange(term.id, checked === true)
+          }
+          className="mt-0.5 w-5 h-5 rounded border-gray-300
+             data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
+             data-[state=checked]:text-white"
+        />
 
-                <div className="grid gap-1.5 leading-none">
-                    <Label
-                        htmlFor={term.id}
-                        className="text-[15px] text-gray-800 cursor-pointer"
-                    >
-                        {/* ageAgree는 별도 문구 처리 */}
-                        {term.id === "ageAgree" ? (
-                            <>
-                                {isRequired ? "(필수)" : "(선택)"}
-                                <button className="underline">만 14세 이상</button>
-                                <span className="text-gray-800">입니다.</span>
-                            </>
-                        ) : (
-                            <>
-                                {isRequired ? "(필수)" : "(선택)"}
-                                {/* 링크(레이블 내부) + 클릭 시 체크박스 토글 방지 */}
-                                {term.linkText && (
-                                    <button
-                                        type="button"
-                                        onMouseDown={(e) => e.preventDefault()}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (term.route) go(term.route);
-                                        }}
-                                        className="underline underline-offset-2 hover:text-blue-700"
-                                    >
-                                        {term.linkText}
-                                    </button>
-                                )}
-                                <span>에 동의합니다.&nbsp;</span>
-                                <span className="text-gray-800">
-                </span>
-                            </>
-                        )}
-                    </Label>
-                </div>
-            </div>
-        );
-    };
+        <div className="grid gap-1.5 leading-none">
+          <Label
+            htmlFor={term.id}
+            className="text-[15px] text-gray-800 cursor-pointer"
+          >
+            {term.id === "ageAgree" ? (
+              <>
+                {isRequired ? "(필수)" : "(선택)"}
+                <button className="underline">만 14세 이상</button>
+                <span className="text-gray-800">입니다.</span>
+              </>
+            ) : (
+              <>
+                {isRequired ? "(필수)" : "(선택)"}
+                {term.linkText && (
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (term.route) go(term.route);
+                    }}
+                    className="underline underline-offset-2 hover:text-blue-700"
+                  >
+                    {term.linkText}
+                  </button>
+                )}
+                <span>에 동의합니다.&nbsp;</span>
+              </>
+            )}
+          </Label>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md space-y-6"
+        aria-label="회원가입 폼"
+      >
         {/* 제목 */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">회원가입</h1>
@@ -451,6 +456,7 @@ const SignupPageContent = () => {
             id="name"
             type="text"
             placeholder="이름"
+            aria-label="이름 입력"
             value={form.name}
             onChange={handleInputChange}
             className={`w-full h-12 border border-[#727272]${
@@ -466,11 +472,12 @@ const SignupPageContent = () => {
             이메일<span className="ml-1 text-red-500">*</span>
           </Label>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-0">
           <Input
             id="email"
             type="email"
             placeholder="이메일"
+            aria-label="이메일 입력"
             value={form.email}
             onChange={handleInputChange}
             className={`flex-1 h-12 border border-[#727272]${
@@ -487,6 +494,7 @@ const SignupPageContent = () => {
               isGoogleUser
             }
             className="h-12 text-white bg-blue-500 border-0 whitespace-nowrap hover:bg-blue-600"
+            aria-label="이메일 인증 요청"
           >
             {isRequestingVerification
               ? "인증 중..."
@@ -513,6 +521,7 @@ const SignupPageContent = () => {
             id="password"
             type="password"
             placeholder="비밀번호"
+            aria-label="비밀번호 입력"
             value={form.password}
             onChange={handleInputChange}
             className={`w-full h-12 border border-[#727272]${
@@ -525,11 +534,12 @@ const SignupPageContent = () => {
         </div>
 
         {/* 약관 동의 */}
-        <div className="space-y-3">
+        <div className="space-y-3" aria-label="약관 동의 섹션">
           {/* 전체 동의 */}
           <div className="flex items-center gap-2 my-6 pb-5 border-b border-[#727272]">
             <Checkbox
               id="allAgree"
+              aria-label="모든 약관에 동의합니다"
               checked={form.allAgree}
               onCheckedChange={(checked) =>
                 handleCheckboxChange("allAgree", checked === true)
@@ -556,12 +566,13 @@ const SignupPageContent = () => {
               ? "bg-blue-600 hover:bg-blue-700"
               : "bg-gray-600 cursor-not-allowed"
           }`}
+          aria-label="회원가입 제출"
         >
           {isLoading ? "가입 중..." : "회원가입"}
         </Button>
 
         {/* 구분선 */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" aria-hidden="true">
           <Separator className="flex-1" />
           <span className="text-xs text-gray-700">또는</span>
           <Separator className="flex-1" />
@@ -572,6 +583,7 @@ const SignupPageContent = () => {
           onClick={() => googleLogin()}
           className="flex items-center justify-center gap-4 w-full h-11 rounded-lg bg-gray-100 hover:bg-gray-200 shadow text-gray-800 text-[16px] font-medium"
           type="button"
+          aria-label="Google로 계속하기"
         >
           <img src="/google.svg" alt="Google Logo" className="w-6 h-6" />
           Google로 계속하기
@@ -583,14 +595,16 @@ const SignupPageContent = () => {
             type="button"
             onClick={() => go("/terms/privacy-processing")}
             className="font-bold hover:underline"
+            aria-label="개인정보처리방침 보기"
           >
             개인정보처리방침
           </button>
-          <span>|</span>
+          <span aria-hidden="true">|</span>
           <button
             type="button"
             onClick={() => go("/terms/service")}
             className="hover:underline"
+            aria-label="서비스 이용약관 보기"
           >
             서비스 이용약관
           </button>
@@ -604,6 +618,7 @@ const SignupPageContent = () => {
             <button
               onClick={() => setShowModal(false)}
               className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
+              aria-label="인증 안내 닫기"
             >
               <X className="w-5 h-5" />
             </button>
@@ -627,6 +642,7 @@ const SignupPageContent = () => {
                 onClick={handleEmailVerification}
                 disabled={isRequestingVerification}
                 className="w-full py-3 text-base font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-xl"
+                aria-label="인증 메일 재전송"
               >
                 {isRequestingVerification ? "전송 중..." : "이메일 재전송"}
               </Button>
@@ -642,6 +658,7 @@ const SignupPageContent = () => {
             <button
               onClick={() => setWelcomeOpen(false)}
               className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
+              aria-label="웰컴 모달 닫기"
             >
               <X className="w-5 h-5" />
             </button>
@@ -666,6 +683,7 @@ const SignupPageContent = () => {
               <Button
                 onClick={() => navigate("/survey")}
                 className="w-full py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl"
+                aria-label="설문조사 시작하기"
               >
                 설문조사 시작하기
               </Button>
