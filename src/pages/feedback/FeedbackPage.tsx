@@ -1,4 +1,4 @@
-import {useState, useId, useRef, useEffect} from "react";
+import { useState, useId, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Star, Edit, Trash2, X } from "lucide-react";
 import {
@@ -50,164 +50,173 @@ const FeedbackPage = () => {
   const editCountId = useId();
 
   // ─────────────────────────────
-  // 접근성 지원 StarRating (한 칸씩 토글, Space/Enter OK, Tab 이동 OK)
+  // 접근성 지원 StarRating (한 칸씩 토글 X → 동일 별 재입력 시 “취소(0점)”, 포커스 유지)
   // ─────────────────────────────
-    const StarRating = ({
-                            rating,
-                            onRatingChange,
-                            readonly = false,
-                            groupLabel = "평점 선택",
-                        }: {
-        rating: number;
-        onRatingChange?: (rating: number) => void;
-        readonly?: boolean;
-        groupLabel?: string;
-    }) => {
-        const ignoreNextClick = useRef(false);
+  const StarRating = ({
+    rating,
+    onRatingChange,
+    readonly = false,
+    groupLabel = "평점 선택",
+  }: {
+    rating: number;
+    onRatingChange?: (rating: number) => void;
+    readonly?: boolean;
+    groupLabel?: string;
+  }) => {
+    const ignoreNextClick = useRef(false);
 
-        // roving tabindex: 현재 탭으로 진입할 별 인덱스(0-based)
-        const [activeIndex, setActiveIndex] = useState(Math.max(0, rating - 1));
-        const btnRefs = useRef<HTMLButtonElement[]>([]);
+    // roving tabindex: 현재 탭으로 진입할 별 인덱스(0-based)
+    const [activeIndex, setActiveIndex] = useState(Math.max(0, rating - 1));
+    const btnRefs = useRef<HTMLButtonElement[]>([]);
 
-        useEffect(() => {
-            // 외부에서 rating이 바뀌면 해당 별을 활성 탭 대상으로 설정
-            if (rating > 0) {
-                setActiveIndex(rating - 1);
-            }
-        }, [rating]);
+    useEffect(() => {
+      // 외부에서 rating이 바뀌면 해당 별을 활성 탭 대상으로 설정
+      if (rating > 0) {
+        setActiveIndex(rating - 1);
+      }
+      // rating === 0인 경우에는 activeIndex를 바꾸지 않아 포커스 유지
+    }, [rating]);
 
-        const focusIndex = (idx: number) => {
-            const total = 5;
-            const clamped = Math.max(0, Math.min(total - 1, idx));
-            setActiveIndex(clamped);
-            const btn = btnRefs.current[clamped];
-            if (btn) btn.focus();
-        };
-
-        const activateByClick = (value: number) => {
-            if (!onRatingChange) return;
-            onRatingChange(Math.max(0, value));
-        };
-
-        const handleActionKey = (e: React.KeyboardEvent, value: number) => {
-            const isSpace = e.key === " " || e.key === "Spacebar";
-            const isEnter = e.key === "Enter";
-            if (isSpace || isEnter) {
-                e.preventDefault();
-                e.stopPropagation();
-                ignoreNextClick.current = true;
-
-                if (!onRatingChange) return;
-                // 같은 별이면 한 칸 줄이기(최소 0), 아니면 해당 값으로 설정
-                const next = value === rating ? Math.max(0, value - 1) : value;
-                onRatingChange(next);
-            }
-        };
-
-        const handleTabRoving = (
-            e: React.KeyboardEvent,
-            idx: number
-        ) => {
-            if (e.key !== "Tab") return;
-            const isShift = e.shiftKey;
-            const total = 5;
-
-            // 첫 별에서 Shift+Tab → 그룹 밖(기본 동작 허용)
-            if (isShift && idx === 0) return;
-            // 마지막 별에서 Tab → 그룹 밖(기본 동작 허용)
-            if (!isShift && idx === total - 1) return;
-
-            // 그룹 내 이동은 기본 동작 차단하고 다음/이전 별로 포커스
-            e.preventDefault();
-            e.stopPropagation();
-            focusIndex(isShift ? idx - 1 : idx + 1);
-        };
-
-        const handleKeyUp = (e: React.KeyboardEvent) => {
-            if (e.key === " " || e.key === "Spacebar") {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        };
-
-        const handleClick = (
-            e: React.MouseEvent<HTMLButtonElement>,
-            value: number
-        ) => {
-            if (ignoreNextClick.current || (e as any).detail === 0) {
-                ignoreNextClick.current = false;
-                return;
-            }
-            activateByClick(value);
-        };
-
-        if (readonly) {
-            return (
-                <div role="img" aria-label="평점" aria-readonly="true" className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((num) => (
-                        <Star
-                            key={num}
-                            aria-hidden="true"
-                            className={`w-5 h-5 ${
-                                rating >= num ? "text-yellow-400 fill-yellow-400" : "text-gray-700"
-                            }`}
-                        />
-                    ))}
-                </div>
-            );
-        }
-
-        return (
-            <div role="radiogroup" aria-label={groupLabel} className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((num, idx) => {
-                    const selected = rating >= num; // 채움 표시
-                    const current = rating === num; // 실제 선택(라디오)
-                    const isTabStop = idx === activeIndex;
-
-                    return (
-                        <button
-                            key={num}
-                            ref={(el) => {
-                                if (el) btnRefs.current[idx] = el;
-                            }}
-                            type="button"
-                            role="radio"
-                            aria-checked={current}
-                            aria-keyshortcuts="Tab, Shift+Tab, Space"
-                            aria-label={`${num}점`}
-                            title={`${num}점`}
-                            tabIndex={isTabStop ? 0 : -1} // roving tabindex 핵심
-                            onFocus={() => setActiveIndex(idx)}
-                            onKeyDown={(e) => {
-                                // 탭으로 다음/이전 별 이동
-                                handleTabRoving(e, idx);
-                                // Space/Enter 선택/한 칸 줄이기
-                                handleActionKey(e, num);
-                            }}
-                            onKeyUp={handleKeyUp}
-                            onClick={(e) => handleClick(e, num)}
-                            className={`p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                current ? "ring-1 ring-blue-500" : ""
-                            }`}
-                        >
-                            <Star
-                                aria-hidden="true"
-                                className={`w-5 h-5 ${
-                                    selected ? "text-yellow-400 fill-yellow-400" : "text-gray-700"
-                                }`}
-                            />
-                        </button>
-                    );
-                })}
-            </div>
-        );
+    const focusIndex = (idx: number) => {
+      const total = 5;
+      const clamped = Math.max(0, Math.min(total - 1, idx));
+      setActiveIndex(clamped);
+      const btn = btnRefs.current[clamped];
+      if (btn) btn.focus();
     };
 
+    const setValue = (value: number) => {
+      if (!onRatingChange) return;
+      onRatingChange(Math.max(0, value));
+    };
 
+    const activateByClick = (value: number) => {
+      // 동일 별 클릭 시 “취소(0점)”; 아니면 해당 값 선택
+      if (!onRatingChange) return;
+      const next = value === rating ? 0 : value;
+      setValue(next);
+      // rating이 0이 되어도 activeIndex는 그대로여서 포커스 불변
+    };
 
+    const handleActionKey = (e: React.KeyboardEvent, value: number) => {
+      const isSpace = e.key === " " || e.key === "Spacebar";
+      const isEnter = e.key === "Enter";
+      if (isSpace || isEnter) {
+        e.preventDefault();
+        e.stopPropagation();
+        ignoreNextClick.current = true;
 
+        if (!onRatingChange) return;
+        // 동일 별 → 0(취소), 그 외 → 해당 값
+        const next = value === rating ? 0 : value;
+        setValue(next);
+        // 포커스는 같은 버튼에 그대로 (activeIndex 변경 없음)
+      }
+    };
 
-    // 등록
+    const handleTabRoving = (e: React.KeyboardEvent, idx: number) => {
+      if (e.key !== "Tab") return;
+      const isShift = e.shiftKey;
+      const total = 5;
+
+      // 그룹 경계에서는 기본 동작 허용
+      if ((isShift && idx === 0) || (!isShift && idx === total - 1)) return;
+
+      // 그룹 내 이동은 기본 동작 차단하고 다음/이전 별로 포커스만 이동 (값 변경 없음)
+      e.preventDefault();
+      e.stopPropagation();
+      focusIndex(isShift ? idx - 1 : idx + 1);
+    };
+
+    const handleKeyUp = (e: React.KeyboardEvent) => {
+      if (e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    const handleClick = (
+      e: React.MouseEvent<HTMLButtonElement>,
+      value: number
+    ) => {
+      // 키보드 Space/Enter 직후 발생하는 click 무시
+      if (ignoreNextClick.current || (e as any).detail === 0) {
+        ignoreNextClick.current = false;
+        return;
+      }
+      activateByClick(value);
+    };
+
+    if (readonly) {
+      return (
+        <div
+          role="img"
+          aria-label="평점"
+          aria-readonly="true"
+          className="flex gap-1"
+        >
+          {[1, 2, 3, 4, 5].map((num) => (
+            <Star
+              key={num}
+              aria-hidden="true"
+              className={`w-5 h-5 ${
+                rating >= num
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-gray-700"
+              }`}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div role="radiogroup" aria-label={groupLabel} className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((num, idx) => {
+          const selected = rating >= num; // 시각적 채움
+          const current = rating === num; // 실제 선택(라디오)
+          const isTabStop = idx === activeIndex;
+
+          return (
+            <button
+              key={num}
+              ref={(el) => {
+                if (el) btnRefs.current[idx] = el;
+              }}
+              type="button"
+              role="radio"
+              aria-checked={current}
+              aria-keyshortcuts="Tab, Shift+Tab, Space"
+              aria-label={`${num}점`}
+              title={`${num}점`}
+              tabIndex={isTabStop ? 0 : -1} // roving tabindex 핵심
+              onFocus={() => setActiveIndex(idx)}
+              onKeyDown={(e) => {
+                // 탭: 포커스만 이동, 값 변경 없음
+                handleTabRoving(e, idx);
+                // Space/Enter: 동일 별 → 0(취소), 아니면 값 설정
+                handleActionKey(e, num);
+              }}
+              onKeyUp={handleKeyUp}
+              onClick={(e) => handleClick(e, num)}
+              className={`p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                current ? "ring-1 ring-blue-500" : ""
+              }`}
+            >
+              <Star
+                aria-hidden="true"
+                className={`w-5 h-5 ${
+                  selected ? "text-yellow-400 fill-yellow-400" : "text-gray-700"
+                }`}
+              />
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // 등록
   const handleSubmit = async () => {
     if (!text.trim()) return alert("피드백 내용을 입력해주세요.");
     if (rating === 0) return alert("평점을 선택해주세요.");
@@ -247,7 +256,7 @@ const FeedbackPage = () => {
       cancelEdit();
       refetch();
     } catch (error) {
-      console.error("피드edback 수정 오류:", error);
+      console.error("피드백 수정 오류:", error);
       alert("피드백 수정 중 오류가 발생했습니다.");
     }
   };
