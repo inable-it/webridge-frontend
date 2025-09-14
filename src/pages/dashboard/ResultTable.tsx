@@ -414,31 +414,15 @@ export const ResultTable = ({
     isDisplayingScanDetail ? selectedScanDetail : null
   );
 
-  const getActionLabel = (item: ResultItem) => {
-    // 예: "자막 제공 오류 확인"
-    return `${item.type}`;
-  };
-
+  const getActionLabel = (item: ResultItem) => `${item.type}`;
   const onItemClick = (item: ResultItem) => {
     if (displayScan && displayScan.status === "completed" && item.category) {
       onNavigate(`/scan/${displayScan.id}/${item.category}`);
     }
   };
 
-  // 조사(은/는) 보정
   const josa = (name: string) =>
-    /[가-힣]$/.test(name) && "을"
-      ? name.endsWith("다비")
-        ? "는"
-        : /[가-힣]$/.test(name)
-        ? /[가-힣]/.test(name)
-          ? (name.charCodeAt(name.length - 1) - 44032) % 28
-            ? "은"
-            : "는"
-          : "은"
-        : "은"
-      : "은";
-
+    (name.charCodeAt(name.length - 1) - 44032) % 28 ? "은" : "는";
   const withPostposition = (name: string) => `${name}${josa(name)}`;
 
   return (
@@ -481,9 +465,13 @@ export const ResultTable = ({
             {rows.map((item) => (
               <tr key={item.id} className="border-b border-[#727272]">
                 <td className="p-2 text-left">{item.id}</td>
-                <td className="p-2 text-left">
-                  <span className="break-words break-all">{item.name}</span>
-                </td>
+                {/* td → th scope="row" */}
+                <th
+                  scope="row"
+                  className="p-2 font-medium text-left break-words break-all"
+                >
+                  {item.name}
+                </th>
                 <td className="p-2">
                   <HoverCard openDelay={100} closeDelay={60}>
                     <HoverCardTrigger asChild>
@@ -513,31 +501,30 @@ export const ResultTable = ({
                 <td className="p-2">
                   <span className="break-words break-all">{item.score}</span>
                 </td>
-                  <td className="p-2">
-                      <Button
-                          size="sm"
-                          variant="outline"
-                          className={`${
-                              item.type === "진행중"
-                                  ? "bg-yellow-500 text-white"
-                                  : item.type === "대기"
-                                      ? "bg-gray-600 text-white"
-                                      : "bg-blue-600 text-white"
-                          } whitespace-nowrap`}
-                          aria-label={`${item.name} ${getActionLabel(item)}`}
-                          title={`${item.name} ${getActionLabel(item)}`} // 길어질 때 툴팁 노출
-                          disabled={
-                              !displayScan ||
-                              (displayScan.status !== "completed" &&
-                                  item.type !== "진행중") ||
-                              item.type === "대기"
-                          }
-                          onClick={() => onItemClick(item)}
-                      >
-                          {getActionLabel(item)}
-                      </Button>
-                  </td>
-
+                <td className="p-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={`${
+                      item.type === "진행중"
+                        ? "bg-yellow-500 text-white"
+                        : item.type === "대기"
+                        ? "bg-gray-600 text-white"
+                        : "bg-blue-600 text-white"
+                    } whitespace-nowrap`}
+                    aria-label={`${item.name} ${getActionLabel(item)}`}
+                    title={`${item.name} ${getActionLabel(item)}`}
+                    disabled={
+                      !displayScan ||
+                      (displayScan.status !== "completed" &&
+                        item.type !== "진행중") ||
+                      item.type === "대기"
+                    }
+                    onClick={() => onItemClick(item)}
+                  >
+                    {getActionLabel(item)}
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -580,7 +567,6 @@ export const ResultTable = ({
                 </HoverCardContent>
               </HoverCard>
             </div>
-
             <div className="flex items-center justify-between mt-2">
               <div className="text-xs text-gray-700 dark:text-gray-300">
                 준수율: <span className="font-medium">{item.score}</span>
@@ -596,7 +582,7 @@ export const ResultTable = ({
                     : "bg-blue-600 text-white"
                 }`}
                 aria-label={getActionLabel(item)}
-                title={getActionLabel(item)} // 모바일에서도 길 때 길이 안내
+                title={getActionLabel(item)}
                 disabled={
                   !displayScan ||
                   (displayScan.status !== "completed" &&
