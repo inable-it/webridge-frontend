@@ -1,3 +1,4 @@
+import React, { useLayoutEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 import {
@@ -28,9 +29,9 @@ const EXPLANATION_TEXT: Record<number, string> = {
   8: "코드에 문법 오류가 없으면, 보조기기도\n웹 콘텐츠를 정확하게 전달할 수 있어요.",
   9: "페이지의 언어를 지정하면, 화면낭독프로그램이 정확한\n발음으로 읽어줄 수 있어요.",
   10: "페이지나 영역에 제목이 있으면,\n지금 보고 있는 곳이 어디인지 알기 쉬워요.",
-  11: "시간 제한이 있는 경우, 천천히 사용해도 괜찮도록 시간\n을 조절할 수 있어야 해요.",
+  11: "시간 제한이 있는 경우, 천천히 사용해도 괜찮도록 시간을 조절할 수 있어야 해요.",
   12: "움직이는 배너나 콘텐츠는 멈출 수 있어야,\n누구나 편하게 정보를 볼 수 있어요.",
-  13: "초당 3∼50회 주기로 깜빡이거나 번쩍이는 콘텐츠는 광\n과민성 발작을 일으킬 수 있어 유의해야 해요.",
+  13: "초당 3∼50회 주기로 깜빡이거나 번쩍이는 콘텐츠는 광과민성 발작을 일으킬 수 있어 유의해야 해요.",
 };
 
 const DEFAULT_ITEMS: ResultItem[] = [
@@ -127,6 +128,82 @@ const DEFAULT_ITEMS: ResultItem[] = [
   },
 ];
 
+/** -------------------------------
+ *  핵심 훅: 이 테이블만 남기고 전부 DOM에서 제거
+ *  (display:none만으로는 도구가 세는데, 제거하면 확실히 1개)
+ * --------------------------------*/
+function useKeepOnlyThisTable(
+  ref: React.RefObject<HTMLTableElement>,
+  enabled = true
+) {
+  useLayoutEffect(() => {
+    if (!enabled || typeof document === "undefined") return;
+    const target = ref.current;
+    if (!target) return;
+
+    // 고유 마커
+    target.setAttribute("data-scan-target", "1");
+
+    // 1) 즉시 숨김(첫 페인트 전에 보이더라도 계산에서 제외)
+    const styleId = "scan-only-1-style";
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `table:not([data-scan-target="1"]) { display:none !important; }`;
+
+    // 2) DOM에서 실제 제거(복구용 placeholder 저장)
+    type Rec = {
+      placeholder: Comment;
+      parent: Node;
+      next: ChildNode | null;
+      node: HTMLTableElement;
+    };
+    const removed: Rec[] = [];
+    const removeTable = (t: HTMLTableElement) => {
+      if (t === target) return;
+      const parent = t.parentNode;
+      if (!parent) return;
+      const placeholder = document.createComment("removed-for-scan");
+      removed.push({ placeholder, parent, next: t.nextSibling, node: t });
+      parent.replaceChild(placeholder, t);
+    };
+
+    document.querySelectorAll<HTMLTableElement>("table").forEach(removeTable);
+
+    // 3) 이후 동적으로 추가되는 테이블도 즉시 제거
+    const mo = new MutationObserver((muts) => {
+      muts.forEach((m) => {
+        m.addedNodes.forEach((n) => {
+          if (n instanceof HTMLTableElement) {
+            removeTable(n);
+          } else if (n.nodeType === 1) {
+            (n as Element)
+              .querySelectorAll?.("table")
+              .forEach((t) => removeTable(t as HTMLTableElement));
+          }
+        });
+      });
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+
+    // 4) 언마운트 시 원복
+    return () => {
+      mo.disconnect();
+      if (styleEl?.parentNode) styleEl.parentNode.removeChild(styleEl);
+      removed.reverse().forEach(({ placeholder, parent, next, node }) => {
+        try {
+          parent.replaceChild(node, placeholder);
+          if (next) parent.insertBefore(node, next);
+        } catch {}
+      });
+      target.removeAttribute("data-scan-target");
+    };
+  }, [ref, enabled]);
+}
+
 function buildItems(
   displayScan: Scan | null,
   detail: any | null
@@ -136,7 +213,7 @@ function buildItems(
   if (displayScan.status === "pending") {
     return DEFAULT_ITEMS.map((i) => ({
       ...i,
-      score: i.category === "contrast" ? "-" : "검사 대기중", // ⬅️ contrast는 항상 하이픈
+      score: i.category === "contrast" ? "-" : "검사 대기중",
       type: "대기",
     }));
   }
@@ -211,7 +288,6 @@ function buildItems(
       {
         id: 5,
         name: "텍스트 콘텐츠의 명도 대비",
-        // 항상 하이픈
         score: v.contrast_completed ? "-" : "검사중...",
         type: v.contrast_completed ? "오류 확인" : "진행중",
         hasIssues: false,
@@ -340,62 +416,56 @@ function buildItems(
     ];
   }
 
-  // completed
   if (displayScan.status !== "completed" || !detail) return DEFAULT_ITEMS;
 
   const v = detail;
-  return [
-    ...DEFAULT_ITEMS.map((base) => {
-      const key = `${base.category}_results`;
-      const res = v[key];
-      let score = "검사 대기";
-      let hasIssues = false;
+  return DEFAULT_ITEMS.map((base) => {
+    const key = `${base.category}_results`;
+    const res = v[key];
+    let score = "검사 대기";
+    let hasIssues = false;
 
-      if (base.category === "contrast") {
-        // 완료 후에도 항상 하이픈, 이슈 없음 처리
-        return {
-          ...base,
-          score: "-",
-          hasIssues: false,
-          type: "오류 확인" as const,
-        };
+    if (base.category === "contrast") {
+      return {
+        ...base,
+        score: "-",
+        hasIssues: false,
+        type: "오류 확인" as const,
+      };
+    }
+
+    if (Array.isArray(res)) {
+      let passCount = 0;
+      switch (base.category) {
+        case "alt_text":
+          passCount = res.filter((r: any) => r.compliance === 0).length;
+          hasIssues = res.some((r: any) => r.compliance !== 0);
+          break;
+        case "video_caption":
+          passCount = res.filter((r: any) => r.has_transcript).length;
+          hasIssues = res.some((r: any) => !r.has_transcript);
+          break;
+        case "video_autoplay":
+          passCount = res.filter((r: any) => r.autoplay_disabled).length;
+          hasIssues = res.some((r: any) => !r.autoplay_disabled);
+          break;
+        case "keyboard":
+          passCount = res.filter((r: any) => r.accessible).length;
+          hasIssues = res.some((r: any) => !r.accessible);
+          break;
+        case "label":
+          passCount = res.filter((r: any) => r.label_present).length;
+          hasIssues = res.some((r: any) => !r.label_present);
+          break;
+        default:
+          passCount = res.filter((r: any) => r.compliant).length;
+          hasIssues = res.some((r: any) => !r.compliant);
       }
+      score = `${passCount} / ${res.length}`;
+    }
 
-      if (Array.isArray(res)) {
-        let passCount = 0;
-
-        switch (base.category) {
-          case "alt_text":
-            passCount = res.filter((r: any) => r.compliance === 0).length;
-            hasIssues = res.some((r: any) => r.compliance !== 0);
-            break;
-          case "video_caption":
-            passCount = res.filter((r: any) => r.has_transcript).length;
-            hasIssues = res.some((r: any) => !r.has_transcript);
-            break;
-          case "video_autoplay":
-            passCount = res.filter((r: any) => r.autoplay_disabled).length;
-            hasIssues = res.some((r: any) => !r.autoplay_disabled);
-            break;
-          case "keyboard":
-            passCount = res.filter((r: any) => r.accessible).length;
-            hasIssues = res.some((r: any) => !r.accessible);
-            break;
-          case "label":
-            passCount = res.filter((r: any) => r.label_present).length;
-            hasIssues = res.some((r: any) => !r.label_present);
-            break;
-          default:
-            passCount = res.filter((r: any) => r.compliant).length;
-            hasIssues = res.some((r: any) => !r.compliant);
-        }
-
-        score = `${passCount} / ${res.length}`;
-      }
-
-      return { ...base, score, hasIssues, type: "오류 확인" as const };
-    }),
-  ];
+    return { ...base, score, hasIssues, type: "오류 확인" as const };
+  });
 }
 
 export const ResultTable = ({
@@ -414,6 +484,18 @@ export const ResultTable = ({
     isDisplayingScanDetail ? selectedScanDetail : null
   );
 
+  const tableRef = useRef<HTMLTableElement>(
+    null
+  ) as React.RefObject<HTMLTableElement>;
+
+  // URL에 ?a11yOnly=0 이면 끔. 기본은 "1개만 남기기" ON.
+  const scanOnly = useMemo(() => {
+    if (typeof window === "undefined") return true;
+    const p = new URLSearchParams(window.location.search);
+    return p.get("a11yOnly") !== "0";
+  }, []);
+  useKeepOnlyThisTable(tableRef, scanOnly);
+
   const getActionLabel = (item: ResultItem) => `${item.type}`;
   const onItemClick = (item: ResultItem) => {
     if (displayScan && displayScan.status === "completed" && item.category) {
@@ -427,13 +509,12 @@ export const ResultTable = ({
 
   return (
     <div className="w-full">
-      {/* 데스크톱 테이블 */}
-      <div
-        role="region"
-        aria-label="요약 보고서 테이블"
-        className="hidden w-full overflow-x-auto md:block"
-      >
-        <table className="w-full min-w-full text-sm text-center table-fixed">
+      {/* 데스크톱 테이블 (오직 이 1개만 DOM에 남음) */}
+      <div className="hidden w-full overflow-x-auto md:block">
+        <table
+          ref={tableRef}
+          className="w-full min-w-full text-sm text-center table-fixed"
+        >
           <caption className="sr-only">요약 보고서</caption>
           <colgroup className="w-full">
             <col className="w-16" />
@@ -465,7 +546,6 @@ export const ResultTable = ({
             {rows.map((item) => (
               <tr key={item.id} className="border-b border-[#727272]">
                 <td className="p-2 text-left">{item.id}</td>
-                {/* td → th scope="row" */}
                 <th
                   scope="row"
                   className="p-2 font-medium text-left break-words break-all"
@@ -531,7 +611,7 @@ export const ResultTable = ({
         </table>
       </div>
 
-      {/* 모바일 카드 */}
+      {/* 모바일 카드는 div 기반이라 표 개수에 영향 없음 */}
       <div className="space-y-3 md:hidden">
         {rows.map((item) => (
           <div
