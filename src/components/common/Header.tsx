@@ -128,7 +128,7 @@ export const Header = () => {
         >
           <img
             src="/logo.svg"
-            alt=""
+            alt="WEBridge Logo"
             aria-hidden="true"
             className="w-11 h-11"
           />
