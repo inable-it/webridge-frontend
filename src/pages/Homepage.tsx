@@ -42,7 +42,7 @@ const ActionButton = ({
     className={`${STYLES.button.base} ${STYLES.button[variant]}`}
   >
     <span className={STYLES.text.button}>{children}</span>
-    {icon && <img src={icon} alt="" className="w-6 h-6" />}
+    {icon && <img src={icon} alt="접근성 검사하기 페이지로 가는 화살표" className="w-6 h-6" />}
   </button>
 );
 
@@ -121,7 +121,7 @@ const AccessibilityTestPanel = () => (
 const ResultsTablePanel = () => (
   <img
     src="/report-summary-mock.png" // <- 여기를 실제 이미지 경로로 교체
-    alt=""
+    alt="WEBridge 웹 접근성 검사 요약 보고서 이미지"
     aria-hidden="true"
     draggable={false}
     className="w-full max-w-4xl rounded-2xl select-none pointer-events-none shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-gray-100"
