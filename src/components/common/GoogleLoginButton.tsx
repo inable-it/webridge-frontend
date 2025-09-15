@@ -30,7 +30,6 @@ const GoogleLoginButton = ({
 
         if ("data" in result) {
           const response = result.data;
-          console.log("소셜 로그인 성공", response);
 
           // response가 정의되어 있는지 확인
           if (response) {
@@ -68,11 +67,9 @@ const GoogleLoginButton = ({
             // 서버에서 임시 토큰을 제공하는지 확인하고 저장
             if (errorData?.access && errorData.access.trim() !== "") {
               localStorage.setItem("accessToken", errorData.access);
-              console.log("임시 토큰 저장됨:", errorData.access);
             }
             if (errorData?.refresh && errorData.refresh.trim() !== "") {
               localStorage.setItem("refreshToken", errorData.refresh);
-              console.log("임시 리프레시 토큰 저장됨:", errorData.refresh);
             }
 
             // 약관 동의 페이지로 이동
@@ -123,7 +120,6 @@ const GoogleLoginButton = ({
       }
     },
     onError: () => {
-      console.log("Google Login 실패");
       alert("Google 로그인에 실패했습니다.");
     },
   });

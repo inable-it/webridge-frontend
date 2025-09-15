@@ -319,11 +319,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
     futureFeatureOther,
   ]);
 
-  useEffect(() => {
-    console.log("nextDisabled: ", nextDisabled);
-    console.log("companyTypes: ", companyTypes);
-  }, [nextDisabled, companyTypes]);
-
   const toggleMulti = (
     list: string[],
     setList: (v: string[]) => void,
