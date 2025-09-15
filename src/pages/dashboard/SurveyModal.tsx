@@ -877,8 +877,10 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                             placeholder="기타 응답을 작성해 주세요."
                             value={purchaseWayOther}
                             onChange={(e) => {
-                                setPurchaseWay("");
-                                setPurchaseWayOther(e.target.value);
+                                const v = e.target.value;
+                                setPurchaseWayOther(v);
+                                // 기타 입력 시, 선택을 '기타(d)'로 고정 유지
+                                if (purchaseWay !== "d") setPurchaseWay("d");
                             }}
                             className="border border-[#727272]"
                             aria-label="구매 방식 기타 응답 입력"
@@ -951,8 +953,10 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                             placeholder="기타 응답을 작성해 주세요."
                             value={priceModelOther}
                             onChange={(e) => {
-                                setPriceModel("");
-                                setPriceModelOther(e.target.value);
+                                const v = e.target.value;
+                                setPriceModelOther(v);
+                                // 기타 입력 시, 선택을 '기타(e)'로 고정 유지
+                                if (priceModel !== "e") setPriceModel("e");
                             }}
                             className="border border-[#727272]"
                             aria-label="이용료 형태 기타 응답 입력"
