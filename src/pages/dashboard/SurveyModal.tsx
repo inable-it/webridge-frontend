@@ -188,7 +188,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const joinBtnRef = useRef<HTMLButtonElement>(null); // 0단계 "참여하기"
-
   // 열릴 때 상태 초기화
   useEffect(() => {
     if (open) {
@@ -268,10 +267,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
         );
       case 5:
         return (
-          satOverall === null ||
-          satAccuracy === null ||
-          satReuse === null ||
-          satRecommend === null
+          satOverall === null || satAccuracy === null || satReuse === null || satRecommend === null
         );
       case 6:
         return (
@@ -458,7 +454,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
             개인정보 수집/이용 동의서
           </h3>
           <div
-            className="h-48 p-4 overflow-auto text-sm leading-6 text-gray-700 border rounded-lg bg-gray-50"
+            className="h-full p-4 flex-1 text-sm leading-6 text-gray-700 border rounded-lg bg-gray-50"
             aria-labelledby={privacyId + "-legend"}
             role="region"
           >
@@ -834,158 +830,157 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           </div>
         </div>
       )}
-
-      {/* 6. 구매 방식 (단일) */}
-      {step === 6 && (
-        <div aria-labelledby={step6TitleId} role="group">
-          <p id={step6TitleId} className="mb-3 text-[18px] font-semibold">
-            4. WEBridge를 구매한다면, 어떤 방식으로 사용하고 싶으신가요? (단일
-            선택)
-          </p>
-          <div className="p-2 bg-white rounded-xl border border-[#727272]">
-            {Q4_PURCHASE_WAY.map((o) => {
-              const checked = purchaseWay === o.code;
-              const radioId = `purchase-way-${o.code}`;
-              return (
-                <label
-                  key={o.code}
-                  htmlFor={radioId}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
-                >
-                  <input
-                    id={radioId}
-                    type="radio"
-                    name="purchase-way"
-                    checked={checked}
-                    onChange={() => setPurchaseWay(o.code)}
-                    onKeyDown={(e) =>
-                      handleRadioToggleKeyDown(
-                        e,
-                        checked,
-                        () => setPurchaseWay(o.code),
-                        () => setPurchaseWay("")
-                      )
-                    }
-                    className="w-4 h-4"
-                    aria-label={`구매 방식: ${o.label}`}
-                  />
-                  <span className="text-sm">{o.label}</span>
-                </label>
-              );
-            })}
-            <div className="my-2 border-t border border-[#727272]" />
-            <div className="px-3 pb-2">
-              <label htmlFor={purchaseWayOtherId} className="sr-only">
-                구매 방식 기타 응답
-              </label>
-              <Input
-                id={purchaseWayOtherId}
-                placeholder="기타 응답을 작성해 주세요."
-                value={purchaseWayOther}
-                onChange={(e) => {
-                  setPurchaseWay("");
-                  setPurchaseWayOther(e.target.value);
-                }}
-                className="border border-[#727272]"
-                aria-label="구매 방식 기타 응답 입력"
-              />
+        {/* 6. 구매 방식 (단일) */}
+        {step === 6 && (
+            <div aria-labelledby={step6TitleId} role="group">
+                <p id={step6TitleId} className="mb-3 text-[18px] font-semibold">
+                    4. WEBridge를 구매한다면, 어떤 방식으로 사용하고 싶으신가요? (단일
+                    선택)
+                </p>
+                <div className="p-2 bg-white rounded-xl border border-[#727272]">
+                    {Q4_PURCHASE_WAY.map((o) => {
+                        const checked = purchaseWay === o.code;
+                        const checkboxId = `purchase-way-${o.code}`;
+                        return (
+                            <label
+                                key={o.code}
+                                htmlFor={checkboxId}
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                            >
+                                <input
+                                    id={checkboxId}
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={(e) => {
+                                        const isChecked = e.target.checked;
+                                        // 단일 선택: 체크하면 해당 코드로 설정, 해제하면 공백
+                                        setPurchaseWay(isChecked ? o.code : "");
+                                        if (isChecked && o.code !== "d") {
+                                            // 기타가 아닌 경우 기타 입력란으로 포커스 이동하지 않음
+                                            // 필요 시 '다음' 버튼 포커스 이동 로직을 넣을 수 있음
+                                        }
+                                    }}
+                                    className="w-4 h-4"
+                                    aria-label={`구매 방식: ${o.label}`}
+                                />
+                                <span className="text-sm">{o.label}</span>
+                            </label>
+                        );
+                    })}
+                    <div className="my-2 border-t border border-[#727272]" />
+                    <div className="px-3 pb-2">
+                        <label htmlFor={purchaseWayOtherId} className="sr-only">
+                            구매 방식 기타 응답
+                        </label>
+                        <Input
+                            id={purchaseWayOtherId}
+                            placeholder="기타 응답을 작성해 주세요."
+                            value={purchaseWayOther}
+                            onChange={(e) => {
+                                setPurchaseWay("");
+                                setPurchaseWayOther(e.target.value);
+                            }}
+                            className="border border-[#727272]"
+                            aria-label="구매 방식 기타 응답 입력"
+                            tabIndex={purchaseWay === "d" ? 0 : -1}
+                        />
+                    </div>
+                </div>
+                <div className="flex justify-between mt-6">
+                    <Button
+                        variant="secondary"
+                        onClick={goPrev}
+                        aria-label="이전 단계로 이동"
+                    >
+                        이전
+                    </Button>
+                    <Button
+                        onClick={goNext}
+                        disabled={nextDisabled}
+                        aria-label="다음 단계로 이동"
+                    >
+                        다음
+                    </Button>
+                </div>
             </div>
-          </div>
-          <div className="flex justify-between mt-6">
-            <Button
-              variant="secondary"
-              onClick={goPrev}
-              aria-label="이전 단계로 이동"
-            >
-              이전
-            </Button>
-            <Button
-              onClick={goNext}
-              disabled={nextDisabled}
-              aria-label="다음 단계로 이동"
-            >
-              다음
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* 7. 이용료 형태 (단일) */}
-      {step === 7 && (
-        <div aria-labelledby={step7TitleId} role="group">
-          <p id={step7TitleId} className="mb-3 text-[18px] font-semibold">
-            5. WEBridge를 구매한다면, 어떤 이용료 형태를 선호하시나요? (단일
-            선택)
-          </p>
-          <div className="p-2 bg-white rounded-xl border border-[#727272]">
-            {Q5_PRICE_MODEL.map((o) => {
-              const checked = priceModel === o.code;
-              const radioId = `price-model-${o.code}`;
-              return (
-                <label
-                  key={o.code}
-                  htmlFor={radioId}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
-                >
-                  <input
-                    id={radioId}
-                    type="radio"
-                    name="price-model"
-                    checked={checked}
-                    onChange={() => setPriceModel(o.code)}
-                    onKeyDown={(e) =>
-                      handleRadioToggleKeyDown(
-                        e,
-                        checked,
-                        () => setPriceModel(o.code),
-                        () => setPriceModel("")
-                      )
-                    }
-                    className="w-4 h-4"
-                    aria-label={`이용료 형태: ${o.label}`}
-                  />
-                  <span className="text-sm">{o.label}</span>
-                </label>
-              );
-            })}
-            <div className="my-2 border-t border border-[#727272]" />
-            <div className="px-3 pb-2">
-              <label htmlFor={priceModelOtherId} className="sr-only">
-                이용료 형태 기타 응답
-              </label>
-              <Input
-                id={priceModelOtherId}
-                placeholder="기타 응답을 작성해 주세요."
-                value={priceModelOther}
-                onChange={(e) => {
-                  setPriceModel("");
-                  setPriceModelOther(e.target.value);
-                }}
-                className="border border-[#727272]"
-                aria-label="이용료 형태 기타 응답 입력"
-              />
+        {/* 7. 이용료 형태 (단일) */}
+        {step === 7 && (
+            <div aria-labelledby={step7TitleId} role="group">
+                <p id={step7TitleId} className="mb-3 text-[18px] font-semibold">
+                    5. WEBridge를 구매한다면, 어떤 이용료 형태를 선호하시나요? (단일
+                    선택)
+                </p>
+                <div className="p-2 bg-white rounded-xl border border-[#727272]">
+                    {Q5_PRICE_MODEL.map((o) => {
+                        const checked = priceModel === o.code;
+                        const checkboxId = `price-model-${o.code}`;
+                        return (
+                            <label
+                                key={o.code}
+                                htmlFor={checkboxId}
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50"
+                            >
+                                <input
+                                    id={checkboxId}
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={(e) => {
+                                        const isChecked = e.target.checked;
+                                        // 단일 선택: 체크하면 해당 코드로 설정, 해제하면 공백
+                                        setPriceModel(isChecked ? o.code : "");
+                                        if (isChecked && o.code !== "e") {
+                                            // 기타가 아닌 경우 기타 입력란으로 포커스 이동하지 않음
+                                        }
+                                    }}
+                                    className="w-4 h-4"
+                                    aria-label={`이용료 형태: ${o.label}`}
+                                />
+                                <span className="text-sm">{o.label}</span>
+                            </label>
+                        );
+                    })}
+                    <div className="my-2 border-t border border-[#727272]" />
+                    <div className="px-3 pb-2">
+                        <label htmlFor={priceModelOtherId} className="sr-only">
+                            이용료 형태 기타 응답
+                        </label>
+                        <Input
+                            id={priceModelOtherId}
+                            placeholder="기타 응답을 작성해 주세요."
+                            value={priceModelOther}
+                            onChange={(e) => {
+                                setPriceModel("");
+                                setPriceModelOther(e.target.value);
+                            }}
+                            className="border border-[#727272]"
+                            aria-label="이용료 형태 기타 응답 입력"
+                            tabIndex={priceModel === "e" ? 0 : -1}
+                        />
+                    </div>
+                </div>
+                <div className="flex justify-between mt-6">
+                    <Button
+                        variant="secondary"
+                        onClick={goPrev}
+                        aria-label="이전 단계로 이동"
+                    >
+                        이전
+                    </Button>
+                    <Button
+                        onClick={goNext}
+                        disabled={nextDisabled}
+                        aria-label="다음 단계로 이동"
+                    >
+                        다음
+                    </Button>
+                </div>
             </div>
-          </div>
-          <div className="flex justify-between mt-6">
-            <Button
-              variant="secondary"
-              onClick={goPrev}
-              aria-label="이전 단계로 이동"
-            >
-              이전
-            </Button>
-            <Button
-              onClick={goNext}
-              disabled={nextDisabled}
-              aria-label="다음 단계로 이동"
-            >
-              다음
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* 8. 이용 방식 (복수) */}
+
+        {/* 8. 이용 방식 (복수) */}
       {step === 8 && (
         <div aria-labelledby={step8TitleId} role="group">
           <p id={step8TitleId} className="mb-3 text-[18px] font-semibold">
