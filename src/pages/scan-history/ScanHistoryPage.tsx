@@ -99,29 +99,28 @@ export default function ScanHistoryPage() {
           <h1 className="text-xl font-bold text-gray-900">검사 이력</h1>
 
           {/* 휴지통 (포커스 대상) */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onDeleteSelected}
-            disabled={isFetching || !hasAnySelected}
-            className="p-2 border border-[#727272]"
-            title="선택 삭제"
-            aria-controls="scan-list"
-            aria-label="선택 항목 삭제"
-            ref={trashRef}
-            onKeyDown={(e) => {
-              // 휴지통에서 Tab 누르면 '다음'으로 보내기
-              if (e.key === "Tab" && !e.shiftKey) {
-                const nextBtn = nextRef.current;
-                if (nextBtn && !nextBtn.disabled) {
-                  e.preventDefault();
-                  nextBtn.focus();
-                }
-              }
-            }}
-          >
-            <Trash2 className="w-5 h-5" />
-          </Button>
+            <Button
+                type="button"
+                variant="outline"
+                onClick={onDeleteSelected}
+                disabled={isFetching || !hasAnySelected}
+                className="p-2 border border-[#727272] filter saturate-150 hover:saturate-200 disabled:saturate-100 transition"
+                title="선택 삭제"
+                aria-controls="scan-list"
+                aria-label="선택 항목 삭제"
+                ref={trashRef}
+                onKeyDown={(e) => {
+                    if (e.key === "Tab" && !e.shiftKey) {
+                        const nextBtn = nextRef.current;
+                        if (nextBtn && !nextBtn.disabled) {
+                            e.preventDefault();
+                            nextBtn.focus();
+                        }
+                    }
+                }}
+            >
+                <Trash2 className="w-5 h-5" />
+            </Button>
         </div>
 
         {/* 카드 리스트 */}
@@ -254,24 +253,24 @@ export default function ScanHistoryPage() {
             페이지
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1 || isFetching}
-              className="border border-[#727272]"
-              tabIndex={-1} // 탭 순서에서 제외
-            >
-              이전
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages || isFetching}
-              className="border border-[#727272]"
-              ref={nextRef}
-            >
-              다음
-            </Button>
+              <Button
+                  variant="outline"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1 || isFetching}
+                  className="border border-[#727272] filter saturate-150 hover:saturate-200 disabled:saturate-100"
+                  tabIndex={-1} // 탭 순서에서 제외
+              >
+                  이전
+              </Button>
+              <Button
+                  variant="outline"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages || isFetching}
+                  className="border border-[#727272] filter saturate-150 hover:saturate-200 disabled:saturate-100"
+                  ref={nextRef}
+              >
+                  다음
+              </Button>
           </div>
         </div>
       </div>
