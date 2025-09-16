@@ -7,7 +7,6 @@ import {
 } from "@/features/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
@@ -375,67 +374,68 @@ const SignupPageContent = () => {
     }
   };
 
-  // 약관 체크박스 렌더링 (Checkbox input에도 aria-label 추가)
-  const renderTermsCheckbox = (term: TermConfig) => {
-    const isRequired = term.required;
-    const ariaLabel =
-      term.id === "ageAgree"
-        ? "만 14세 이상입니다에 동의"
-        : `${isRequired ? "필수" : "선택"} 약관 ${
-            term.linkText ?? term.id
-          }에 동의`;
+    // 약관 체크박스 렌더링 (Checkbox input에도 aria-label 추가)
+    const renderTermsCheckbox = (term: TermConfig) => {
+        const isRequired = term.required;
+        const ariaLabel =
+            term.id === "ageAgree"
+                ? "만 14세 이상입니다에 동의"
+                : `${isRequired ? "필수" : "선택"} 약관 ${
+                    term.linkText ?? term.id
+                }에 동의`;
+
+        const inputId = term.id;
+
+        return (
+            <div key={term.id} className="flex items-start gap-3">
+                {/* 단일 네이티브 체크박스 */}
+                <input
+                    id={inputId}
+                    type="checkbox"
+                    aria-label={ariaLabel}
+                    aria-required={isRequired ? true : undefined}
+                    checked={form[term.id as keyof typeof form] as boolean}
+                    onChange={(e) => handleCheckboxChange(term.id, e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 accent-blue-600 cursor-pointer"
+                />
+
+                <div className="grid gap-1.5 leading-none">
+                    <Label
+                        htmlFor={inputId}
+                        className="text-[15px] text-gray-800 cursor-pointer"
+                    >
+                        {term.id === "ageAgree" ? (
+                            <>
+                                {isRequired ? "(필수)" : "(선택)"}
+                                <button className="underline">만 14세 이상</button>
+                                <span className="text-gray-800">입니다.</span>
+                            </>
+                        ) : (
+                            <>
+                                {isRequired ? "(필수)" : "(선택)"}
+                                {term.linkText && (
+                                    <button
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (term.route) go(term.route);
+                                        }}
+                                        className="underline underline-offset-2 hover:text-blue-700"
+                                    >
+                                        {term.linkText}
+                                    </button>
+                                )}
+                                <span>에 동의합니다.&nbsp;</span>
+                            </>
+                        )}
+                    </Label>
+                </div>
+            </div>
+        );
+    };
 
     return (
-      <div key={term.id} className="flex items-start gap-3">
-        <Checkbox
-          id={term.id}
-          aria-label={ariaLabel}
-          checked={form[term.id as keyof typeof form] as boolean}
-          onCheckedChange={(checked) =>
-            handleCheckboxChange(term.id, checked === true)
-          }
-          className="mt-0.5 w-5 h-5 rounded border-gray-300
-             data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
-             data-[state=checked]:text-white"
-        />
-
-        <div className="grid gap-1.5 leading-none">
-          <Label
-            htmlFor={term.id}
-            className="text-[15px] text-gray-800 cursor-pointer"
-          >
-            {term.id === "ageAgree" ? (
-              <>
-                {isRequired ? "(필수)" : "(선택)"}
-                <button className="underline">만 14세 이상</button>
-                <span className="text-gray-800">입니다.</span>
-              </>
-            ) : (
-              <>
-                {isRequired ? "(필수)" : "(선택)"}
-                {term.linkText && (
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (term.route) go(term.route);
-                    }}
-                    className="underline underline-offset-2 hover:text-blue-700"
-                  >
-                    {term.linkText}
-                  </button>
-                )}
-                <span>에 동의합니다.&nbsp;</span>
-              </>
-            )}
-          </Label>
-        </div>
-      </div>
-    );
-  };
-
-  return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
       <form
         onSubmit={handleSubmit}
@@ -533,30 +533,27 @@ const SignupPageContent = () => {
           )}
         </div>
 
-        {/* 약관 동의 */}
-        <div className="space-y-3" aria-label="약관 동의 섹션">
-          {/* 전체 동의 */}
-          <div className="flex items-center gap-2 my-6 pb-5 border-b border-[#727272]">
-            <Checkbox
-              id="allAgree"
-              aria-label="모든 약관에 동의합니다"
-              checked={form.allAgree}
-              onCheckedChange={(checked) =>
-                handleCheckboxChange("allAgree", checked === true)
-              }
-              className="w-5 h-5 rounded border-gray-300
-                 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600
-                 data-[state=checked]:text-white"
-            />
-            <Label htmlFor="allAgree" className="text-sm text-gray-800">
-              모두 동의합니다.
-            </Label>
+          {/* 약관 동의 */}
+          <div className="space-y-3" aria-label="약관 동의 섹션">
+              {/* 전체 동의 */}
+              <div className="flex items-center gap-2 my-6 pb-5 border-b border-[#727272]">
+                  <input
+                      id="allAgree"
+                      type="checkbox"
+                      aria-label="모든 약관에 동의합니다"
+                      checked={form.allAgree}
+                      onChange={(e) => handleCheckboxChange("allAgree", e.target.checked)}
+                      className="w-5 h-5 rounded border-gray-300 accent-blue-600 cursor-pointer"
+                  />
+                  <Label htmlFor="allAgree" className="text-sm text-gray-800">
+                      모두 동의합니다.
+                  </Label>
+              </div>
+
+              {TERMS_CONFIG.map(renderTermsCheckbox)}
           </div>
 
-          {TERMS_CONFIG.map(renderTermsCheckbox)}
-        </div>
-
-        {/* 회원가입 버튼 */}
+          {/* 회원가입 버튼 */}
         <Button
           type="submit"
           disabled={!canSubmit() || isLoading}
