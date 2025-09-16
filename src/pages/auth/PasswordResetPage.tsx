@@ -87,7 +87,7 @@ const PasswordResetPage = () => {
         {/* 전송 버튼 */}
         <Button
           type="submit"
-          className="w-full h-12 text-white bg-blue-500 hover:bg-blue-600"
+          className="w-full h-12 text-white bg-[#727272] hover:bg-blue-600"
           disabled={isLoading}
         >
           {isLoading ? "전송 중..." : "이메일 전송 받기"}
