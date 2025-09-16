@@ -582,27 +582,27 @@ export const ResultTable = ({
                   <span className="break-words break-all">{item.score}</span>
                 </td>
                 <td className="p-2">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className={`${
-                            item.type === "진행중"
-                                ? "bg-yellow-600 text-white"
-                                : item.type === "대기"
-                                    ? "bg-gray-700 text-white"
-                                    : "bg-blue-700 text-white"
-                        } filter saturate-150 hover:saturate-200 disabled:saturate-100 whitespace-nowrap`}
-                        aria-label={`${item.name} ${getActionLabel(item)}`}
-                        title={`${item.name} ${getActionLabel(item)}`}
-                        disabled={
-                            !displayScan ||
-                            (displayScan.status !== "completed" && item.type !== "진행중") ||
-                            item.type === "대기"
-                        }
-                        onClick={() => onItemClick(item)}
-                    >
-                        {getActionLabel(item)}
-                    </Button>
+                  <Button
+                    size="sm"
+                    className={`${
+                      item.type === "진행중"
+                        ? "bg-[#727272] text-white"
+                        : item.type === "대기"
+                        ? "bg-[#727272] text-white"
+                        : ""
+                    } `}
+                    aria-label={`${item.name} ${getActionLabel(item)}`}
+                    title={`${item.name} ${getActionLabel(item)}`}
+                    disabled={
+                      !displayScan ||
+                      (displayScan.status !== "completed" &&
+                        item.type !== "진행중") ||
+                      item.type === "대기"
+                    }
+                    onClick={() => onItemClick(item)}
+                  >
+                    {getActionLabel(item)}
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -650,27 +650,27 @@ export const ResultTable = ({
               <div className="text-xs text-gray-700 dark:text-gray-300">
                 준수율: <span className="font-medium">{item.score}</span>
               </div>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className={`${
-                        item.type === "진행중"
-                            ? "bg-yellow-600 text-white"
-                            : item.type === "대기"
-                                ? "bg-gray-700 text-white"
-                                : "bg-blue-700 text-white"
-                    } filter saturate-150 hover:saturate-200 disabled:saturate-100 whitespace-nowrap`}
-                    aria-label={`${item.name} ${getActionLabel(item)}`}
-                    title={`${item.name} ${getActionLabel(item)}`}
-                    disabled={
-                        !displayScan ||
-                        (displayScan.status !== "completed" && item.type !== "진행중") ||
-                        item.type === "대기"
-                    }
-                    onClick={() => onItemClick(item)}
-                >
-                    {getActionLabel(item)}
-                </Button>
+              <Button
+                size="sm"
+                className={`${
+                  item.type === "진행중"
+                    ? "bg-[#727272] text-white"
+                    : item.type === "대기"
+                    ? "bg-[#727272] text-white"
+                    : ""
+                } `}
+                aria-label={`${item.name} ${getActionLabel(item)}`}
+                title={`${item.name} ${getActionLabel(item)}`}
+                disabled={
+                  !displayScan ||
+                  (displayScan.status !== "completed" &&
+                    item.type !== "진행중") ||
+                  item.type === "대기"
+                }
+                onClick={() => onItemClick(item)}
+              >
+                {getActionLabel(item)}
+              </Button>
             </div>
           </div>
         ))}

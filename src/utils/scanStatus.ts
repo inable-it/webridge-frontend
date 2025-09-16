@@ -1,7 +1,7 @@
 export const getStatusDisplay = (scan: any) => {
   switch (scan.status) {
     case "completed":
-      return { color: "text-green-600", text: scan.status_display };
+      return { color: "text-[#1d8163]", text: scan.status_display };
     case "processing":
       return {
         color: "text-blue-600",
