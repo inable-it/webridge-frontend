@@ -28,9 +28,7 @@ export const LNB = () => {
                 variant="outline"
                 onClick={() => handleMenuClick(label, path)}
                 className={`flex justify-between items-center w-full text-sm h-12 rounded-xl border border-[#727272]${
-                  activeMenu === label
-                    ? " bg-blue-100 border-blue-300 text-blue-600"
-                    : ""
+                  activeMenu === label ? " border-blue-300 text-blue-600" : ""
                 }`}
               >
                 <div className="flex items-center gap-3">
