@@ -126,7 +126,7 @@ const PasswordResetPage = () => {
 
               <div className="flex gap-2">
                 <Button
-                  className="flex-1 text-white bg-blue-500 h-11 hover:bg-blue-600"
+                  className="flex-1 text-white bg-[#727272] h-11 hover:bg-blue-600"
                   onClick={() => {
                     setShowModal(false);
                     navigate("/login");
