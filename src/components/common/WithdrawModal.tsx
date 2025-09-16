@@ -98,7 +98,8 @@ export const WithdrawModal = ({ open, onOpenChange }: WithdrawModalProps) => {
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               취소
             </Button>
-            <Button onClick={handleWithdraw} disabled={!agree || isLoading}>
+            <Button onClick={handleWithdraw} disabled={!agree || isLoading}
+                    className={`${agree ? "" : "bg-[#727272]"}`}>
               {isLoading ? "처리 중..." : "회원 탈퇴"}
             </Button>
           </DialogFooter>
