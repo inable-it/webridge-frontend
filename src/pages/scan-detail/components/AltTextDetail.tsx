@@ -30,13 +30,13 @@ type Props = {
 const getComplianceColor = (compliance: ComplianceStatus) => {
     switch (compliance) {
         case 0:
-            return "text-green-600 bg-green-50";
+            return "text-green-600 border-green-300";
         case 1:
         case 2:
         case 3:
-            return "text-red-600 bg-red-50";
+            return "text-red-600 border-red-300";
         default:
-            return "text-gray-600 bg-gray-50";
+            return "text-gray-600 border-gray-300";
     }
 };
 
@@ -358,8 +358,8 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                                         aria-label="도움이 되었어요"
                                                         aria-pressed={isLiked}
                                                         aria-keyshortcuts="Space"
-                                                        className={`p-2 rounded-full transition hover:bg-blue-100/60 ${
-                                                            isLiked ? "text-blue-600 bg-blue-100" : "text-gray-700"
+                                                        className={`p-2 rounded-full transition hover:bg-blue-100/60 border ${
+                                                            isLiked ? "text-blue-600 border-blue-300" : "text-gray-700 border-transparent"
                                                         }`}
                                                         onClick={() => toggleLike(result.id)}
                                                         onClickCapture={(e) => {
@@ -385,7 +385,6 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                                                 e.stopPropagation(); // keyup 스크롤 차단
                                                             }
                                                         }}
-                                                        // disabled 제거: 포커스 유지, 내부 가드로 재진입 제어
                                                         aria-busy={sendingKey === `${result.id}:like` || undefined}
                                                     >
                                                         <ThumbsUp className="w-5 h-5" />
@@ -403,8 +402,8 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                                         aria-label="도움이 되지 않았어요"
                                                         aria-pressed={isDisliked}
                                                         aria-keyshortcuts="Space"
-                                                        className={`p-2 rounded-full transition hover:bg-red-100/60 ${
-                                                            isDisliked ? "text-red-600 bg-red-100" : "text-gray-700"
+                                                        className={`p-2 rounded-full transition hover:bg-red-100/60 border ${
+                                                            isDisliked ? "text-red-600 border-red-300" : "text-gray-700 border-transparent"
                                                         }`}
                                                         onClick={() => toggleDislike(result.id)}
                                                         onClickCapture={(e) => {

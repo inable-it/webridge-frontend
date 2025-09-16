@@ -49,8 +49,8 @@ const BasicLanguageDetail = ({ results }: Props) => {
               <Badge
                 className={
                   result.compliant
-                    ? "text-green-600 bg-green-50"
-                    : "text-red-600 bg-red-50"
+                    ? "text-green-600 border-green-300"
+                    : "text-red-600 border-red-300"
                 }
               >
                 {result.compliant ? (

@@ -67,8 +67,8 @@ const AutoPlayDetail = ({ results }: Props) => {
                 <div
                   className={`text-xs px-2 py-1 rounded border ${
                     result.compliant
-                      ? "bg-green-50 text-green-700 border-green-200"
-                      : "bg-red-50 text-red-700 border-red-200"
+                      ? "text-green-700 border-green-300"
+                      : "text-red-700 border-red-300"
                   }`}
                 >
                   {result.compliant ? "준수" : "미준수"}

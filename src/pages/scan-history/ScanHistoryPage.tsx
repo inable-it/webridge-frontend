@@ -98,13 +98,13 @@ export default function ScanHistoryPage() {
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-xl font-bold text-gray-900">검사 이력</h1>
 
-          {/* 휴지통 (포커스 대상) */}
+            {/* 휴지통 (포커스 대상) */}
             <Button
                 type="button"
                 variant="outline"
                 onClick={onDeleteSelected}
                 disabled={isFetching || !hasAnySelected}
-                className="p-2 border border-[#727272] filter saturate-150 hover:saturate-200 disabled:saturate-100 transition"
+                className="p-2 border border-gray-950 text-gray-900 hover:bg-gray-100 disabled:border-gray-400 disabled:text-gray-400 transition"
                 title="선택 삭제"
                 aria-controls="scan-list"
                 aria-label="선택 항목 삭제"
@@ -121,6 +121,7 @@ export default function ScanHistoryPage() {
             >
                 <Trash2 className="w-5 h-5" />
             </Button>
+
         </div>
 
         {/* 카드 리스트 */}
@@ -257,7 +258,8 @@ export default function ScanHistoryPage() {
                   variant="outline"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1 || isFetching}
-                  className="border border-[#727272] filter saturate-150 hover:saturate-200 disabled:saturate-100"
+                  className="border border-gray-900 text-gray-900 hover:bg-gray-100"
+
                   tabIndex={-1} // 탭 순서에서 제외
               >
                   이전
@@ -266,7 +268,7 @@ export default function ScanHistoryPage() {
                   variant="outline"
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages || isFetching}
-                  className="border border-[#727272] filter saturate-150 hover:saturate-200 disabled:saturate-100"
+                  className="border border-gray-900 text-gray-900 hover:bg-gray-100"
                   ref={nextRef}
               >
                   다음
