@@ -223,7 +223,7 @@ const PasswordResetConfirmPage = () => {
 
         <Button
           type="submit"
-          className="w-full h-12 text-white bg-blue-500 hover:bg-blue-600"
+          className="w-full h-12 text-white bg-[#727272] hover:bg-blue-600"
           disabled={isLoading || !uid || !token}
         >
           {isLoading ? "변경 중..." : "비밀번호 변경하기"}
