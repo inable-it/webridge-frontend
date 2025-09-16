@@ -587,10 +587,10 @@ export const ResultTable = ({
                         variant="outline"
                         className={`${
                             item.type === "진행중"
-                                ? "bg-yellow-500 text-white"
+                                ? "bg-yellow-600 text-white"
                                 : item.type === "대기"
-                                    ? "bg-gray-600 text-white"
-                                    : "bg-blue-600 text-white"
+                                    ? "bg-gray-700 text-white"
+                                    : "bg-blue-700 text-white"
                         } filter saturate-150 hover:saturate-200 disabled:saturate-100 whitespace-nowrap`}
                         aria-label={`${item.name} ${getActionLabel(item)}`}
                         title={`${item.name} ${getActionLabel(item)}`}
@@ -655,10 +655,10 @@ export const ResultTable = ({
                     variant="outline"
                     className={`${
                         item.type === "진행중"
-                            ? "bg-yellow-500 text-white"
+                            ? "bg-yellow-600 text-white"
                             : item.type === "대기"
-                                ? "bg-gray-600 text-white"
-                                : "bg-blue-600 text-white"
+                                ? "bg-gray-700 text-white"
+                                : "bg-blue-700 text-white"
                     } filter saturate-150 hover:saturate-200 disabled:saturate-100 whitespace-nowrap`}
                     aria-label={`${item.name} ${getActionLabel(item)}`}
                     title={`${item.name} ${getActionLabel(item)}`}
