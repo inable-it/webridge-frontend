@@ -430,7 +430,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -440,6 +439,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -499,7 +499,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -509,6 +508,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -570,7 +570,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           </div>
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -580,6 +579,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -641,7 +641,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           </div>
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -651,6 +650,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -814,7 +814,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
 
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -824,6 +823,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -890,7 +890,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 </div>
                 <div className="flex justify-between mt-6">
                     <Button
-                        variant="secondary"
                         onClick={goPrev}
                         aria-label="이전 단계로 이동"
                     >
@@ -900,6 +899,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                         onClick={goNext}
                         disabled={nextDisabled}
                         aria-label="다음 단계로 이동"
+                        className={`${nextDisabled ? "bg-[#727272]" : ""}`}
                     >
                         다음
                     </Button>
@@ -966,7 +966,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                 </div>
                 <div className="flex justify-between mt-6">
                     <Button
-                        variant="secondary"
                         onClick={goPrev}
                         aria-label="이전 단계로 이동"
                     >
@@ -976,6 +975,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
                         onClick={goNext}
                         disabled={nextDisabled}
                         aria-label="다음 단계로 이동"
+                        className={`${nextDisabled ? "bg-[#727272]" : ""}`}
                     >
                         다음
                     </Button>
@@ -1031,7 +1031,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           </div>
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -1041,6 +1040,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -1095,7 +1095,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           </div>
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -1105,6 +1104,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={nextDisabled}
               aria-label="다음 단계로 이동"
+              className={`${nextDisabled ? "bg-[#727272]" : ""}`}
             >
               다음
             </Button>
@@ -1132,7 +1132,6 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
           />
           <div className="flex justify-between mt-6">
             <Button
-              variant="secondary"
               onClick={goPrev}
               aria-label="이전 단계로 이동"
             >
@@ -1142,6 +1141,7 @@ export default function SurveyModal({ open, onClose, onCompleted }: Props) {
               onClick={goNext}
               disabled={isLoading}
               aria-label="설문 제출"
+              className={`${isLoading ? "bg-[#727272]" : ""}`}
             >
               완료
             </Button>
