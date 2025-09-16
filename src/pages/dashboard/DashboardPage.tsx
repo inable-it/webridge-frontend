@@ -205,24 +205,24 @@ const DashboardPage = () => {
               </p>
             </div>
 
-            <Button
-              onClick={handleGeneratePdf}
-              disabled={
-                !displayScan ||
-                displayScan.status !== "completed" ||
-                isPdfGenerating
-              }
-              className="min-w-[140px]"
-            >
-              {isPdfGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  PDF 생성중...
-                </>
-              ) : (
-                "PDF로 저장하기"
-              )}
-            </Button>
+              <Button
+                  onClick={handleGeneratePdf}
+                  disabled={
+                      !displayScan ||
+                      displayScan.status !== "completed" ||
+                      isPdfGenerating
+                  }
+                  className="min-w-[140px] filter saturate-150 hover:saturate-200 disabled:saturate-100"
+              >
+                  {isPdfGenerating ? (
+                      <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          PDF 생성중...
+                      </>
+                  ) : (
+                      "PDF로 저장하기"
+                  )}
+              </Button>
           </div>
 
           <div className="p-6 bg-white border rounded-lg border-[#727272]">
