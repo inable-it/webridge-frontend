@@ -168,7 +168,7 @@ const MyInfoPage = () => {
                   maxLength={9}
                   aria-describedby={undefined}
                 />
-                <Button type="button" size="sm" onClick={handleSaveName}>
+                <Button type="button" size="sm" onClick={handleSaveName}  className="bg-[#727272] text-white">
                   저장
                 </Button>
                 <Button
@@ -228,6 +228,7 @@ const MyInfoPage = () => {
                   size="sm"
                   onClick={handleSavePassword}
                   disabled={!newPwd}
+                  className="bg-[#727272] text-white"
                 >
                   저장
                 </Button>
