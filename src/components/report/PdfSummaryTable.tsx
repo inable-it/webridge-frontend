@@ -8,39 +8,58 @@ export const PdfSummaryTable = ({
   selectedScanDetail: any | null;
 }) => {
   return (
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="border-b">
-          <th className="w-20 p-3 text-left">순번</th>
-          <th className="p-3 text-left">검사 항목</th>
-          <th className="p-3 text-right w-36">준수율</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div
+      role="table"
+      aria-label="웹 접근성 검사 요약 보고서"
+      className="w-full min-w-0 text-sm"
+    >
+      <div role="rowgroup">
+        <div role="row" className="grid grid-cols-[80px_1fr_120px] border-b">
+          <div role="columnheader" className="p-3 text-left">
+            순번
+          </div>
+          <div role="columnheader" className="p-3 text-left">
+            검사 항목
+          </div>
+          <div role="columnheader" className="p-3 text-right">
+            준수율
+          </div>
+        </div>
+      </div>
+
+      <div role="rowgroup">
         {CATS.map((cat) => {
           const all: DetailRow[] =
             (selectedScanDetail && selectedScanDetail[cat.prop]) || [];
           const pass = all.filter(cat.isPass).length;
           const total = all.length || 0;
 
-          let display: string;
-          if (cat.prop === "contrast_results") {
-            display = "-"; // 명도 대비는 항상 하이픈
-          } else if (total === 0) {
-            display = "0/0"; // 검사 항목이 없는 경우
-          } else {
-            display = formatCompliance(pass, total);
-          }
+          const display =
+            cat.prop === "contrast_results"
+              ? "-"
+              : total === 0
+              ? "0/0"
+              : formatCompliance(pass, total);
 
           return (
-            <tr key={cat.id} className="border-b last:border-b-0">
-              <td className="p-3">{cat.id}</td>
-              <td className="p-3">{cat.title}</td>
-              <td className="p-3 text-right">{display}</td>
-            </tr>
+            <div
+              role="row"
+              key={cat.id}
+              className="grid grid-cols-[80px_1fr_120px] border-b last:border-b-0"
+            >
+              <div role="cell" className="p-3">
+                {cat.id}
+              </div>
+              <div role="cell" className="p-3">
+                {cat.title}
+              </div>
+              <div role="cell" className="p-3 text-right">
+                {display}
+              </div>
+            </div>
           );
         })}
-      </tbody>
-    </table>
+      </div>
+    </div>
   );
 };

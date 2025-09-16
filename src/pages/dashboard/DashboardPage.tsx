@@ -11,7 +11,7 @@ import {
   useCreateScanMutation,
   useGetScanListQuery,
 } from "@/features/api/scanApi";
-import SurveyModal from "@/pages/dashboard/SurveyModal.tsx";
+import SurveyModal from "@/pages/dashboard/SurveyModal";
 import { toast } from "@/hooks/use-toast";
 
 import { UrlScanForm } from "@/pages/dashboard/UrlScanForm";
@@ -123,7 +123,7 @@ const DashboardPage = () => {
     }
   };
 
-  // === PDF 생성 로딩 상태 추가 ===
+  // === PDF 생성 로딩 ===
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
   const handleGeneratePdf = async () => {
@@ -131,16 +131,22 @@ const DashboardPage = () => {
       return;
     setIsPdfGenerating(true);
     try {
+      await new Promise(requestAnimationFrame); // 레이아웃 안정화
+
       await generatePdf(
         ["summaryReport", "detailReport"],
         `webridge-report-${displayScan?.title || "report"}.pdf`,
         {
-          targetDpi: 144,
+          // ▼ 대용량 대응: 용량을 줄여 RangeError 회피
+          targetDpi: 110, // 96~120 권장
           baseScale: 2,
           marginMm: 10,
           backgroundColor: "#ffffff",
+          imageType: "JPEG", // ★ PNG → JPEG
+          imageQuality: 0.78, // 0.65~0.8 사이 추천
         }
       );
+
       toast({
         title: "PDF 생성 완료",
         description: "다운로드가 시작되었습니다.",
@@ -205,24 +211,24 @@ const DashboardPage = () => {
               </p>
             </div>
 
-              <Button
-                  onClick={handleGeneratePdf}
-                  disabled={
-                      !displayScan ||
-                      displayScan.status !== "completed" ||
-                      isPdfGenerating
-                  }
-                  className="min-w-[140px] filter saturate-150 hover:saturate-200 disabled:saturate-100"
-              >
-                  {isPdfGenerating ? (
-                      <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          PDF 생성중...
-                      </>
-                  ) : (
-                      "PDF로 저장하기"
-                  )}
-              </Button>
+            <Button
+              onClick={handleGeneratePdf}
+              disabled={
+                !displayScan ||
+                displayScan.status !== "completed" ||
+                isPdfGenerating
+              }
+              className="min-w-[140px]"
+            >
+              {isPdfGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  PDF 생성중...
+                </>
+              ) : (
+                "PDF로 저장하기"
+              )}
+            </Button>
           </div>
 
           <div className="p-6 bg-white border rounded-lg border-[#727272]">
@@ -236,7 +242,7 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* 오프스크린 PDF 섹션 */}
+      {/* 오프스크린 PDF 섹션: 항상 렌더 */}
       <SummaryReport
         displayScan={displayScan}
         selectedScanDetail={selectedScanDetail}
@@ -252,7 +258,7 @@ const DashboardPage = () => {
         onCompleted={onSurveyCompleted}
       />
 
-      {/* === 전체 페이지 로딩 오버레이 === */}
+      {/* 전체 페이지 로딩 오버레이 */}
       {isPdfGenerating && (
         <div
           role="status"

@@ -1,5 +1,5 @@
 import { CATS } from "@/constants/accessibilityCats";
-import { GUIDE_TEXT, DEFAULT_GUIDE } from "@/constants/guide.ts";
+import { GUIDE_TEXT, DEFAULT_GUIDE } from "@/constants/guide";
 import { formatCompliance } from "@/utils/format";
 import { extractIssueTextForPdf } from "@/utils/pdfIssueExtract";
 import type { DetailRow } from "@/types/report";
@@ -16,9 +16,7 @@ export const SummaryReport = ({
   return (
     <div
       id="summaryReport"
-      aria-hidden
       className="fixed -left-[200vw] top-0 w-[900px] p-10 bg-white"
-      style={{ zIndex: -1 }}
     >
       <h1 className="mb-6 text-3xl font-bold text-center">
         WEBridge 웹 접근성 검사 보고서
@@ -49,6 +47,7 @@ export const SummaryReport = ({
           </p>
         </div>
       </div>
+
       <div className="bg-white border border-gray-200 rounded-2xl">
         <div className="px-4 py-3 border-b">
           <p className="text-sm font-medium text-gray-700">
@@ -63,7 +62,7 @@ export const SummaryReport = ({
   );
 };
 
-/** PDF: 상세 섹션 (오프스크린) */
+/** PDF: 상세 섹션 (오프스크린, 대용량 행 분할 캡처 지원) */
 export const DetailReport = ({
   displayScan,
   selectedScanDetail,
@@ -74,9 +73,7 @@ export const DetailReport = ({
   return (
     <div
       id="detailReport"
-      aria-hidden
       className="fixed -left-[200vw] top-0 w-[900px] p-10 bg-white"
-      style={{ zIndex: -1 }}
     >
       <header className="mb-8">
         <h1 className="mb-6 text-2xl font-bold text-center">
@@ -121,7 +118,12 @@ export const DetailReport = ({
           const guide = (GUIDE_TEXT as any)[cat.id] || DEFAULT_GUIDE;
 
           return (
-            <section key={cat.id} className="space-y-4">
+            <section
+              key={cat.id}
+              data-pdf-section
+              data-cat={cat.id}
+              className="space-y-4"
+            >
               <div className="flex items-baseline justify-between">
                 <h2 className="text-base font-semibold">
                   [상세 보고서] {cat.id}. {cat.title}
@@ -139,49 +141,63 @@ export const DetailReport = ({
                 </div>
               ) : (
                 <div className="bg-white border border-gray-200 rounded-2xl">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="w-20 p-3 text-left">순번</th>
-                        <th className="p-3 text-left">미준수 항목</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  {/* 역할 기반 테이블 (OpenWAX가 추가 표로 세지 않도록) */}
+                  <div role="table" className="w-full text-sm">
+                    <div role="rowgroup">
+                      <div
+                        role="row"
+                        className="grid grid-cols-[5rem_1fr] border-b"
+                      >
+                        <div role="columnheader" className="p-3 text-left">
+                          순번
+                        </div>
+                        <div role="columnheader" className="p-3 text-left">
+                          미준수 항목
+                        </div>
+                      </div>
+                    </div>
+
+                    <div role="rowgroup" data-issue-group>
                       {issues.length ? (
                         issues.map((r, idx) => {
                           const content =
-                            // 1) 요소 HTML이 있으면 그걸 우선 표시
                             (r as any)?.element_html &&
                             String((r as any).element_html).trim()
                               ? (r as any).element_html
-                              : // 2) 없으면 기존 스니펫 추출 로직 사용
-                                extractIssueTextForPdf(cat.prop, r);
+                              : extractIssueTextForPdf(cat.prop, r);
 
                           return (
-                            <tr key={idx} className="border-b last:border-b-0">
-                              <td className="p-3">{idx + 1}</td>
-                              <td className="p-3">
+                            <div
+                              role="row"
+                              key={idx}
+                              data-issue-row
+                              className="grid grid-cols-[5rem_1fr] border-b last:border-b-0"
+                            >
+                              <div role="cell" className="p-3">
+                                {idx + 1}
+                              </div>
+                              <div role="cell" className="p-3">
                                 <div className="break-all whitespace-pre-wrap font-mono text-[12px] leading-5">
                                   {content}
                                 </div>
-                              </td>
-                            </tr>
+                              </div>
+                            </div>
                           );
                         })
                       ) : (
-                        <tr>
-                          <td className="p-4 text-gray-700" colSpan={2}>
+                        <div role="row">
+                          <div role="cell" className="p-4 text-gray-700">
                             표기할 이슈가 없습니다.
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       )}
-                    </tbody>
-                  </table>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* 가이드 */}
-              <div className="rounded-2xl bg-blue-50 p-5 space-y-3">
+              <div className="p-5 space-y-3 rounded-2xl bg-blue-50">
                 <p className="font-semibold"> [{cat.title}] 수정 가이드</p>
 
                 <div className="space-y-2">

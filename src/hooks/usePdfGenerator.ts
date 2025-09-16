@@ -3,21 +3,20 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
 type GeneratePdfOptions = {
-  /** html2canvas 기본 배율(최소치). 자동보정 전 하한. 기본 2 */
   baseScale?: number;
-  /** 페이지 여백(mm) */
   marginMm?: number;
-  /** 용지 크기 */
   size?: "a4" | "letter";
-  /** 방향 */
   orientation?: "portrait" | "landscape";
-  /** 목표 DPI (이미지 품질). 144면 충분히 선명하고 용량도 무난 */
   targetDpi?: number;
-  /** 배경색(투명 방지) */
   backgroundColor?: string;
-  /** 최대 배율(메모리 폭주 방지) */
   maxScale?: number;
+  /** 이미지 타입: 기본 JPEG (용량 절감) */
+  imageType?: "JPEG" | "PNG";
+  /** JPEG 품질(0~1): 기본 0.78 */
+  imageQuality?: number;
 };
+
+const MAX_ROWS_PER_CHUNK = 160; // 대용량 행 분할
 
 export const usePdfGenerator = () => {
   const generatePdf = useCallback(
@@ -36,55 +35,80 @@ export const usePdfGenerator = () => {
         targetDpi = 144,
         backgroundColor = "#ffffff",
         maxScale = 4,
+        imageType = "JPEG",
+        imageQuality = 0.78,
       } = opts;
 
-      const pdf = new jsPDF(orientation, "mm", size);
+      const pdf = new jsPDF(
+        orientation,
+        "mm",
+        size,
+        true // ★ 스트림 압축
+      );
+
       const pdfW = pdf.internal.pageSize.getWidth();
       const pdfH = pdf.internal.pageSize.getHeight();
       const contentWmm = pdfW - marginMm * 2;
       const contentHmm = pdfH - marginMm * 2;
 
-      // PDF에 들어갈 폭(mm)을 목표 DPI로 환산 → 필요한 픽셀 폭
       const mmToPx = (mm: number, dpi: number) => Math.round((mm / 25.4) * dpi);
       const requiredPxWidth = mmToPx(contentWmm, targetDpi);
 
       let pagesAdded = 0;
 
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (!el) {
-          console.error(`Element with ID "${id}" not found.`);
-          continue;
-        }
-
-        // 현재 렌더링된 CSS 폭(px)
-        const cssWidth = Math.max(
-          el.clientWidth,
-          el.getBoundingClientRect().width || 0
+      // 공통 캡처 유틸
+      const captureAndAppend = async (
+        rootEl: HTMLElement,
+        onclone?: (doc: Document, clonedRoot: HTMLElement) => void
+      ) => {
+        const rectW = rootEl.getBoundingClientRect().width || 0;
+        const cssWidth = Math.max(rootEl.clientWidth, rectW, 900);
+        const windowWidth = Math.ceil(
+          Math.max(rootEl.scrollWidth, cssWidth, 1200)
         );
 
-        // 🔧 확대(업스케일) 방지: PDF 폭에 맞추려면 최소 이만큼의 픽셀이 필요
-        //    => html2canvas scale 을 자동 보정하여 "필요 픽셀 / 현재 CSS 폭" 이상으로 설정
         const autoScale = Math.max(
           baseScale,
           requiredPxWidth / Math.max(1, cssWidth)
         );
         const finalScale = Math.min(maxScale, autoScale);
 
-        // 한 프레임 기다려 레이아웃 안정화
+        // 레이아웃 안정화 (2프레임)
         await new Promise((r) => requestAnimationFrame(() => r(null)));
+        await new Promise((r) => setTimeout(r, 0));
 
-        const canvas = await html2canvas(el, {
-          scale: finalScale, // 선명도 핵심
-          backgroundColor, // 투명 방지
+        const canvas = await html2canvas(rootEl, {
+          scale: finalScale,
+          backgroundColor,
           useCORS: true,
           logging: false,
-          windowWidth: el.scrollWidth, // 레이아웃 깨짐 방지
+          windowWidth,
+          scrollX: 0,
+          scrollY: 0,
+          removeContainer: false,
+          onclone: (clonedDoc) => {
+            const clonedRoot = clonedDoc.getElementById(
+              rootEl.id
+            ) as HTMLElement | null;
+            if (clonedRoot) {
+              Object.assign(clonedRoot.style, {
+                position: "static",
+                left: "0px",
+                top: "0px",
+                transform: "none",
+                zIndex: "0",
+                display: "block",
+                width: `${cssWidth}px`,
+                backgroundColor: "#ffffff",
+              });
+              clonedRoot.removeAttribute("aria-hidden");
+              onclone?.(clonedDoc, clonedRoot);
+            }
+          },
         });
 
-        if (!canvas.width || !canvas.height) continue;
+        if (!canvas.width || !canvas.height) return;
 
-        // px/mm 매핑 (현재 캔버스 폭 == PDF 컨텐츠 폭에 대응시킴)
         const pxPerMm = canvas.width / contentWmm;
         const pageHeightPx = contentHmm * pxPerMm;
 
@@ -92,6 +116,7 @@ export const usePdfGenerator = () => {
         while (y < canvas.height) {
           const sliceHeightPx = Math.min(pageHeightPx, canvas.height - y);
 
+          // 페이지 슬라이스 캔버스
           const pageCanvas = document.createElement("canvas");
           pageCanvas.width = canvas.width;
           pageCanvas.height = sliceHeightPx;
@@ -111,21 +136,107 @@ export const usePdfGenerator = () => {
             sliceHeightPx
           );
 
-          const imgData = pageCanvas.toDataURL("image/png"); // PNG: 선명/무손실
+          // ★ PNG → JPEG 전환 (+품질)
+          const mime = imageType === "PNG" ? "image/png" : "image/jpeg";
+          const imgData =
+            imageType === "PNG"
+              ? pageCanvas.toDataURL(mime) // PNG는 quality 미지원
+              : pageCanvas.toDataURL(mime, imageQuality);
+
           const sliceHeightMm = sliceHeightPx / pxPerMm;
 
           if (pagesAdded > 0) pdf.addPage();
+          // ★ addImage에 JPEG + 압축모드 전달
           pdf.addImage(
             imgData,
-            "PNG",
+            imageType,
             marginMm,
             marginMm,
             contentWmm,
-            sliceHeightMm
+            sliceHeightMm,
+            undefined,
+            "FAST" // 압축 속성
           );
 
           pagesAdded++;
           y += sliceHeightPx;
+
+          // 메모리 해제 힌트
+          pageCanvas.width = 0;
+          pageCanvas.height = 0;
+        }
+
+        // 캔버스 메모리 해제 힌트
+        (canvas as any).width = 0;
+        (canvas as any).height = 0;
+      };
+
+      for (const id of ids) {
+        const rootEl = document.getElementById(id) as HTMLElement | null;
+        if (!rootEl) {
+          console.error(`Element with ID "${id}" not found.`);
+          continue;
+        }
+
+        if (id === "detailReport") {
+          // 상세보고서는 섹션/행 단위로 분할 캡처
+          const sections = Array.from(
+            rootEl.querySelectorAll<HTMLElement>("[data-pdf-section]")
+          );
+
+          for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+            const section = sections[sIdx];
+            const rows = Array.from(
+              section.querySelectorAll<HTMLElement>("[data-issue-row]")
+            );
+
+            // 이슈가 없으면 섹션만 보이게 해서 한 번에
+            if (rows.length === 0) {
+              await captureAndAppend(rootEl, (_doc, clonedRoot) => {
+                const clonedSections = Array.from(
+                  clonedRoot.querySelectorAll<HTMLElement>("[data-pdf-section]")
+                );
+                clonedSections.forEach((sec, i) => {
+                  (sec.style as any).display = i === sIdx ? "block" : "none";
+                });
+              });
+              continue;
+            }
+
+            // 행이 많으면 청크로 나눠 여러 번 캡처
+            for (
+              let start = 0;
+              start < rows.length;
+              start += MAX_ROWS_PER_CHUNK
+            ) {
+              const end = Math.min(start + MAX_ROWS_PER_CHUNK, rows.length);
+
+              await captureAndAppend(rootEl, (_doc, clonedRoot) => {
+                const clonedSections = Array.from(
+                  clonedRoot.querySelectorAll<HTMLElement>("[data-pdf-section]")
+                );
+                clonedSections.forEach((sec, i) => {
+                  (sec.style as any).display = i === sIdx ? "block" : "none";
+                });
+
+                const targetSection = clonedSections[sIdx];
+                if (!targetSection) return;
+
+                const clonedRows = Array.from(
+                  targetSection.querySelectorAll<HTMLElement>(
+                    "[data-issue-row]"
+                  )
+                );
+                clonedRows.forEach((row, idx) => {
+                  (row.style as any).display =
+                    idx >= start && idx < end ? "grid" : "none";
+                });
+              });
+            }
+          }
+        } else {
+          // 요약/기타는 한 번에
+          await captureAndAppend(rootEl);
         }
       }
 
@@ -133,6 +244,8 @@ export const usePdfGenerator = () => {
         console.error("No valid elements were captured. PDF not saved.");
         return;
       }
+
+      // 저장
       pdf.save(filename);
     },
     []
