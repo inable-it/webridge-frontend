@@ -85,7 +85,7 @@ const SurveyPage = () => {
         occupation_other: finalJob === "f" ? jobOther.trim() : undefined,
       }).unwrap();
 
-      navigate("/login");
+      navigate("/dashboard");
     } catch (err) {
       alert(toMessage(err) || "제출 중 오류가 발생했습니다.");
     }
@@ -226,7 +226,9 @@ const SurveyPage = () => {
         <Button
           type="submit"
           disabled={!canSubmit}
-          className="w-full h-12 text-base font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-60"
+          className={`w-full h-12 text-base font-semibold text-white rounded-lg
+           ${canSubmit ? "bg-blue-600 hover:bg-blue-700" : "bg-[#727272] cursor-not-allowed"}
+          `}
         >
           {isLoading ? "제출 중..." : "제출하기"}
         </Button>
