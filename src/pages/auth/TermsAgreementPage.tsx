@@ -226,7 +226,7 @@ const TermsAgreementPage = () => {
           className={`w-full h-12 text-white ${
             canSubmit()
               ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-600 cursor-not-allowed"
+              : "bg-[#727272] cursor-not-allowed"
           }`}
         >
           {isLoading ? "처리 중..." : "회원가입"}
