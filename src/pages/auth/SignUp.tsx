@@ -493,7 +493,7 @@ const SignupPageContent = () => {
               emailVerified ||
               isGoogleUser
             }
-            className="h-12 text-white bg-blue-500 border-0 whitespace-nowrap hover:bg-blue-600"
+            className="h-12 text-white bg-[#727272] border-0 hover:bg-blue-600"
             aria-label="이메일 인증 요청"
           >
             {isRequestingVerification
@@ -561,7 +561,7 @@ const SignupPageContent = () => {
           ${
             canSubmit()
               ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-600 cursor-not-allowed"
+              : "bg-[#727272] cursor-not-allowed"
           }`}
           aria-label="회원가입 제출"
         >
