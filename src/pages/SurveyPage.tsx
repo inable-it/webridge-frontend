@@ -85,7 +85,7 @@ const SurveyPage = () => {
         occupation_other: finalJob === "f" ? jobOther.trim() : undefined,
       }).unwrap();
 
-      navigate("/dashboard");
+      navigate("/login");
     } catch (err) {
       alert(toMessage(err) || "제출 중 오류가 발생했습니다.");
     }
