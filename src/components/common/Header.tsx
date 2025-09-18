@@ -43,14 +43,24 @@ export const Header = () => {
     dispatch(clearUser());
     dispatch(publicApi.util.resetApiState());
 
+    // 로그아웃 신호 심기 (HomeGate에서 모달 띄우기 위함)
+    sessionStorage.setItem("justLoggedOut", "1");
+
     // 드롭다운 닫기 및 안전 이동
     setDropdownOpen(false);
-    if (location.pathname !== "/") navigate("/");
+
+    // state 로도 전달 (history state를 통해 즉시 감지)
+    if (location.pathname !== "/") {
+      navigate("/", { state: { loggedOut: true } });
+    } else {
+      navigate("/", { replace: true, state: { loggedOut: true } });
+    }
   };
 
   // 마운트 시: 토큰이 없으면 즉시 로그아웃 처리 (우측 상단을 로그아웃 상태로 만듦)
   useEffect(() => {
     if (!hasTokens && user) {
+      // 토큰이 없는데 user가 남아있으면 강제 정리 + 모달 트리거
       clearAllData();
     }
     // 로고에 프로그램적 포커스 이동
