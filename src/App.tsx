@@ -1,7 +1,7 @@
 import HomePage from "@/pages/Homepage";
 import SignupPage from "@/pages/auth/SignUp";
 import LoginPage from "@/pages/auth/Login";
-import { useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from "react-router-dom";
 import { SimpleLayout } from "@/layout/SimpleLayout";
 import { BaseLayout } from "@/layout/BaseLayout";
 import { RequireAuth } from "@/components/common/RequireAuth";
@@ -23,6 +23,7 @@ import AccessibilityScanDetailPage from "@/pages/scan-detail/AccessibilityScanDe
 import SurveyPage from "@/pages/SurveyPage";
 import ScanHistoryPage from "@/pages/scan-history/ScanHistoryPage";
 import { useEffect } from "react";
+import { getToken } from "@/utils/getToken";
 
 function RouteWithTitle({
   element,
@@ -46,9 +47,12 @@ function App() {
       children: [
         {
           index: true,
-          element: (
-            <RouteWithTitle element={<HomePage />} title="홈 | WEBridge" />
-          ),
+          element:
+            getToken("accessToken") || getToken("refreshToken") ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <RouteWithTitle element={<HomePage />} title="홈 | WEBridge" />
+            ),
         },
         {
           path: "login",
