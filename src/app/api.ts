@@ -50,11 +50,15 @@ export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
           extraOptions
         );
 
-        const refreshData = refreshResult.data as { access: string };
+        console.log("Refresh token response:", refreshResult);
+        const refreshData = refreshResult.data as { access: string; refresh: string };
 
         if (refreshData?.access) {
-          // 새 accessToken 저장
+          // 새 accessToken과 refreshToken 저장
           localStorage.setItem("accessToken", refreshData.access);
+          if (refreshData.refresh) {
+            localStorage.setItem("refreshToken", refreshData.refresh);
+          }
           // 원래 실패했던 요청 재시도
           result = await baseQuery(args, api, extraOptions);
         } else {
