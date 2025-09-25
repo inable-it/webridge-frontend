@@ -62,6 +62,7 @@ type FeedbackState = Record<number, { likeId?: number; dislikeId?: number }>;
 
 const AltTextDetail = ({ results, scanUrl }: Props) => {
     const [copiedOpenId, setCopiedOpenId] = useState<number | null>(null);
+    const [filter, setFilter] = useState<'all' | 'compliant' | 'non-compliant'>('all');
 
     // 현재 어떤 버튼이 전송 중인지 구분 (예: "123:like" / "123:dislike")
     const [sendingKey, setSendingKey] = useState<string | null>(null);
@@ -216,8 +217,22 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
         </div>
     );
 
+    // 필터링된 결과
+    const filteredResults = results.filter(result => {
+        const isCompliant = result.compliance === 0 || result.compliance === 1;
+        switch (filter) {
+            case 'compliant':
+                return isCompliant;
+            case 'non-compliant':
+                return !isCompliant;
+            default:
+                return true;
+        }
+    });
+
     return (
         <div className="space-y-4">
+
             {/* 상단 가이드 */}
             <div className="p-4 mb-6 border border-blue-200 rounded-lg bg-blue-50">
                 <div className="flex items-center gap-2 mb-2">
@@ -254,16 +269,52 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                 </ul>
             </div>
 
-            {results.map((result, index) => {
+            {/* 필터 버튼 */}
+            <div className="flex gap-2 mb-4">
+                <Button
+                    size="sm"
+                    variant={filter === 'all' ? 'default' : 'outline'}
+                    onClick={() => setFilter('all')}
+                    className="text-xs"
+                >
+                    전체 ({results.length})
+                </Button>
+                <Button
+                    size="sm"
+                    variant={filter === 'compliant' ? 'default' : 'outline'}
+                    onClick={() => setFilter('compliant')}
+                    className="text-xs"
+                >
+                    준수 ({results.filter(r => r.compliance === 0 || r.compliance === 1).length})
+                </Button>
+                <Button
+                    size="sm"
+                    variant={filter === 'non-compliant' ? 'default' : 'outline'}
+                    onClick={() => setFilter('non-compliant')}
+                    className="text-xs"
+                >
+                    미준수 ({results.filter(r => r.compliance === 2).length})
+                </Button>
+            </div>
+
+            {filteredResults.length === 0 ? (
+                <div className="py-8 text-center text-gray-500">
+                    <p>선택한 필터에 해당하는 항목이 없습니다.</p>
+                </div>
+            ) : (
+                filteredResults.map((result, index) => {
                 const fb = feedbackState[result.id] || {};
                 const isLiked = !!fb.likeId;
                 const isDisliked = !!fb.dislikeId;
+                const isCompliant = result.compliance === 0 || result.compliance === 1;
 
                 return (
-                    <Card key={result.id} className="border-l-4 border-l-blue-500">
+                    <Card key={result.id} className={`border-l-4 ${isCompliant ? 'border-l-green-500' : 'border-l-blue-500'}`}>
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm font-medium">오류 항목 {index + 1}</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    {isCompliant ? `준수 항목 ${index + 1}` : `오류 항목 ${index + 1}`}
+                                </CardTitle>
                                 <Badge
                                     className={`${getComplianceColor(result.compliance)} flex items-center gap-1`}
                                 >
@@ -325,7 +376,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
                             {/* 제안 박스 */}
                             {(result.ai_improvement || result.answer) && (
-                                <div className="p-3 border border-[#727272] rounded bg-blue-50">
+                                <div className={`p-3 border border-[#727272] rounded ${isCompliant ? 'bg-green-50' : 'bg-blue-50'}`}>
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs font-medium text-blue-700">
@@ -454,7 +505,8 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                         </CardContent>
                     </Card>
                 );
-            })}
+                })
+            )}
         </div>
     );
 };

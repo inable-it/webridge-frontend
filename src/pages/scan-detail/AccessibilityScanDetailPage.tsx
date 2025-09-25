@@ -158,11 +158,11 @@ const AccessibilityScanDetailPage = () => {
         <div className="bg-white border border-[#727272] rounded-lg shadow-sm">
           <div className="p-6 border-b border-[#727272]">
             <h3 className="text-lg font-semibold text-gray-900">
-              문제가 발견된 항목들
+              검사 결과 상세
             </h3>
             {!isContrast && (
               <p className="mt-1 text-sm text-gray-500">
-                아래 항목들을 수정하여 웹 접근성을 개선하세요.
+                준수한 항목과 문제가 발견된 항목을 모두 확인할 수 있습니다.
               </p>
             )}
           </div>
@@ -180,10 +180,10 @@ const AccessibilityScanDetailPage = () => {
                   대시보드로 돌아가기
                 </Button>
               </div>
-            ) : issueResults.length > 0 ? (
-              // 일반 항목: 이슈만 렌더링
+            ) : results.length > 0 ? (
+              // 일반 항목: 모든 결과 렌더링 (준수/미준수 모두)
               <DetailComponent
-                results={issueResults}
+                results={results}
                 scanUrl={scanDetail.url}
               />
             ) : (
