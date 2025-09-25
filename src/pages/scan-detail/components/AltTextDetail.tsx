@@ -16,7 +16,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import type { AltTextResult, ComplianceStatus } from "@/features/api/scanApi";
+import type { AltTextResult } from "@/features/api/scanApi";
 import {
     useCreateAltTextFeedbackMutation,
     useDeleteAltTextFeedbackMutation,
@@ -27,27 +27,31 @@ type Props = {
     scanUrl?: string;
 };
 
-const getComplianceColor = (compliance: ComplianceStatus) => {
+const getComplianceColor = (compliance: number) => {
     switch (compliance) {
-        case 0:
-            return "text-green-600 border-green-300";
-        case 1:
-        case 2:
-        case 3:
-            return "text-red-600 border-red-300";
+        case 0: // 준수 (매우높음)
+            return "text-green-700 border-green-400";
+        case 1: // 준수 (조금높음)
+            return "text-green-700 border-green-400";
+        case 2: // 미준수
+            return "text-red-700 border-red-400";
+        case 3: // 시스템 오류
+            return "text-gray-700 border-gray-400";
         default:
-            return "text-gray-600 border-gray-300";
+            return "text-gray-700 border-gray-400";
     }
 };
 
-const getComplianceIcon = (compliance: ComplianceStatus) => {
+const getComplianceIcon = (compliance: number) => {
     switch (compliance) {
-        case 0:
+        case 0: // 준수 (매우높음)
             return <CheckCircle className="w-4 h-4" />;
-        case 1:
-        case 2:
-        case 3:
+        case 1: // 준수 (조금높음)
+            return <CheckCircle className="w-4 h-4" />;
+        case 2: // 미준수
             return <XCircle className="w-4 h-4" />;
+        case 3: // 시스템 오류
+            return <AlertCircle className="w-4 h-4" />;
         default:
             return <AlertCircle className="w-4 h-4" />;
     }
@@ -264,7 +268,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                     className={`${getComplianceColor(result.compliance)} flex items-center gap-1`}
                                 >
                                     {getComplianceIcon(result.compliance)}
-                                    {result.compliance_display}
+                                    {result.compliance == 0 ? "준수 (매우높음)" : result.compliance == 1 ? "준수 (조금높음)" : result.compliance == 2 ? "미준수" : "시스템 오류"}
                                 </Badge>
                             </div>
                         </CardHeader>
@@ -320,7 +324,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                             </div>
 
                             {/* 제안 박스 */}
-                            {result.suggested_alt && (
+                            {(result.ai_improvement || result.answer) && (
                                 <div className="p-3 border border-[#727272] rounded bg-blue-50">
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
@@ -337,7 +341,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                                         size="sm"
                                                         variant="outline"
                                                         className="h-6 px-2 text-xs"
-                                                        onClick={() => handleCopy(`alt="${result.suggested_alt}"`, result.id)}
+                                                        onClick={() => handleCopy(`alt="${result.ai_improvement || result.answer || result.suggested_alt}"`, result.id)}
                                                     >
                                                         <Copy className="w-3 h-3 mr-1" />
                                                         복사
@@ -443,7 +447,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                     </div>
 
                                     <div className="p-2 font-mono text-sm text-blue-800 bg-white border border-[#727272] rounded">
-                                        alt="{result.suggested_alt}"
+                                        alt="{result.ai_improvement || result.answer || result.suggested_alt}"
                                     </div>
                                 </div>
                             )}

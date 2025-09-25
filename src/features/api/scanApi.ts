@@ -8,8 +8,6 @@ export type CreateScanRequest = {
 // 스캔 상태 타입
 export type ScanStatus = "pending" | "processing" | "completed" | "failed";
 
-// 준수 상태 타입 (이미지 대체 텍스트용)
-export type ComplianceStatus = 0 | 1 | 2 | 3; // 0: 문제없음, 1: 개선필요, 2: 미준수, 3: 오류
 
 // 개별 검사 결과 타입들
 export type AltTextResult = {
@@ -17,9 +15,15 @@ export type AltTextResult = {
   img_url: string;
   element_html: string;
   alt_text: string;
-  suggested_alt: string;
-  compliance: ComplianceStatus;
-  compliance_display: string;
+  answer: string; // AI 평가결과 또는 개선제안
+  compliance: 0 | 1 | 2 | 3; // 0=매우높음, 1=조금높음, 2=미준수, 3=시스템오류
+  ai_type?: string; // 정보성/기능성/장식적/복합적/알수없음
+  ai_grade?: string; // 매우높음/조금높음/미준수/매우낮음
+  ai_reason?: string; // AI평가근거
+  ai_improvement?: string; // 개선된 대체텍스트
+  has_error: boolean; // 처리 실패 여부
+  suggested_alt: string; // 기존 호환성 유지
+  compliance_display: string; // 기존 호환성 유지
   created_at: string;
   user_feedback: string;
   has_ai_suggestion: boolean;
