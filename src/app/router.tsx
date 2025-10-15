@@ -1,0 +1,238 @@
+import { createBrowserRouter } from "react-router-dom";
+import { useEffect } from "react";
+
+import RootShell from "@/app/RootShell";
+import { SimpleLayout } from "@/layout/SimpleLayout";
+import { BaseLayout } from "@/layout/BaseLayout";
+import { RequireAuth } from "@/components/common/RequireAuth";
+
+import SignupPage from "@/pages/auth/SignUp";
+import LoginPage from "@/pages/auth/Login";
+import PasswordResetPage from "@/pages/auth/PasswordResetPage";
+import PasswordResetConfirmPage from "@/pages/auth/PasswordResetConfirmPage";
+import TermsAgreementPage from "@/pages/auth/TermsAgreementPage";
+
+import TeamIntro from "@/pages/notion/TeamIntro";
+import AccessibilityIntro from "@/pages/notion/AccessibilityIntro";
+import ServiceTermsPage from "@/pages/notion/ServiceTermsPage";
+import PrivacyPolicyPage from "@/pages/notion/PrivacyPolicyPage";
+import MarketingConsentPage from "@/pages/notion/MarketingConsentPage";
+import PrivacyProcessingPage from "@/pages/notion/PrivacyProcessingPage";
+import NewsPage from "@/pages/notion/NewsPage";
+
+import DashboardPage from "@/pages/dashboard/DashboardPage";
+import AccessibilityScanDetailPage from "@/pages/scan-detail/AccessibilityScanDetailPage";
+import ScanHistoryPage from "@/pages/scan-history/ScanHistoryPage";
+import MyInfoPage from "@/pages/Info/MyInfoPage";
+import FeedbackPage from "@/pages/feedback/FeedbackPage";
+import SurveyPage from "@/pages/SurveyPage";
+import HomeGate from "@/components/common/HomeGate";
+
+function RouteWithTitle({
+  element,
+  title,
+}: {
+  element: React.ReactNode;
+  title: string;
+}) {
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+  return <>{element}</>;
+}
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootShell />, // Outlet + Toaster + GlobalLoadingOverlay + (RouteLoadingBinder)
+    children: [
+      // ── 공개 영역 ─────────────────────────────────────────
+      {
+        // path 생략 = 부모("/") 기준 레이아웃 래핑
+        element: <SimpleLayout />,
+        children: [
+          {
+            index: true,
+            element: (
+              <RouteWithTitle element={<HomeGate />} title="홈 | WEBridge" />
+            ),
+          },
+          {
+            path: "login",
+            element: (
+              <RouteWithTitle
+                element={<LoginPage />}
+                title="로그인 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "signup",
+            element: (
+              <RouteWithTitle
+                element={<SignupPage />}
+                title="회원가입 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "team",
+            element: (
+              <RouteWithTitle
+                element={<TeamIntro />}
+                title="팀 소개 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "accessibility",
+            element: (
+              <RouteWithTitle
+                element={<AccessibilityIntro />}
+                title="웹 접근성 소개 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "password-reset",
+            element: (
+              <RouteWithTitle
+                element={<PasswordResetPage />}
+                title="비밀번호 재설정 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "reset-password",
+            element: (
+              <RouteWithTitle
+                element={<PasswordResetConfirmPage />}
+                title="비밀번호 재설정 확인 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "terms-agreement",
+            element: (
+              <RouteWithTitle
+                element={<TermsAgreementPage />}
+                title="이용약관 동의 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "survey",
+            element: (
+              <RouteWithTitle
+                element={<SurveyPage />}
+                title="설문조사 | WEBridge"
+              />
+            ),
+          },
+          // 약관/정책
+          {
+            path: "terms/service",
+            element: (
+              <RouteWithTitle
+                element={<ServiceTermsPage />}
+                title="서비스 이용약관 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "terms/privacy-policy",
+            element: (
+              <RouteWithTitle
+                element={<PrivacyPolicyPage />}
+                title="개인정보수집 동의 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "terms/marketing-consent",
+            element: (
+              <RouteWithTitle
+                element={<MarketingConsentPage />}
+                title="마케팅 동의 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "terms/privacy-processing",
+            element: (
+              <RouteWithTitle
+                element={<PrivacyProcessingPage />}
+                title="개인정보 처리지침 | WEBridge"
+              />
+            ),
+          },
+        ],
+      },
+
+      // ── 보호 영역(로그인 필요) ────────────────────────────
+      {
+        element: (
+          <RequireAuth>
+            <BaseLayout />
+          </RequireAuth>
+        ),
+        children: [
+          {
+            path: "dashboard",
+            element: (
+              <RouteWithTitle
+                element={<DashboardPage />}
+                title="접근성 검사 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "scans",
+            element: (
+              <RouteWithTitle
+                element={<ScanHistoryPage />}
+                title="검사 이력 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "scan/:scanId/:category",
+            element: (
+              <RouteWithTitle
+                element={<AccessibilityScanDetailPage />}
+                title="상세 보고서 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "my-info",
+            element: (
+              <RouteWithTitle
+                element={<MyInfoPage />}
+                title="내 정보 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "feedback",
+            element: (
+              <RouteWithTitle
+                element={<FeedbackPage />}
+                title="피드백 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "news",
+            element: (
+              <RouteWithTitle
+                element={<NewsPage />}
+                title="소식지 | WEBridge"
+              />
+            ),
+          },
+        ],
+      },
+    ],
+  },
+]);
