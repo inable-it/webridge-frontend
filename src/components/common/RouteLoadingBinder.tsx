@@ -1,33 +1,49 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigation } from "react-router-dom";
-import { start, stop, setRouteActive } from "@/features/store/loadingSlice";
+import { setRouteActive } from "@/features/store/loadingSlice";
 
 export function RouteLoadingBinder() {
   const nav = useNavigation();
   const { pathname, search } = useLocation();
   const dispatch = useDispatch();
 
+  // 타이머는 routeActive만 컨트롤 (count 건드리지 않음)
+  const hintTimerRef = useRef<number | null>(null);
+
   // 1) Data Router의 실제 전환 상태 (정확)
   useEffect(() => {
     const busy = nav.state === "loading" || nav.state === "submitting";
-    // 라우트 전환 시작/종료 플래그
     dispatch(setRouteActive(busy));
-    // 전역 로딩도 즉시 ON/OFF (라우트는 지연 없이)
-    if (busy) dispatch(start());
-    else dispatch(stop());
+
+    // busy면 힌트 타이머 취소 (실제 상태가 우선)
+    if (busy && hintTimerRef.current) {
+      window.clearTimeout(hintTimerRef.current);
+      hintTimerRef.current = null;
+    }
   }, [nav.state, dispatch]);
 
-  // 2) 로더/코드스플리팅이 없어 nav가 idle로만 지나갈 때의 최소 힌트 (선택)
+  // 2) nav.state가 idle로만 지나가는 케이스용 "힌트" (선택)
   useEffect(() => {
-    // 라우트 전환 ‘힌트’도 좀 더 길게 (예: 500ms)
+    // 기존 타이머 제거
+    if (hintTimerRef.current) {
+      window.clearTimeout(hintTimerRef.current);
+      hintTimerRef.current = null;
+    }
+
+    // 짧게 routeActive 켰다가 끄기 (count는 절대 건드리지 않음)
     dispatch(setRouteActive(true));
-    dispatch(start());
-    const t = window.setTimeout(() => {
-      dispatch(stop());
+    hintTimerRef.current = window.setTimeout(() => {
       dispatch(setRouteActive(false));
-    }, 500); // ← 220 → 500ms 로 늘림
-    return () => clearTimeout(t);
+      hintTimerRef.current = null;
+    }, 500) as unknown as number;
+
+    return () => {
+      if (hintTimerRef.current) {
+        window.clearTimeout(hintTimerRef.current);
+        hintTimerRef.current = null;
+      }
+    };
   }, [pathname, search, dispatch]);
 
   return null;
