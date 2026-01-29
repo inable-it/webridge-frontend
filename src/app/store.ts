@@ -1,11 +1,11 @@
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import userReducer from "@/features/store/userSlice";
-import menuReducer from "@/features/store/menuSlice";
-import loadingReducer from "@/features/store/loadingSlice";
-import { publicApi, privateApi } from "@/app/api";
-import storage from "redux-persist/lib/storage";
-import { persistStore, persistReducer } from "redux-persist";
-import { loadingMiddleware } from "@/app/loadingMiddleware";
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import userReducer from '@/features/store/userSlice';
+import menuReducer from '@/features/store/menuSlice';
+import loadingReducer from '@/features/store/loadingSlice';
+import { publicApi, privateApi, scanPrivateApi } from '@/app/api';
+import storage from 'redux-persist/lib/storage';
+import { persistStore, persistReducer } from 'redux-persist';
+import { loadingMiddleware } from '@/app/loadingMiddleware';
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -13,12 +13,13 @@ const rootReducer = combineReducers({
   loading: loadingReducer,
   [publicApi.reducerPath]: publicApi.reducer,
   [privateApi.reducerPath]: privateApi.reducer,
+  [scanPrivateApi.reducerPath]: scanPrivateApi.reducer, // 추가
 });
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage,
-  whitelist: ["user"],
+  whitelist: ['user'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -29,6 +30,7 @@ export const store = configureStore({
     getDefaultMiddleware({ serializableCheck: false })
       .concat(publicApi.middleware)
       .concat(privateApi.middleware)
+      .concat(scanPrivateApi.middleware) // 추가
       .concat(loadingMiddleware),
 });
 

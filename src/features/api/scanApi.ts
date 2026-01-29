@@ -1,4 +1,4 @@
-import { privateApi } from "@/app/api";
+import { scanPrivateApi } from '@/app/api';
 
 // 스캔 생성 요청 타입
 export type CreateScanRequest = {
@@ -6,8 +6,7 @@ export type CreateScanRequest = {
 };
 
 // 스캔 상태 타입
-export type ScanStatus = "pending" | "processing" | "completed" | "failed";
-
+export type ScanStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 // 개별 검사 결과 타입들
 export type AltTextResult = {
@@ -192,7 +191,7 @@ export type FlashingResult = {
 
 // 리포트 타입
 export type ScanReport = {
-  format: "pdf" | "excel" | "json";
+  format: 'pdf' | 'excel' | 'json';
   generated_at: string;
   download_count: number;
   download_url: string | null;
@@ -305,14 +304,14 @@ export type ScanProgress = {
   current_test?: string;
   message?: string;
   timestamp?: string;
-  type?: "initial" | "progress" | "error" | "fatal_error";
+  type?: 'initial' | 'progress' | 'error' | 'fatal_error';
   final?: boolean;
   error?: string;
 };
 
 // 리포트 생성 요청/응답 타입
 export type GenerateReportRequest = {
-  format: "pdf" | "excel" | "json";
+  format: 'pdf' | 'excel' | 'json';
 };
 export type GenerateReportResponse = {
   task_id: string;
@@ -328,108 +327,77 @@ export type RestartScanResponse = {
 };
 
 // 스캔 API
-export const scanApi = privateApi.injectEndpoints({
+export const scanApi = scanPrivateApi.injectEndpoints({
   endpoints: (builder) => ({
-    // 스캔 생성
     createScan: builder.mutation<CreateScanResponse, CreateScanRequest>({
       query: (body) => ({
-        url: "scans/create/",
-        method: "POST",
+        url: 'scans/create/',
+        method: 'POST',
         body,
       }),
-      invalidatesTags: [{ type: "Scan", id: "LIST" }],
+      invalidatesTags: [{ type: 'Scan', id: 'LIST' }],
     }),
 
-    // 스캔 목록 조회
     getScanList: builder.query<
       ScanListResponse,
-      {
-        status?: ScanStatus;
-        ordering?: string;
-        page?: number;
-        page_size?: number;
-      }
+      { status?: ScanStatus; ordering?: string; page?: number; page_size?: number }
     >({
-      query: ({
-        status,
-        ordering = "-created_at",
-        page = 1,
-        page_size = 10,
-      } = {}) => {
+      query: ({ status, ordering = '-created_at', page = 1, page_size = 10 } = {}) => {
         const params = new URLSearchParams({
           ordering,
           page: page.toString(),
           page_size: page_size.toString(),
         });
-
-        if (status) params.append("status", status);
-
+        if (status) params.append('status', status);
         return { url: `scans/?${params.toString()}` };
       },
       providesTags: (result) =>
         result
-          ? [
-              ...result.results.map(({ id }) => ({
-                type: "Scan" as const,
-                id,
-              })),
-              { type: "Scan", id: "LIST" },
-            ]
-          : [{ type: "Scan", id: "LIST" }],
+          ? [...result.results.map(({ id }) => ({ type: 'Scan' as const, id })), { type: 'Scan', id: 'LIST' }]
+          : [{ type: 'Scan', id: 'LIST' }],
     }),
 
-    // 스캔 상세 조회
     getScanDetail: builder.query<AccessibilityScanDetail, string>({
       query: (scanId) => ({ url: `scans/${scanId}/` }),
-      providesTags: (_result, _error, scanId) => [{ type: "Scan", id: scanId }],
+      providesTags: (_result, _error, scanId) => [{ type: 'Scan', id: scanId }],
     }),
 
-    // 스캔 삭제
     deleteScan: builder.mutation<void, string>({
       query: (scanId) => ({
         url: `scans/${scanId}/delete/`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
       invalidatesTags: (_result, _error, scanId) => [
-        { type: "Scan", id: "LIST" },
-        { type: "Scan", id: scanId },
+        { type: 'Scan', id: 'LIST' },
+        { type: 'Scan', id: scanId },
       ],
     }),
 
-    // 스캔 진행 상황 조회
     getScanProgress: builder.query<ScanProgress, string>({
       query: (scanId) => ({ url: `scans/${scanId}/progress/` }),
     }),
 
-    // 리포트 생성
-    generateReport: builder.mutation<
-      GenerateReportResponse,
-      { scanId: string; data: GenerateReportRequest }
-    >({
+    generateReport: builder.mutation<GenerateReportResponse, { scanId: string; data: GenerateReportRequest }>({
       query: ({ scanId, data }) => ({
         url: `scans/${scanId}/generate-report/`,
-        method: "POST",
+        method: 'POST',
         body: data,
       }),
-      invalidatesTags: (_result, _error, { scanId }) => [
-        { type: "Scan", id: scanId },
-      ],
+      invalidatesTags: (_result, _error, { scanId }) => [{ type: 'Scan', id: scanId }],
     }),
 
-    // 리포트 다운로드 (URL 반환)
     getReportDownloadUrl: builder.query<{ download_url: string }, string>({
       query: (scanId) => ({ url: `scans/${scanId}/download-report/` }),
     }),
 
-    // 스캔 재시작
     restartScan: builder.mutation<RestartScanResponse, string>({
       query: (scanId) => ({
         url: `scans/${scanId}/restart/`,
-        method: "POST",
+        method: 'POST',
       }),
       invalidatesTags: (_result, _error, scanId) => [
-        { type: "Scan", id: "LIST" },
-        { type: "Scan", id: scanId },
+        { type: 'Scan', id: 'LIST' },
+        { type: 'Scan', id: scanId },
       ],
     }),
   }),

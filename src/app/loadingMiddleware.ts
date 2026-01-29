@@ -1,15 +1,14 @@
-import type { Middleware } from "@reduxjs/toolkit";
-import { start, stop } from "@/features/store/loadingSlice";
-import { publicApi, privateApi } from "@/app/api";
+import type { Middleware } from '@reduxjs/toolkit';
+import { start, stop } from '@/features/store/loadingSlice';
+import { publicApi, privateApi } from '@/app/api';
 
 const isFromRtkQuery = (type: string) =>
-  type.startsWith(`${publicApi.reducerPath}/`) ||
-  type.startsWith(`${privateApi.reducerPath}/`);
+  type.startsWith(`${publicApi.reducerPath}/`) || type.startsWith(`${privateApi.reducerPath}/`);
 
 function getActionType(a: unknown): string | null {
-  if (typeof a === "object" && a !== null && "type" in a) {
+  if (typeof a === 'object' && a !== null && 'type' in a) {
     const t = (a as any).type;
-    if (typeof t === "string") return t;
+    if (typeof t === 'string') return t;
   }
   return null;
 }
@@ -17,13 +16,10 @@ function getActionType(a: unknown): string | null {
 export const loadingMiddleware: Middleware = (store) => (next) => (action) => {
   const type = getActionType(action);
   if (type) {
-    if (isFromRtkQuery(type) && type.endsWith("/pending")) {
+    if (isFromRtkQuery(type) && type.endsWith('/pending')) {
       store.dispatch(start());
     }
-    if (
-      isFromRtkQuery(type) &&
-      (type.endsWith("/fulfilled") || type.endsWith("/rejected"))
-    ) {
+    if (isFromRtkQuery(type) && (type.endsWith('/fulfilled') || type.endsWith('/rejected'))) {
       store.dispatch(stop());
     }
   }

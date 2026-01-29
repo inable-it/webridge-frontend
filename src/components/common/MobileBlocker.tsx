@@ -89,7 +89,7 @@ const MobileBlocker = ({ children }: { children: React.ReactNode }) => {
               copied ? 'bg-green-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
             }`}
           >
-            {copied ? '✅ 복사 완료!' : '🔗 접속 주소 복사하기'}
+            {copied ? '복사 완료!' : '🔗 접속 주소 복사하기'}
           </button>
 
           {/* Secondary: 모바일로 계속 보기 */}

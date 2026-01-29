@@ -2,8 +2,10 @@ import {
   createApi,
   fetchBaseQuery,
   type BaseQueryFn,
-} from "@reduxjs/toolkit/query/react";
-import { Mutex } from "async-mutex";
+  type FetchArgs,
+  type FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
+import { Mutex } from 'async-mutex';
 
 // refresh 중복 요청 방지용 Mutex 생성
 const mutex = new Mutex();
@@ -12,66 +14,59 @@ const mutex = new Mutex();
 export const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_BASE_URL,
   prepareHeaders: (headers) => {
-    // accessToken이 있으면 Authorization 헤더에 포함
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
+    const token = localStorage.getItem('accessToken');
+    if (token) headers.set('Authorization', `Bearer ${token}`);
     return headers;
   },
 });
 
-// customBaseQuery: refresh 토큰 자동 갱신 포함 버전
-export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
-  await mutex.waitForUnlock(); // 다른 refresh 중이라면 대기
+// customBaseQuery: refresh 토큰 자동 갱신만 담당 (로딩 카운트 X)
+export const customBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+  args,
+  api,
+  extraOptions
+) => {
+  await mutex.waitForUnlock();
 
   let result = await baseQuery(args, api, extraOptions);
 
-  // 401 → accessToken 만료 의심
   if (result.error?.status === 401) {
     if (!mutex.isLocked()) {
-      const release = await mutex.acquire(); // refresh 중복 방지 잠금
+      const release = await mutex.acquire();
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
+        const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
-          // refreshToken 없으면 바로 실패
-          return { error: { status: 401, data: "No refresh token" } };
+          return { error: { status: 401, data: 'No refresh token' } as any };
         }
 
-        // refresh API 호출
         const refreshResult = await baseQuery(
           {
-            url: "/auth/token/refresh/",
-            method: "POST",
+            url: '/auth/token/refresh/',
+            method: 'POST',
             body: { refresh: refreshToken },
           },
           api,
           extraOptions
         );
 
-        console.log("Refresh token response:", refreshResult);
-        const refreshData = refreshResult.data as { access: string; refresh: string };
+        const refreshData = refreshResult.data as { access?: string; refresh?: string };
 
         if (refreshData?.access) {
-          // 새 accessToken과 refreshToken 저장
-          localStorage.setItem("accessToken", refreshData.access);
-          if (refreshData.refresh) {
-            localStorage.setItem("refreshToken", refreshData.refresh);
-          }
+          localStorage.setItem('accessToken', refreshData.access);
+          if (refreshData.refresh) localStorage.setItem('refreshToken', refreshData.refresh);
+
           // 원래 실패했던 요청 재시도
           result = await baseQuery(args, api, extraOptions);
         } else {
-          // refresh 실패 → 로그아웃 처리
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          return { error: { status: 401, data: "Token refresh failed" } };
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          return { error: { status: 401, data: 'Token refresh failed' } as any };
         }
       } finally {
-        release(); // unlock
+        release();
       }
     } else {
-      // 다른 refresh 요청 대기
       await mutex.waitForUnlock();
       result = await baseQuery(args, api, extraOptions);
     }
@@ -80,19 +75,27 @@ export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
   return result;
 };
 
-// 인증이 필요없는 API 요청용 (로그인, 회원가입, 소셜로그인, 로그아웃)
+// 인증이 필요없는 API 요청용
 export const publicApi = createApi({
-  reducerPath: "publicApi",
+  reducerPath: 'publicApi',
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_BASE_URL,
   }),
   endpoints: () => ({}),
 });
 
-// 인증이 필요한 보호 API 요청용 (refresh 자동 포함됨)
+// 인증이 필요한 보호 API 요청용
 export const privateApi = createApi({
-  reducerPath: "privateApi",
+  reducerPath: 'privateApi',
   baseQuery: customBaseQuery,
   endpoints: () => ({}),
-  tagTypes: ['Scan', 'User', 'Feedback'],
+  tagTypes: ['User', 'Feedback'],
+});
+
+// 스캔 전용 API (중요: reducerPath가 달라서 loadingMiddleware에 안 걸리게 만들 수 있음)
+export const scanPrivateApi = createApi({
+  reducerPath: 'scanPrivateApi',
+  baseQuery: customBaseQuery,
+  endpoints: () => ({}),
+  tagTypes: ['Scan'],
 });

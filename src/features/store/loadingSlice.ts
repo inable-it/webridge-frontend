@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 interface LoadingState {
   count: number; // API 로딩 카운트 (RTK Query 미들웨어가 관리)
@@ -7,7 +7,7 @@ interface LoadingState {
 const initialState: LoadingState = { count: 0, routeActive: false };
 
 const loadingSlice = createSlice({
-  name: "loading",
+  name: 'loading',
   initialState,
   reducers: {
     start(state) {
