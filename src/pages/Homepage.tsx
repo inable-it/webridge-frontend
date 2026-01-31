@@ -393,41 +393,54 @@ type Testimonial = {
 
 const testimonials: Testimonial[] = [
   {
-    quote: '“ 웹접근성을 몰라서 벌금낼 뻔 했는데 웹브릿지 덕분에 해결했어요 ”',
-    author: '40세 스타트업 대표 “ㅇ*ㅇ” 후기',
+    quote: '웹접근성을 몰라서 벌금낼 뻔 했는데 웹브릿지 덕분에 해결했어요',
+    author: '40세 스타트업 대표 김**님 후기',
   },
   {
-    quote: '“ 개발팀 설득이 늘 어려웠는데 웹브릿지 리포트로 뭐 고쳐야하는지가 정리돼서 바로 반영됐어요 ”',
-    author: '38세 스타트업 대표 “ㅎ*ㅎ” 후기',
+    quote: '개발팀 설득이 늘 어려웠는데 웹브릿지 리포트로 왜 고쳐야 하는지가 정리돼서 바로 반영됐어요',
+    author: '38세 스타트업 대표 한**님 후기',
   },
   {
-    quote: '“ 그렇지 사용자 문의가 자주 들어오던 웹브릿지 진단 후 의도/폼 이슈 고치고 이탈이 줄었어요 ”',
-    author: '29세 프로젝트 매니저 “ㅇ*ㅇ” 후기',
+    quote: '고령자 사용자 문의가 자꾸 들어왔는데 웹브릿지 진단 후 명도/폼 이슈 고치고 이탈이 줄었어요',
+    author: '29세 프로덕트 매니저 이**님 후기',
   },
   {
-    quote: '“ 출시 앞두고 접근성 이슈가 걱정됐는데 내사이트에서 리스크가 한눈에 보여서 바로 정리됐어요 ”',
-    author: '32세 서비스 책임자 “ㅋ*ㅎ” 후기',
+    quote: '출시 앞두고 접근성 이슈가 걱정됐는데 대시보드에서 리스크가 한눈에 보여서 바로 정리됐어요',
+    author: '32세 서비스 책임자 강**님 후기',
   },
 ];
 
 const TestimonialsSection = () => {
   return (
-    <section className='w-full py-24 bg-[#F9F9F9]'>
+    <section className='w-full bg-white py-28'>
       <div className='w-full px-6 mx-auto max-w-7xl md:px-10'>
         <FadeInSection>
-          <h1 className='text-5xl font-bold leading-snug tracking-tight text-center text-gray-900'>
+          <h2 className='text-center text-[44px] md:text-5xl font-extrabold tracking-tight lg:leading-[68px] text-gray-900'>
             아무리 바빠도 디테일을 놓치고 싶지 않은,
             <br />
             책임감 있는 개발자의 이야기
-          </h1>
+          </h2>
         </FadeInSection>
 
-        <div className='grid grid-cols-1 gap-6 mt-14 md:grid-cols-2 lg:grid-cols-4'>
+        <div className='grid grid-cols-1 gap-6 mt-16 md:grid-cols-2 lg:grid-cols-4'>
           {testimonials.map((t, idx) => (
             <FadeInSection key={idx}>
-              <figure className='h-full rounded-xl border border-blue-300 bg-white px-6 py-12 shadow-[0_10px_30px_rgba(59,130,246,0.10)]'>
-                <blockquote className='text-gray-700 text-sm md:text-[15px] leading-7 break-keep'>{t.quote}</blockquote>
-                <figcaption className='mt-8 text-xs text-center text-gray-500'>{t.author}</figcaption>
+              <figure
+                className={[
+                  'h-full min-h-[260px]',
+                  'rounded-xl bg-white',
+                  'border-2 border-blue-500/60',
+                  'px-8 py-10',
+                  'flex flex-col justify-between',
+                ].join(' ')}
+              >
+                <blockquote className='break-keep text-[18px] font-semibold leading-8 text-gray-800'>
+                  <span aria-hidden='true'>“ </span>
+                  {t.quote}
+                  <span aria-hidden='true'> ”</span>
+                </blockquote>
+
+                <figcaption className='pt-10 text-[13px] font-medium text-gray-600'>{t.author}</figcaption>
               </figure>
             </FadeInSection>
           ))}
