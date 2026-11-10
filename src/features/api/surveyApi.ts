@@ -58,7 +58,7 @@ export const surveyApi = privateApi.injectEndpoints({
   endpoints: (builder) => ({
     createSurvey: builder.mutation<SurveyCreateResponse, SurveyPayload>({
       query: (body) => ({
-        url: "survey/create/",
+        url: "survey/create",
         method: "POST",
         body,
       }),
@@ -68,14 +68,14 @@ export const surveyApi = privateApi.injectEndpoints({
 
     // 설문 표시 여부 체크
     getSurveyTrigger: builder.query<SurveyTriggerResponse, void>({
-      query: () => ({ url: "survey/check-trigger/" }),
+      query: () => ({ url: "survey/check-trigger" }),
       providesTags: ["SurveyTrigger"] as any,
     }),
 
     // 설문 “표시함” 기록 (다시 뜨지 않게)
     markSurveyShown: builder.mutation<{ ok: true }, void>({
       query: () => ({
-        url: "survey/mark-shown/",
+        url: "survey/mark-shown",
         method: "POST",
       }),
       invalidatesTags: ["SurveyTrigger"] as any,

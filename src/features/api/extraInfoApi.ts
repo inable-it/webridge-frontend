@@ -15,7 +15,7 @@ export const extraInfoApi = privateApi.injectEndpoints({
       CreateExtraInfoReq
     >({
       query: (body) => ({
-        url: "/user/extra-info/",
+        url: "/user/extra-info",
         method: "POST",
         body,
       }),

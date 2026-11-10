@@ -21,7 +21,7 @@ export const termsApi = privateApi.injectEndpoints({
   endpoints: (builder) => ({
     // 1) 사용자의 약관 동의 상태 조회
     getTermsStatus: builder.query<TermsStatus, void>({
-      query: () => "/terms/status/",
+      query: () => "/terms/status",
     }),
 
     // 2) 약관 재동의 (이번 요구사항은 marketing 만 토글)
@@ -30,7 +30,7 @@ export const termsApi = privateApi.injectEndpoints({
       UpdateTermsBody
     >({
       query: (body) => ({
-        url: "/terms/update/",
+        url: "/terms/update",
         method: "POST",
         body,
       }),
