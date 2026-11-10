@@ -21,7 +21,7 @@ export const altTextFeedbackApi = privateApi.injectEndpoints({
       AltTextFeedbackPayload
     >({
       query: (body) => ({
-        url: "/alt-text-feedback/create/",
+        url: "/alt-text-feedback/create",
         method: "POST",
         body,
       }),
@@ -30,7 +30,7 @@ export const altTextFeedbackApi = privateApi.injectEndpoints({
     // 삭제(토글 해제) 추가
     deleteAltTextFeedback: builder.mutation<void, number>({
       query: (feedbackId) => ({
-        url: `/alt-text-feedback/${feedbackId}/delete/`,
+        url: `/alt-text-feedback/${feedbackId}/delete`,
         method: "DELETE",
       }),
     }),

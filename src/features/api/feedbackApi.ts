@@ -40,7 +40,7 @@ export const feedbackApi = privateApi.injectEndpoints({
       CreateFeedbackRequest
     >({
       query: (body) => ({
-        url: "feedback/create/",
+        url: "feedback/create",
         method: "POST",
         body,
       }),
@@ -52,7 +52,7 @@ export const feedbackApi = privateApi.injectEndpoints({
       { page?: number; page_size?: number }
     >({
       query: ({ page = 1, page_size = 20 } = {}) => ({
-        url: "feedback/list/",
+        url: "feedback/list",
         params: { page, page_size },
       }),
     }),
@@ -63,7 +63,7 @@ export const feedbackApi = privateApi.injectEndpoints({
       { id: number; data: UpdateFeedbackRequest }
     >({
       query: ({ id, data }) => ({
-        url: `feedback/${id}/update/`,
+        url: `feedback/${id}/update`,
         method: "PATCH",
         body: data,
       }),
@@ -72,7 +72,7 @@ export const feedbackApi = privateApi.injectEndpoints({
     // 피드백 삭제
     deleteFeedback: builder.mutation<void, number>({
       query: (id) => ({
-        url: `feedback/${id}/delete/`,
+        url: `feedback/${id}/delete`,
         method: "DELETE",
       }),
     }),
