@@ -331,7 +331,7 @@ export const scanApi = scanPrivateApi.injectEndpoints({
   endpoints: (builder) => ({
     createScan: builder.mutation<CreateScanResponse, CreateScanRequest>({
       query: (body) => ({
-        url: 'scans/create/',
+        url: 'scans/create',
         method: 'POST',
         body,
       }),
@@ -349,7 +349,7 @@ export const scanApi = scanPrivateApi.injectEndpoints({
           page_size: page_size.toString(),
         });
         if (status) params.append('status', status);
-        return { url: `scans/?${params.toString()}` };
+        return { url: `scans?${params.toString()}` };
       },
       providesTags: (result) =>
         result
@@ -358,13 +358,13 @@ export const scanApi = scanPrivateApi.injectEndpoints({
     }),
 
     getScanDetail: builder.query<AccessibilityScanDetail, string>({
-      query: (scanId) => ({ url: `scans/${scanId}/` }),
+      query: (scanId) => ({ url: `scans/${scanId}` }),
       providesTags: (_result, _error, scanId) => [{ type: 'Scan', id: scanId }],
     }),
 
     deleteScan: builder.mutation<void, string>({
       query: (scanId) => ({
-        url: `scans/${scanId}/delete/`,
+        url: `scans/${scanId}/delete`,
         method: 'DELETE',
       }),
       invalidatesTags: (_result, _error, scanId) => [
@@ -374,12 +374,12 @@ export const scanApi = scanPrivateApi.injectEndpoints({
     }),
 
     getScanProgress: builder.query<ScanProgress, string>({
-      query: (scanId) => ({ url: `scans/${scanId}/progress/` }),
+      query: (scanId) => ({ url: `scans/${scanId}/progress` }),
     }),
 
     generateReport: builder.mutation<GenerateReportResponse, { scanId: string; data: GenerateReportRequest }>({
       query: ({ scanId, data }) => ({
-        url: `scans/${scanId}/generate-report/`,
+        url: `scans/${scanId}/generate-report`,
         method: 'POST',
         body: data,
       }),
@@ -387,12 +387,12 @@ export const scanApi = scanPrivateApi.injectEndpoints({
     }),
 
     getReportDownloadUrl: builder.query<{ download_url: string }, string>({
-      query: (scanId) => ({ url: `scans/${scanId}/download-report/` }),
+      query: (scanId) => ({ url: `scans/${scanId}/download-report` }),
     }),
 
     restartScan: builder.mutation<RestartScanResponse, string>({
       query: (scanId) => ({
-        url: `scans/${scanId}/restart/`,
+        url: `scans/${scanId}/restart`,
         method: 'POST',
       }),
       invalidatesTags: (_result, _error, scanId) => [
