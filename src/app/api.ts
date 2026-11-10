@@ -42,7 +42,7 @@ export const customBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBase
 
         const refreshResult = await baseQuery(
           {
-            url: '/auth/token/refresh/',
+            url: '/auth/token/refresh',
             method: 'POST',
             body: { refresh: refreshToken },
           },

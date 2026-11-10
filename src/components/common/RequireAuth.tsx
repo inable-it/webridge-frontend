@@ -15,7 +15,7 @@ const getToken = (k: "accessToken" | "refreshToken") => {
 // RTK Query customBaseQuery와 동일한 스펙을 사용 (/auth/token/refresh/, { refresh })
 async function refreshAccessTokenWithFetch(refreshToken: string) {
     const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
-    const url = `${base}/auth/token/refresh/`;
+    const url = `${base}/auth/token/refresh`;
 
     const res = await fetch(url, {
         method: "POST",

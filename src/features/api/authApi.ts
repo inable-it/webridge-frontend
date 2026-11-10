@@ -78,7 +78,7 @@ export const authPublicApi = publicApi.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<LoginResponse, RegisterRequest>({
       query: (body) => ({
-        url: "auth/register/",
+        url: "auth/register",
         method: "POST",
         body,
       }),
@@ -86,7 +86,7 @@ export const authPublicApi = publicApi.injectEndpoints({
 
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
-        url: "auth/login/",
+        url: "auth/login",
         method: "POST",
         body,
       }),
@@ -94,7 +94,7 @@ export const authPublicApi = publicApi.injectEndpoints({
 
     socialLogin: builder.mutation<SocialLoginResponse, SocialLoginRequest>({
       query: (body) => ({
-        url: "auth/social-login/",
+        url: "auth/social-login",
         method: "POST",
         body,
       }),
@@ -105,7 +105,7 @@ export const authPublicApi = publicApi.injectEndpoints({
       PasswordResetRequest
     >({
       query: (body) => ({
-        url: "auth/password-reset/",
+        url: "auth/password-reset",
         method: "POST",
         body,
       }),
@@ -116,7 +116,7 @@ export const authPublicApi = publicApi.injectEndpoints({
       PasswordResetConfirmRequest
     >({
       query: (body) => ({
-        url: "auth/password-reset-confirm/",
+        url: "auth/password-reset-confirm",
         method: "POST",
         body,
       }),
@@ -128,7 +128,7 @@ export const authPublicApi = publicApi.injectEndpoints({
       EmailVerificationRequest
     >({
       query: (body) => ({
-        url: "auth/request-email-verification/",
+        url: "auth/request-email-verification",
         method: "POST",
         body,
       }),
@@ -140,7 +140,7 @@ export const authPublicApi = publicApi.injectEndpoints({
       EmailVerificationRequest
     >({
       query: (body) => ({
-        url: "auth/check-email-verification/",
+        url: "auth/check-email-verification",
         method: "POST",
         body,
       }),
@@ -154,7 +154,7 @@ export const authPrivateApi = privateApi.injectEndpoints({
   endpoints: (builder) => ({
       logout: builder.mutation<void, LogoutRequest>({
           query: (body) => ({
-              url: "auth/logout/",
+              url: "auth/logout",
               method: "POST",
               body,
           }),
@@ -165,7 +165,7 @@ export const authPrivateApi = privateApi.injectEndpoints({
       SocialTermsAgreementRequest
     >({
       query: (body) => ({
-        url: "auth/social-terms-agreement/",
+        url: "auth/social-terms-agreement",
         method: "POST",
         body,
       }),
@@ -175,7 +175,7 @@ export const authPrivateApi = privateApi.injectEndpoints({
       ChangePasswordRequest
     >({
       query: (body) => ({
-        url: "auth/change-password/",
+        url: "auth/change-password",
         method: "POST",
         body,
       }),
