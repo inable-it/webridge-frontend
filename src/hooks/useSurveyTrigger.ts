@@ -23,15 +23,33 @@ export function useSurveyTrigger({ scanListData, selectedScanDetail }: Args) {
   // 중복 호출 방지
   const markedRef = useRef(false);
 
-  // 스캔 상태가 바뀌면 서버 신호 재확인
+  // 이전 완료 상태 및 완료된 스캔 수 추적
+  const prevStatusRef = useRef<string | undefined>(selectedScanDetail?.status);
+  const prevCompletedCountRef = useRef<number>(
+    scanListData?.results?.filter((r) => r.status === "completed").length ?? 0
+  );
+
+  // 스캔이 완료되었을 때만 서버 신호 재확인 (진행 중일 때 반복 호출 방지)
   useEffect(() => {
-    refetch();
+    const currentStatus = selectedScanDetail?.status;
+    const currentCompletedCount =
+      scanListData?.results?.filter((r) => r.status === "completed").length ?? 0;
+
+    const justCompleted =
+      prevStatusRef.current !== "completed" && currentStatus === "completed";
+    const newScanCompleted =
+      currentCompletedCount > prevCompletedCountRef.current;
+
+    prevStatusRef.current = currentStatus;
+    prevCompletedCountRef.current = currentCompletedCount;
+
+    if (justCompleted || newScanCompleted) {
+      refetch();
+    }
   }, [
     refetch,
-    scanListData?.results?.length,
-    scanListData?.results?.map((r) => r.status).join(","),
     selectedScanDetail?.status,
-    selectedScanDetail?.updated_at,
+    scanListData?.results,
   ]);
 
   // 서버 신호로는 "열기만" 하고, 자동으로 닫지 않는다.
