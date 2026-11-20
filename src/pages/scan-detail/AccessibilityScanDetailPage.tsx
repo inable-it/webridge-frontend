@@ -14,6 +14,7 @@ import { isAltTextCompliant } from "@/utils/altText";
 import { isVideoCaptionCompliant } from "@/pages/scan-detail/components/VideoDetail";
 import { isAutoPlayCompliant } from "@/pages/scan-detail/components/AutoPlayDetail";
 import { isContrastCompliant } from "@/pages/scan-detail/components/ContrastDetail";
+import { isKeyboardCompliant } from "@/pages/scan-detail/components/KeyboardDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -94,7 +95,7 @@ const AccessibilityScanDetailPage = () => {
       case "contrast":
         return !isContrastCompliant(result);
       case "keyboard":
-        return !result.accessible;
+        return !isKeyboardCompliant(result);
       case "label":
         return !result.label_present;
       case "table":
@@ -117,7 +118,8 @@ const AccessibilityScanDetailPage = () => {
     category === "video_caption" ||
     category === "auto_play" ||
     category === "video_autoplay" ||
-    category === "contrast";
+    category === "contrast" ||
+    category === "keyboard";
 
   return (
     <div className="min-h-screen bg-gray-50">
