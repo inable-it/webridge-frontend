@@ -70,7 +70,33 @@ const getWcagGrade = (r: any): string => {
     return explicit.trim().toUpperCase();
   }
   const ratio = typeof r?.contrast_ratio === "number" ? r.contrast_ratio : 0;
-  return ratio >= 7.0 ? "AAA" : "AA";
+  if (ratio >= 7.0) return "AAA";
+  if (ratio >= 4.5) return "AA";
+  return "미달";
+};
+
+/**
+ * HEX 색상 배경 위에서 가독성이 확보되는 텍스트/테두리 스타일 계산
+ */
+const getColorBadgeStyle = (hex: string) => {
+  const clean = hex.replace("#", "");
+  if (clean.length !== 6) {
+    return {
+      backgroundColor: "#374151",
+      color: "#FFFFFF",
+      borderColor: "#374151",
+    };
+  }
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  const isLight = luminance > 0.65;
+  return {
+    backgroundColor: hex,
+    color: isLight ? "#1F2937" : "#FFFFFF",
+    borderColor: isLight ? "#9CA3AF" : hex,
+  };
 };
 
 const resolveContrastCaptureUrl = (r: any, scanUrl?: string): string | null => {
@@ -209,11 +235,11 @@ const ContrastDetail = ({ results, scanUrl }: Props) => {
                   </div>
 
                   {/* 우측 결과 카드 */}
-                  <div className="flex-1 p-5 space-y-4 bg-white border border-gray-300 rounded-lg">
-                    {/* 1 & 2: 텍스트 캡쳐 이미지 + HTML 소스 코드 */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
-                      {/* 1: 텍스트 캡쳐 이미지 (글씨 부분 캡쳐) */}
-                      <div className="relative flex items-center justify-center w-full sm:w-44 min-h-[104px] overflow-hidden rounded bg-[#D1D5DB] shrink-0">
+                  <div className="flex-1 p-4 space-y-3 bg-white border border-gray-300 rounded-lg">
+                    {/* 1 & 2: 연파랑 배경 박스 (글씨 부분 캡쳐 + HTML 소스 코드 + 더보기) */}
+                    <div className="flex flex-col items-start justify-between gap-4 p-4 border border-blue-200 rounded sm:flex-row bg-[#EAF1FF]">
+                      {/* 1: 텍스트 캡쳐 이미지 (흰색 라운드 박스) */}
+                      <div className="relative flex items-center justify-center w-full overflow-hidden bg-white rounded-lg sm:w-56 h-36 shrink-0">
                         {!previewFailed && captureUrl ? (
                           <img
                             src={captureUrl}
@@ -226,171 +252,92 @@ const ContrastDetail = ({ results, scanUrl }: Props) => {
                               }))
                             }
                           />
-                        ) : (
-                          <span className="text-xs font-semibold text-gray-800">
-                            글씨 부분 캡쳐
-                          </span>
-                        )}
+                        ) : null}
                       </div>
 
-                      {/* 2: 텍스트 콘텐츠 명도대비 HTML 소스 코드 + 더보기 */}
-                      <div className="flex flex-col justify-between flex-1 p-3 bg-white border border-gray-300 rounded min-h-[104px]">
-                        <div
-                          className={`font-mono text-xs text-gray-800 break-all whitespace-pre-wrap ${
-                            isExpanded ? "" : "line-clamp-4"
+                      {/* 2: 텍스트 콘텐츠 명도대비 HTML 소스 코드 */}
+                      <div
+                        className={`flex-1 font-mono text-sm text-gray-800 break-all whitespace-pre-wrap ${
+                          isExpanded ? "" : "line-clamp-3"
+                        }`}
+                      >
+                        {htmlCode || "html 코드"}
+                      </div>
+
+                      {/* 더보기 버튼 */}
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(itemKey)}
+                        className="text-xs font-medium text-gray-700 underline-offset-2 hover:text-gray-900 hover:underline shrink-0"
+                      >
+                        {isExpanded ? "접기" : "더보기"}
+                      </button>
+                    </div>
+
+                    {/* 3, 4, 5: 색상 코드 / 명도 대비 / 준수 등급 (WCAG 기준) */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* 3: 색상 코드 */}
+                      <div className="flex flex-wrap items-center gap-3 px-4 py-2.5 rounded bg-[#F3F5F8]">
+                        <span className="text-xs font-bold text-gray-900">
+                          색상 코드
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="px-3 py-1.5 font-mono text-xs font-medium border rounded-md"
+                            style={getColorBadgeStyle(bgHex)}
+                          >
+                            배경색 {bgHex}
+                          </span>
+                          <span
+                            className="px-3 py-1.5 font-mono text-xs font-medium border rounded-md"
+                            style={getColorBadgeStyle(fgHex)}
+                          >
+                            글자색 {fgHex}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 4: 명도 대비 */}
+                      <div className="flex items-center gap-3 px-4 py-2.5 rounded bg-[#F3F5F8]">
+                        <span className="text-xs font-bold text-gray-900">
+                          명도 대비
+                        </span>
+                        <span
+                          className={`px-3 py-1.5 text-xs font-semibold bg-white border border-gray-400 rounded-md ${
+                            isCompliant ? "text-gray-900" : "text-red-600"
                           }`}
                         >
-                          {htmlCode || "html 코드"}
-                        </div>
-                        <div className="flex justify-end mt-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(itemKey)}
-                            className="text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline"
-                          >
-                            {isExpanded ? "접기" : "더보기"}
-                          </button>
-                        </div>
+                          {ratioText}
+                        </span>
+                      </div>
+
+                      {/* 5: 준수 등급 ( WCAG 기준 ) */}
+                      <div className="flex items-center gap-3 px-4 py-2.5 rounded bg-[#F3F5F8]">
+                        <span className="text-xs font-bold text-gray-900">
+                          준수 등급 ( WCAG 기준 )
+                        </span>
+                        <span className="px-3 py-1.5 text-xs font-semibold text-gray-900 bg-white border border-gray-400 rounded-md">
+                          {getWcagGrade(r)}
+                        </span>
                       </div>
                     </div>
 
-                    {/* 3, 4, (준수 시 5): 색상코드 / 명도대비 / 준수 등급 */}
-                    {isCompliant ? (
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        {/* 3: 색상코드 */}
-                        <div className="flex flex-col justify-between p-4 rounded bg-[#D9D9D9]/80 min-h-[120px]">
-                          <span className="text-xs font-bold text-gray-900">
-                            색상코드
-                          </span>
-                          <div className="grid grid-cols-2 gap-3 mt-2 text-center">
-                            <div>
-                              <div className="mb-1.5 text-xs text-gray-800">
-                                배경색
-                              </div>
-                              <div
-                                className="w-20 h-4 mx-auto border border-gray-300"
-                                style={{ backgroundColor: r?.background_color || bgHex }}
-                              />
-                              <div className="mt-1.5 font-mono text-xs text-gray-900">
-                                {bgHex}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-1.5 text-xs text-gray-800">
-                                글자색
-                              </div>
-                              <div
-                                className="w-20 h-4 mx-auto border border-gray-300"
-                                style={{ backgroundColor: r?.foreground_color || fgHex }}
-                              />
-                              <div className="mt-1.5 font-mono text-xs text-gray-900">
-                                {fgHex}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 4: 명도대비 */}
-                        <div className="flex flex-col p-4 rounded bg-[#D9D9D9]/80 min-h-[120px]">
-                          <span className="text-xs font-bold text-gray-900">
-                            명도대비
-                          </span>
-                          <div className="flex items-center justify-center flex-1 text-xl font-bold text-gray-900">
-                            {ratioText}
-                          </div>
-                        </div>
-
-                        {/* 5: 준수 등급 (WCAG 기준) - 준수 시에만 제공 */}
-                        <div className="flex flex-col p-4 rounded bg-[#D9D9D9]/80 min-h-[120px]">
-                          <span className="text-xs font-bold text-gray-900">
-                            준수 등급 (WCAG 기준)
-                          </span>
-                          <div className="flex items-center justify-center flex-1 text-xl font-bold text-gray-900">
-                            {getWcagGrade(r)}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-xl mx-auto w-full">
-                        {/* 3: 색상코드 */}
-                        <div className="flex flex-col justify-between p-4 rounded bg-[#D9D9D9]/80 min-h-[120px]">
-                          <span className="text-xs font-bold text-gray-900">
-                            색상코드
-                          </span>
-                          <div className="grid grid-cols-2 gap-3 mt-2 text-center">
-                            <div>
-                              <div className="mb-1.5 text-xs text-gray-800">
-                                배경색
-                              </div>
-                              <div
-                                className="w-20 h-4 mx-auto border border-gray-300"
-                                style={{ backgroundColor: r?.background_color || bgHex }}
-                              />
-                              <div className="mt-1.5 font-mono text-xs text-gray-900">
-                                {bgHex}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="mb-1.5 text-xs text-gray-800">
-                                글자색
-                              </div>
-                              <div
-                                className="w-20 h-4 mx-auto border border-gray-300"
-                                style={{ backgroundColor: r?.foreground_color || fgHex }}
-                              />
-                              <div className="mt-1.5 font-mono text-xs text-gray-900">
-                                {fgHex}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 4: 명도 대비 (미준수 시 빨간색 수치 표시) */}
-                        <div className="flex flex-col p-4 rounded bg-[#D9D9D9]/80 min-h-[120px]">
-                          <span className="text-xs font-bold text-gray-900">
-                            명도 대비
-                          </span>
-                          <div className="flex items-center justify-center flex-1 text-xl font-bold text-red-600">
-                            {ratioText}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 6: 안내문 (미준수 시 자가 판단용 2가지 경고문 고정 제공) */}
+                    {/* 6: 안내문 (미준수 시 대형 텍스트 안내문, 테두리 없이 카드 하단 배치) */}
                     {!isCompliant && (
-                      <div className="space-y-2">
-                        <div className="p-3.5 bg-white border-2 border-red-500 rounded">
-                          <p className="flex items-center gap-1.5 text-sm font-bold text-gray-900">
-                            <span aria-hidden="true">⚠</span>
-                            <span className="sr-only">확인 안내: </span>
-                            대형 텍스트인지 확인해 보세요.
-                          </p>
-                          <ul className="mt-1 ml-5 text-xs font-semibold text-gray-900 list-disc">
-                            <li>
-                              폰트를 18pt 이상 또는 14pt 이상의 굵은 폰트를 사용하는
-                              경우라면 명도 대비를{" "}
-                              <span className="font-bold text-blue-600">3:1</span>{" "}
-                              까지 낮출 수 있어요.
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="p-3.5 bg-white border-2 border-red-500 rounded">
-                          <p className="flex items-center gap-1.5 text-sm font-bold text-gray-900">
-                            <span aria-hidden="true">⚠</span>
-                            <span className="sr-only">확인 안내: </span>
-                            확대텍스트인지 확인해 보세요.
-                          </p>
-                          <ul className="mt-1 ml-5 text-xs font-semibold text-gray-900 list-disc">
-                            <li>
-                              화면 확대가 가능하도록 구현한 텍스트 콘텐츠라면 명도
-                              대비를{" "}
-                              <span className="font-bold text-blue-600">3:1</span>{" "}
-                              까지 낮출 수 있어요.
-                            </li>
-                          </ul>
-                        </div>
+                      <div className="px-1 pt-1 space-y-1 text-sm text-gray-900">
+                        <p className="flex items-center gap-1.5 font-bold">
+                          <span aria-hidden="true">⚠</span>
+                          <span className="sr-only">확인 안내: </span>
+                          <span>대형 텍스트인지 확인해 보세요.</span>
+                        </p>
+                        <ul className="ml-2 text-sm text-gray-800">
+                          <li>
+                            • 폰트를 18pt 이상 또는 14pt 이상의 굵은 폰트를
+                            사용하는 경우라면 명도 대비를{" "}
+                            <span className="font-bold text-[#2563EB]">3:1</span>{" "}
+                            까지 낮출 수 있어요.
+                          </li>
+                        </ul>
                       </div>
                     )}
                   </div>
