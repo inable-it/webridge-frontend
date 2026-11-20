@@ -149,56 +149,63 @@ const AccessibilityScanDetailPage = () => {
         </div>
 
         {/* 검사 결과 상세 */}
-        <div className="bg-white border border-[#727272] rounded-lg shadow-sm">
-          <div className="p-6 border-b border-[#727272]">
-            <h3 className="text-lg font-semibold text-gray-900">
-              검사 결과 상세
-            </h3>
-            {!isContrast && (
-              <p className="mt-1 text-sm text-gray-500">
-                준수한 항목과 문제가 발견된 항목을 모두 확인할 수 있습니다.
-              </p>
-            )}
-          </div>
-
-          <div className="p-6">
-            {isContrast ? (
-              // 명도 대비: 지원 제외 전용 화면
-              <div className="py-12 text-center">
-                <XCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                  현재 지원하지 않는 검사 항목입니다.
-                </h3>
-                {/* 안내 문구 제거 요청에 따라 추가 문단 없음 */}
-                <Button onClick={() => navigate("/dashboard")} className="mt-4">
-                  대시보드로 돌아가기
-                </Button>
-              </div>
-            ) : results.length > 0 ? (
-              // 일반 항목: 모든 결과 렌더링 (준수/미준수 모두)
-              <DetailComponent
-                results={results}
-                scanUrl={scanDetail.url}
-              />
-            ) : (
-              // 일반 항목: 이슈 없음 화면
-              <div className="py-12 text-center">
-                <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                  문제가 발견되지 않았습니다!
-                </h3>
-                {/* 요청사항: 보조 문장 유지(contrast가 아닐 때만) */}
-                <p className="text-gray-600">
-                  {categoryInfo.title} 항목은 모든 요소가 접근성 기준을 준수하고
-                  있습니다.
+        {category === "alt_text" ? (
+          <DetailComponent
+            results={results}
+            scanUrl={scanDetail.url}
+          />
+        ) : (
+          <div className="bg-white border border-[#727272] rounded-lg shadow-sm">
+            <div className="p-6 border-b border-[#727272]">
+              <h3 className="text-lg font-semibold text-gray-900">
+                검사 결과 상세
+              </h3>
+              {!isContrast && (
+                <p className="mt-1 text-sm text-gray-500">
+                  준수한 항목과 문제가 발견된 항목을 모두 확인할 수 있습니다.
                 </p>
-                <Button onClick={() => navigate("/dashboard")} className="mt-4">
-                  대시보드로 돌아가기
-                </Button>
-              </div>
-            )}
+              )}
+            </div>
+
+            <div className="p-6">
+              {isContrast ? (
+                // 명도 대비: 지원 제외 전용 화면
+                <div className="py-12 text-center">
+                  <XCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                    현재 지원하지 않는 검사 항목입니다.
+                  </h3>
+                  {/* 안내 문구 제거 요청에 따라 추가 문단 없음 */}
+                  <Button onClick={() => navigate("/dashboard")} className="mt-4">
+                    대시보드로 돌아가기
+                  </Button>
+                </div>
+              ) : results.length > 0 ? (
+                // 일반 항목: 모든 결과 렌더링 (준수/미준수 모두)
+                <DetailComponent
+                  results={results}
+                  scanUrl={scanDetail.url}
+                />
+              ) : (
+                // 일반 항목: 이슈 없음 화면
+                <div className="py-12 text-center">
+                  <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                    문제가 발견되지 않았습니다!
+                  </h3>
+                  {/* 요청사항: 보조 문장 유지(contrast가 아닐 때만) */}
+                  <p className="text-gray-600">
+                    {categoryInfo.title} 항목은 모든 요소가 접근성 기준을 준수하고
+                    있습니다.
+                  </p>
+                  <Button onClick={() => navigate("/dashboard")} className="mt-4">
+                    대시보드로 돌아가기
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
