@@ -39,6 +39,24 @@ const resolveTableCaptureUrl = (r: any, scanUrl?: string): string | null => {
   return toAbsoluteUrl(raw, scanUrl);
 };
 
+const resolveTableCaption = (r: any): string => {
+  const explicit = r?.caption ?? r?.table_caption;
+  if (typeof explicit === "string" && explicit.trim()) {
+    return explicit.trim();
+  }
+  if (typeof r?.element_html === "string" && r.element_html.trim()) {
+    try {
+      const doc = new DOMParser().parseFromString(r.element_html, "text/html");
+      const captionEl = doc.body.querySelector("caption");
+      const text = captionEl?.textContent?.replace(/\s+/g, " ").trim();
+      if (text) return text;
+    } catch {
+      // ignore parse failure
+    }
+  }
+  return "";
+};
+
 const TableDetail = ({ results, scanUrl }: Props) => {
   const [filter, setFilter] = useState<"compliant" | "non-compliant">("non-compliant");
   const [expandedMap, setExpandedMap] = useState<Record<number | string, boolean>>({});
@@ -152,9 +170,11 @@ const TableDetail = ({ results, scanUrl }: Props) => {
             {filteredResults.map((result, index) => {
               const r = result as any;
               const itemKey = r.id ?? index;
+              const isCompliant = isTableCompliant(r);
               const isExpanded = !!expandedMap[itemKey];
               const previewFailed = !!failedPreviewMap[itemKey];
               const captureUrl = resolveTableCaptureUrl(r, scanUrl);
+              const captionText = resolveTableCaption(r);
               const htmlCode = r?.element_html || "";
 
               return (
@@ -165,49 +185,71 @@ const TableDetail = ({ results, scanUrl }: Props) => {
                   </div>
 
                   {/* 우측 결과 카드 */}
-                  <div className="flex-1 p-5 bg-white border border-gray-300 rounded-lg">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
-                      {/* 표 캡쳐본 */}
-                      <div className="relative flex items-center justify-center w-full sm:w-56 min-h-[120px] px-3 text-center overflow-hidden rounded bg-[#D1D5DB] shrink-0">
-                        {!previewFailed && captureUrl ? (
-                          <img
-                            src={captureUrl}
-                            alt="표 캡쳐본"
-                            className="object-cover w-full h-full"
-                            onError={() =>
-                              setFailedPreviewMap((prev) => ({
-                                ...prev,
-                                [itemKey]: true,
-                              }))
-                            }
-                          />
-                        ) : (
-                          <span className="text-xs font-semibold text-gray-800">
-                            표 캡쳐본
-                          </span>
-                        )}
-                      </div>
+                  <div className="flex-1 p-4 space-y-3 bg-white border border-gray-300 rounded-lg">
+                    {/* 연파랑 배경 박스 (표 캡쳐본 + HTML 소스 코드 + 더보기 + caption) */}
+                    <div className="p-4 space-y-3 border border-blue-200 rounded bg-[#EAF1FF]">
+                      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
+                        {/* 표 캡쳐본 (흰색 라운드 박스) */}
+                        <div className="relative flex items-center justify-center w-full overflow-hidden bg-white rounded-lg sm:w-56 h-36 shrink-0">
+                          {!previewFailed && captureUrl ? (
+                            <img
+                              src={captureUrl}
+                              alt="표 캡쳐본"
+                              className="object-cover w-full h-full"
+                              onError={() =>
+                                setFailedPreviewMap((prev) => ({
+                                  ...prev,
+                                  [itemKey]: true,
+                                }))
+                              }
+                            />
+                          ) : null}
+                        </div>
 
-                      {/* 표 HTML 소스 코드 + 더보기 */}
-                      <div className="flex flex-col justify-between flex-1 p-3 bg-white border border-gray-300 rounded min-h-[120px]">
+                        {/* 표 HTML 소스 코드 */}
                         <div
-                          className={`font-mono text-xs text-gray-800 break-all whitespace-pre-wrap ${
-                            isExpanded ? "" : "line-clamp-4"
+                          className={`flex-1 font-mono text-sm text-gray-800 break-all whitespace-pre-wrap ${
+                            isExpanded ? "" : "line-clamp-3"
                           }`}
                         >
                           {htmlCode || "html 코드"}
                         </div>
-                        <div className="flex justify-end mt-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(itemKey)}
-                            className="text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline"
-                          >
-                            {isExpanded ? "접기" : "더보기"}
-                          </button>
-                        </div>
+
+                        {/* 더보기 버튼 */}
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(itemKey)}
+                          className="text-xs font-medium text-gray-700 underline-offset-2 hover:text-gray-900 hover:underline shrink-0"
+                        >
+                          {isExpanded ? "접기" : "더보기"}
+                        </button>
+                      </div>
+
+                      {/* caption 정보 */}
+                      <div className="text-sm font-medium text-gray-800">
+                        caption : {captionText || "(없음)"}
                       </div>
                     </div>
+
+                    {/* 미준수 시 안내문 (테두리 없이 카드 하단 배치) */}
+                    {!isCompliant && (
+                      <div className="px-1 pt-1 space-y-1.5 text-sm text-gray-900">
+                        <p className="flex items-center gap-1.5 font-bold">
+                          <span aria-hidden="true">⚠</span>
+                          <span className="sr-only">미준수 사유: </span>
+                          <span>
+                            표의 제목 셀과 데이터 셀이 구분되어 있지 않아요.
+                          </span>
+                        </p>
+                        <ul className="ml-2 space-y-1 text-sm text-gray-800">
+                          <li>• 제목 셀은 th로 내용 셀은 td로 마크업 해야 해요.</li>
+                          <li>
+                            • 제목 셀이 행과 열에 모두 있는 경우 scope로 행 제목인지
+                            열 제목인지 구분해야 해요.
+                          </li>
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
