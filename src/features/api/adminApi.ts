@@ -189,9 +189,16 @@ export type SurveyStatItem = {
 };
 
 export type AdminSignupSurveyStatsResponse = {
-  total_responses: number;
-  path_to_webridge_stats: SurveyStatItem[];
+  total_responded_users?: number;
+  total_users?: number;
+  response_rate?: number;
+  path_stats?: SurveyStatItem[];
   occupation_stats: SurveyStatItem[];
+  recent_path_other_answers?: string[];
+  recent_occupation_other_answers?: string[];
+  // 호환성을 위한 구 필드명 지원
+  total_responses?: number;
+  path_to_webridge_stats?: SurveyStatItem[];
 };
 
 // ── API Endpoints ───────────────────────────────────────────

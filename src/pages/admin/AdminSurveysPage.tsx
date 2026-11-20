@@ -1,4 +1,12 @@
-import { BarChart3, Users, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  UserCheck,
+  TrendingUp,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +26,11 @@ const BAR_COLORS = [
 const StatBarSection = ({
   title,
   items,
+  recentOtherAnswers,
 }: {
   title: string;
   items: SurveyStatItem[];
+  recentOtherAnswers?: string[];
 }) => {
   return (
     <Card className="bg-white border-gray-200">
@@ -64,6 +74,24 @@ const StatBarSection = ({
                 </div>
               );
             })}
+
+            {recentOtherAnswers && recentOtherAnswers.length > 0 && (
+              <div className="pt-4 mt-6 border-t border-gray-100">
+                <div className="mb-2 text-xs font-semibold text-gray-500">
+                  최근 '기타' 응답 내용
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {recentOtherAnswers.map((ans, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-md"
+                    >
+                      {ans}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -99,12 +127,34 @@ const AdminSurveysPage = () => {
   }
 
   const payload = ((data as any)?.data ?? data) as typeof data;
-  const totalResponses = Number(payload?.total_responses ?? 0);
-  const pathStats = Array.isArray(payload?.path_to_webridge_stats)
+  const totalResponses = Number(
+    payload?.total_responded_users ?? payload?.total_responses ?? 0
+  );
+  const totalUsers =
+    payload?.total_users != null ? Number(payload.total_users) : undefined;
+  const responseRate =
+    payload?.response_rate != null ? Number(payload.response_rate) : undefined;
+
+  const pathStats = Array.isArray(payload?.path_stats)
+    ? payload.path_stats
+    : Array.isArray(payload?.path_to_webridge_stats)
     ? payload.path_to_webridge_stats
     : [];
   const occupationStats = Array.isArray(payload?.occupation_stats)
     ? payload.occupation_stats
+    : [];
+
+  const recentPathOtherAnswers = Array.isArray(payload?.recent_path_other_answers)
+    ? payload.recent_path_other_answers.filter(
+        (ans) => typeof ans === "string" && ans.trim().length > 0
+      )
+    : [];
+  const recentOccupationOtherAnswers = Array.isArray(
+    payload?.recent_occupation_other_answers
+  )
+    ? payload.recent_occupation_other_answers.filter(
+        (ans) => typeof ans === "string" && ans.trim().length > 0
+      )
     : [];
 
   return (
@@ -128,32 +178,68 @@ const AdminSurveysPage = () => {
         </Button>
       </div>
 
-      {/* 총 응답자 수 카드 */}
-      <Card className="bg-white border-gray-200">
-        <CardContent className="flex items-center justify-between p-6">
-          <div>
-            <div className="text-sm font-medium text-gray-500">
-              총 가입 설문 응답자 수
+      {/* 요약 통계 카드 그리드 */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Card className="bg-white border-gray-200">
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                총 가입 설문 응답자 수
+              </div>
+              <div className="mt-1 text-3xl font-bold text-gray-900">
+                {totalResponses.toLocaleString()}명
+              </div>
             </div>
-            <div className="mt-1 text-3xl font-bold text-gray-900">
-              {totalResponses.toLocaleString()}명
+            <div className="flex items-center justify-center w-12 h-12 text-blue-600 rounded-xl bg-blue-50">
+              <Users className="w-6 h-6" />
             </div>
-          </div>
-          <div className="flex items-center justify-center w-12 h-12 text-blue-600 rounded-xl bg-blue-50">
-            <Users className="w-6 h-6" />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-gray-200">
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                전체 회원 수
+              </div>
+              <div className="mt-1 text-3xl font-bold text-gray-900">
+                {totalUsers != null ? `${totalUsers.toLocaleString()}명` : "-"}
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-12 h-12 text-indigo-600 rounded-xl bg-indigo-50">
+              <UserCheck className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-gray-200">
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <div className="text-sm font-medium text-gray-500">
+                설문 응답률
+              </div>
+              <div className="mt-1 text-3xl font-bold text-gray-900">
+                {responseRate != null ? `${responseRate.toFixed(1)}%` : "-"}
+              </div>
+            </div>
+            <div className="flex items-center justify-center w-12 h-12 text-emerald-600 rounded-xl bg-emerald-50">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* 유입 경로 / 직군 통계 */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <StatBarSection
           title="유입 경로별 통계"
           items={pathStats}
+          recentOtherAnswers={recentPathOtherAnswers}
         />
         <StatBarSection
           title="직군별 통계"
           items={occupationStats}
+          recentOtherAnswers={recentOccupationOtherAnswers}
         />
       </div>
     </div>
