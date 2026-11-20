@@ -7,12 +7,19 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import { Mutex } from 'async-mutex';
 
+const DEFAULT_API_BASE_URL =
+  'https://webridge-backend-development.up.railway.app/api/v1';
+
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
+).replace(/\/+$/, '');
+
 // refresh 중복 요청 방지용 Mutex 생성
 const mutex = new Mutex();
 
 // 일반 API 요청 시 항상 이 baseQuery를 사용함
 export const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL,
+  baseUrl: API_BASE_URL,
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('accessToken');
     if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -79,7 +86,7 @@ export const customBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBase
 export const publicApi = createApi({
   reducerPath: 'publicApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_BASE_URL,
+    baseUrl: API_BASE_URL,
   }),
   endpoints: () => ({}),
 });
@@ -98,4 +105,54 @@ export const scanPrivateApi = createApi({
   baseQuery: customBaseQuery,
   endpoints: () => ({}),
   tagTypes: ['Scan'],
+});
+
+// 관리자 전용 BaseQuery (admin_access_token 헤더 첨부 + 401 시 로그인 리다이렉트)
+const rawAdminBaseQuery = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
+  prepareHeaders: (headers) => {
+    const token = localStorage.getItem('admin_access_token');
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return headers;
+  },
+});
+
+export const adminBaseQuery: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  const result = await rawAdminBaseQuery(args, api, extraOptions);
+
+  const reqUrl = typeof args === 'string' ? args : args.url;
+  const isLoginRequest = reqUrl.includes('/admin/login');
+
+  if (result.error?.status === 401 && !isLoginRequest) {
+    localStorage.removeItem('admin_access_token');
+    localStorage.removeItem('admin_user');
+    if (
+      typeof window !== 'undefined' &&
+      !window.location.pathname.startsWith('/admin/login')
+    ) {
+      window.location.href = '/admin/login';
+    }
+  }
+
+  return result;
+};
+
+// 관리자 전용 API (전역 loadingMiddleware 미적용)
+export const adminApi = createApi({
+  reducerPath: 'adminApi',
+  baseQuery: adminBaseQuery,
+  endpoints: () => ({}),
+  tagTypes: [
+    'AdminDashboard',
+    'AdminUsers',
+    'AdminUserDetail',
+    'AdminScans',
+    'AdminScanDetail',
+    'AdminTerms',
+    'AdminSurveys',
+  ],
 });

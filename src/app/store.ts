@@ -2,7 +2,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import userReducer from '@/features/store/userSlice';
 import menuReducer from '@/features/store/menuSlice';
 import loadingReducer from '@/features/store/loadingSlice';
-import { publicApi, privateApi, scanPrivateApi } from '@/app/api';
+import { publicApi, privateApi, scanPrivateApi, adminApi } from '@/app/api';
 import storage from 'redux-persist/lib/storage';
 import { persistStore, persistReducer } from 'redux-persist';
 import { loadingMiddleware } from '@/app/loadingMiddleware';
@@ -14,6 +14,7 @@ const rootReducer = combineReducers({
   [publicApi.reducerPath]: publicApi.reducer,
   [privateApi.reducerPath]: privateApi.reducer,
   [scanPrivateApi.reducerPath]: scanPrivateApi.reducer, // 추가
+  [adminApi.reducerPath]: adminApi.reducer,
 });
 
 const persistConfig = {
@@ -31,6 +32,7 @@ export const store = configureStore({
       .concat(publicApi.middleware)
       .concat(privateApi.middleware)
       .concat(scanPrivateApi.middleware) // 추가
+      .concat(adminApi.middleware)
       .concat(loadingMiddleware),
 });
 
