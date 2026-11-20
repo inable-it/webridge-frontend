@@ -17,6 +17,7 @@ import { isContrastCompliant } from "@/pages/scan-detail/components/ContrastDeta
 import { isKeyboardCompliant } from "@/pages/scan-detail/components/KeyboardDetail";
 import { isLabelCompliant } from "@/pages/scan-detail/components/LabelDetail";
 import { isMarkupErrorCompliant } from "@/pages/scan-detail/components/MarkupErrorDetail";
+import { isBasicLanguageCompliant } from "@/pages/scan-detail/components/BasicLanguageDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -102,6 +103,8 @@ const AccessibilityScanDetailPage = () => {
         return !isLabelCompliant(result);
       case "markup_error":
         return !isMarkupErrorCompliant(result);
+      case "basic_language":
+        return !isBasicLanguageCompliant(result);
       case "table":
         return !result.compliant;
       case "video":
@@ -125,7 +128,8 @@ const AccessibilityScanDetailPage = () => {
     category === "contrast" ||
     category === "keyboard" ||
     category === "label" ||
-    category === "markup_error";
+    category === "markup_error" ||
+    category === "basic_language";
 
   return (
     <div className="min-h-screen bg-gray-50">
