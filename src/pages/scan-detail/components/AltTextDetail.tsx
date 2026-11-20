@@ -89,8 +89,9 @@ const formatCurrentAlt = (result: AltTextResult) => {
 type FeedbackState = Record<number, { likeId?: number; dislikeId?: number }>;
 
 const AltTextDetail = ({ results, scanUrl }: Props) => {
-    const [copiedOpenId, setCopiedOpenId] = useState<number | null>(null);
-    const [filter, setFilter] = useState<'compliant' | 'non-compliant'>('non-compliant');
+    const [copiedOpenKey, setCopiedOpenKey] = useState<string | null>(null);
+    const [filter, setFilter] = useState<"compliant" | "non-compliant">("non-compliant");
+    const [expandedMap, setExpandedMap] = useState<Record<number | string, boolean>>({});
 
     // 현재 어떤 버튼이 전송 중인지 구분 (예: "123:like" / "123:dislike")
     const [sendingKey, setSendingKey] = useState<string | null>(null);
@@ -108,9 +109,12 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
     // 진행 중 여부(버튼 disabled 대신 내부 가드)
     const pendingRef = useRef<Record<string, boolean>>({});
 
+    const toggleExpand = (key: number | string) => {
+        setExpandedMap((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
+
     const runOrQueue = async (key: string, action: () => Promise<void>) => {
         if (pendingRef.current[key]) {
-            // 이미 진행 중이면 이후 한 번 더 수행하도록 큐잉
             queuedToggleRef.current[key] = true;
             return;
         }
@@ -122,9 +126,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
             setSendingKey(null);
             pendingRef.current[key] = false;
             if (queuedToggleRef.current[key]) {
-                // 큐가 있으면 한 번만 즉시 재수행 후 큐 해제
                 queuedToggleRef.current[key] = false;
-                // 재귀 재진입(한 번만)
                 runOrQueue(key, action);
             }
         }
@@ -206,12 +208,12 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
         });
     };
 
-    const handleCopy = async (text: string, idForTip: number) => {
+    const handleCopy = async (text: string, keyForTip: string) => {
         try {
             await navigator.clipboard.writeText(text);
-            setCopiedOpenId(idForTip);
+            setCopiedOpenKey(keyForTip);
             setTimeout(
-                () => setCopiedOpenId((prev) => (prev === idForTip ? null : prev)),
+                () => setCopiedOpenKey((prev) => (prev === keyForTip ? null : prev)),
                 1500
             );
         } catch {
@@ -248,76 +250,79 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
     // 필터링된 결과
     const filteredResults = results.filter(result => {
         const isCompliant = isAltTextCompliant(result.compliance);
-        return filter === 'compliant' ? isCompliant : !isCompliant;
+        return filter === "compliant" ? isCompliant : !isCompliant;
     });
 
     return (
-        <div className="space-y-6">
-            {/* 수정 가이드 (피그마: 별도 카드 박스) */}
-            <div className="p-6 bg-white border border-[#727272] rounded-lg shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+        <div className="space-y-8">
+            {/* 수정 가이드 섹션 */}
+            <div>
+                <h3 className="mb-3 text-xl font-bold text-gray-900">
                     수정 가이드
                 </h3>
-                <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-bold text-gray-900">
-                        ℹ️ WEBridge는 [적절한 대체 텍스트 제공] 미준수 여부를 다음 기준으로 확인해요.
-                    </span>
+                <div className="p-6 bg-[#F3F5F8] border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-bold text-gray-900">
+                            ℹ️ WEBridge는 [적절한 대체 텍스트 제공] 미준수 여부를 다음 기준으로 확인해요.
+                        </span>
+                    </div>
+                    <ul className="space-y-1 text-sm text-gray-800">
+                        <li>• 이미지에 alt 속성이 아예 없는 경우</li>
+                        <li>• 이미지에 입력된 대체 텍스트가 이미지의 의미와 맞지 않는 경우</li>
+                    </ul>
+                    <div className="flex items-center gap-2 mt-4 mb-2">
+                        <span className="text-sm font-bold text-gray-900">
+                            ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
+                        </span>
+                    </div>
+                    <ul className="space-y-1 text-sm text-gray-800">
+                        <li>• 모든 의미있는 이미지에는 alt 속성을 통해 대체텍스트를 입력해야 해요.</li>
+                        <li>• 대체텍스트는 이미지의 의미나 용도를 동등하게 인식할 수 있도록 작성해야 해요.</li>
+                        <li>• 대체텍스트는 간단명료하게 제공하는 것이 좋아요.</li>
+                    </ul>
+                    <div className="flex items-center gap-2 mt-4 mb-2">
+                        <span className="text-sm font-bold text-gray-900">
+                            💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
+                        </span>
+                    </div>
+                    <ul className="space-y-1 text-sm text-gray-800">
+                        <li>• 이미지 외에도 동영상 등의 텍스트가 아닌 콘텐츠에도 대체 텍스트가 필요해요.</li>
+                        <li>• 수어 영상처럼 이미 내용을 전달하고 있는 콘텐츠에는 대체 텍스트를 따로 넣지 않아도 괜찮아요.</li>
+                        <li>• 장식용 이미지는 alt를 빈값으로 설정하면, 보조기술이 불필요한 정보를 건너뛸 수 있어요.</li>
+                    </ul>
                 </div>
-                <ul className="space-y-1 text-sm text-gray-800">
-                    <li>• 이미지에 alt 속성이 아예 없는 경우</li>
-                    <li>• 이미지에 alt 속성값이 이유없이 비어있는 경우</li>
-                    <li>• 이미지에 입력된 대체 텍스트가 이미지의 의미와 맞지 않는 경우</li>
-                </ul>
-                <div className="flex items-center gap-2 mt-4 mb-2">
-                    <span className="text-sm font-bold text-gray-900">
-                        ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
-                    </span>
-                </div>
-                <ul className="space-y-1 text-sm text-gray-800">
-                    <li>• 모든 의미있는 이미지에는 alt 속성을 통해 대체텍스트를 입력해야 해요.</li>
-                    <li>• 대체텍스트는 이미지의 의미나 용도를 동등하게 인식할 수 있도록 작성해야 해요.</li>
-                    <li>• 대체텍스트는 간단명료하게 제공하는 것이 좋아요.</li>
-                </ul>
-                <div className="flex items-center gap-2 mt-4 mb-2">
-                    <span className="text-sm font-bold text-gray-900">
-                        💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
-                    </span>
-                </div>
-                <ul className="space-y-1 text-sm text-gray-800">
-                    <li>• 이미지 외에도 동영상 등의 텍스트가 아닌 콘텐츠에도 대체 텍스트가 필요해요.</li>
-                    <li>• 수어 영상처럼 이미 내용을 전달하고 있는 콘텐츠에는 대체 텍스트를 따로 넣지 않아도 괜찮아요.</li>
-                    <li>• 장식용 이미지는 alt를 빈값으로 설정하면, 보조기술이 불필요한 정보를 건너뛸 수 있어요.</li>
-                </ul>
             </div>
 
-            {/* 검사 결과 상세 (피그마: 별도 카드 박스) */}
-            <div className="p-6 bg-white border border-[#727272] rounded-lg shadow-sm">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            {/* 검사 결과 상세 섹션 */}
+            <div>
+                <h3 className="mb-3 text-xl font-bold text-gray-900">
                     검사 결과 상세
                 </h3>
 
-                {/* 필터 버튼 (피그마: 준수 / 미준수) */}
+                {/* 필터 버튼 (피그마: 준수 / 미준수 - 선택 시 파란 배경, 미선택 시 흰 배경+파란 테두리) */}
                 <div className="flex gap-2 mb-6" role="group" aria-label="검사 결과 필터">
                     <Button
                         size="sm"
-                        aria-pressed={filter === 'compliant'}
-                        onClick={() => setFilter('compliant')}
-                        className={`text-xs px-4 rounded-md ${
-                            filter === 'compliant'
-                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                : 'bg-[#6B7280] hover:bg-[#5B6270] text-white'
+                        variant="outline"
+                        aria-pressed={filter === "compliant"}
+                        onClick={() => setFilter("compliant")}
+                        className={`text-xs px-3.5 py-1.5 h-8 rounded-md font-medium border ${
+                            filter === "compliant"
+                                ? "bg-[#2563EB] hover:bg-blue-700 text-white border-[#2563EB]"
+                                : "bg-white hover:bg-blue-50 text-[#2563EB] border-[#2563EB]"
                         }`}
                     >
                         준수
                     </Button>
                     <Button
                         size="sm"
-                        aria-pressed={filter === 'non-compliant'}
-                        onClick={() => setFilter('non-compliant')}
-                        className={`text-xs px-4 rounded-md ${
-                            filter === 'non-compliant'
-                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                : 'bg-[#6B7280] hover:bg-[#5B6270] text-white'
+                        variant="outline"
+                        aria-pressed={filter === "non-compliant"}
+                        onClick={() => setFilter("non-compliant")}
+                        className={`text-xs px-3.5 py-1.5 h-8 rounded-md font-medium border ${
+                            filter === "non-compliant"
+                                ? "bg-[#2563EB] hover:bg-blue-700 text-white border-[#2563EB]"
+                                : "bg-white hover:bg-blue-50 text-[#2563EB] border-[#2563EB]"
                         }`}
                     >
                         미준수
@@ -331,26 +336,30 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                 ) : (
                     <div className="space-y-4">
                         {filteredResults.map((result, index) => {
+                            const itemKey = result.id ?? index;
                             const fb = feedbackState[result.id] || {};
                             const isLiked = !!fb.likeId;
                             const isDisliked = !!fb.dislikeId;
-                            const isCompliant = isAltTextCompliant(result.compliance);
+                            const isExpanded = !!expandedMap[itemKey];
                             const issueType = getAltIssueType(result);
+                            const currentAltDisplay = formatCurrentAlt(result);
                             const aiSuggestion =
                                 result.ai_improvement || result.answer || result.suggested_alt;
+                            const currentCopyKey = `${result.id}:current`;
+                            const aiCopyKey = `${result.id}:ai`;
 
                             return (
-                                <div key={result.id} className="flex items-start gap-3">
-                                    {/* 좌측 순번 박스 */}
-                                    <div className="flex items-center justify-center w-8 h-8 text-sm font-medium text-gray-900 bg-white border border-[#727272] rounded shrink-0">
+                                <div key={itemKey} className="flex items-start gap-3">
+                                    {/* 좌측 순번 배지 (짙은 회색 정사각형) */}
+                                    <div className="flex items-center justify-center w-6 h-6 text-xs font-semibold text-white rounded bg-[#6B7280] shrink-0">
                                         {index + 1}
                                     </div>
 
                                     {/* 우측 결과 카드 */}
-                                    <div className="flex-1 p-5 space-y-3 bg-white border border-[#727272] rounded-lg">
-                                        {/* 1 & 2: 이미지 미리보기 + HTML 소스 코드 */}
-                                        <div className="flex items-center gap-6 p-4 bg-white border border-gray-300 rounded">
-                                            <div className="relative flex items-center justify-center w-32 h-24 overflow-hidden rounded bg-gray-50 shrink-0">
+                                    <div className="flex-1 p-4 space-y-3 bg-white border border-gray-300 rounded-lg">
+                                        {/* 1 & 2: 연파랑 배경 박스 (이미지 미리보기 + HTML 소스 코드 + 더보기) */}
+                                        <div className="flex items-start justify-between gap-4 p-4 border border-blue-200 rounded bg-[#EAF1FF]">
+                                            <div className="relative flex items-center justify-center w-32 h-24 p-2 overflow-hidden bg-white rounded-lg shrink-0">
                                                 <img
                                                     src={getAbsoluteImageUrl(result.img_url, scanUrl ?? "")}
                                                     alt="검사 대상 이미지"
@@ -370,49 +379,80 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex-1 font-mono text-sm text-gray-800 break-all">
+                                            <div
+                                                className={`flex-1 self-center font-mono text-sm text-gray-800 break-all whitespace-pre-wrap ${
+                                                    isExpanded ? "" : "line-clamp-3"
+                                                }`}
+                                            >
                                                 {result.element_html}
                                             </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => toggleExpand(itemKey)}
+                                                className="text-xs font-medium text-gray-700 underline-offset-2 hover:text-gray-900 hover:underline shrink-0"
+                                            >
+                                                {isExpanded ? "접기" : "더보기"}
+                                            </button>
                                         </div>
 
-                                        {/* 3: 현재 입력된 대체텍스트 */}
-                                        <div className="p-4 rounded bg-[#E5E7EB]">
-                                            <div className="text-xs font-bold text-gray-900">
-                                                현재 입력된 대체텍스트
-                                            </div>
-                                            <div className="mt-1 font-mono text-sm text-gray-900 break-all">
-                                                {formatCurrentAlt(result)}
-                                            </div>
-                                        </div>
-
-                                        {/* 7: 미준수 사유 (미준수 탭에서만 표시) */}
+                                        {/* 미준수 사유 박스 (미준수일 때 이미지 박스 바로 아래에 위치) */}
                                         {issueType && (
-                                            <div className="p-4 bg-white border-2 border-red-500 rounded">
+                                            <div className="p-4 bg-white border border-gray-400 rounded">
                                                 <p className="flex items-center gap-1.5 text-sm font-bold text-gray-900">
                                                     <span aria-hidden="true">⚠</span>
                                                     <span className="sr-only">미준수 사유: </span>
                                                     {ALT_ISSUE_MESSAGES[issueType].title}
                                                 </p>
-                                                <p className="mt-1 text-sm text-gray-800">
+                                                <p className="mt-1.5 text-sm text-gray-800">
                                                     {ALT_ISSUE_MESSAGES[issueType].description}
                                                 </p>
                                             </div>
                                         )}
 
-                                        {/* 4, 5, 6: WEBridge AI 대체텍스트 제안 (다크 박스) */}
+                                        {/* 현재 입력된 대체텍스트 (짙은 회색 박스 + 복사 아이콘) */}
+                                        <div className="p-4 text-white rounded bg-[#424242]">
+                                            <div className="text-xs font-semibold text-white">
+                                                현재 입력된 대체텍스트
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-1.5 font-mono text-sm text-white">
+                                                <span className="break-all">
+                                                    {currentAltDisplay}
+                                                </span>
+
+                                                <HoverCard
+                                                    open={copiedOpenKey === currentCopyKey}
+                                                    onOpenChange={(o) => !o && setCopiedOpenKey(null)}
+                                                >
+                                                    <HoverCardTrigger asChild>
+                                                        <button
+                                                            type="button"
+                                                            aria-label="현재 입력된 대체텍스트 복사"
+                                                            className="p-1 text-gray-300 transition rounded hover:text-white hover:bg-white/10 shrink-0"
+                                                            onClick={() =>
+                                                                handleCopy(currentAltDisplay, currentCopyKey)
+                                                            }
+                                                        >
+                                                            <Copy className="w-4 h-4" />
+                                                        </button>
+                                                    </HoverCardTrigger>
+                                                    <HoverCardContent align="start" className="w-auto">
+                                                        <CopiedHoverContent />
+                                                    </HoverCardContent>
+                                                </HoverCard>
+                                            </div>
+                                        </div>
+
+                                        {/* WEBridge AI 대체텍스트 제안 (다크 박스) */}
                                         {aiSuggestion && (
                                             <div className="p-4 text-white rounded bg-[#22252A]">
-                                                <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center justify-between mb-1.5">
                                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3B82F6]">
                                                         <Sparkles className="w-4 h-4 shrink-0" />
-                                                        <span>
-                                                            {isCompliant
-                                                                ? "이렇게도 작성할 수 있어요  -  WEBridge AI 대체텍스트 제안"
-                                                                : "WEBridge AI 대체텍스트 제안"}
-                                                        </span>
+                                                        <span>WEBridge AI 대체텍스트 제안</span>
                                                     </div>
 
-                                                    {/* 6: 좋아요/싫어요 */}
+                                                    {/* 좋아요/싫어요 */}
                                                     <div className="flex items-center gap-1">
                                                         <HoverCard openDelay={150}>
                                                             <HoverCardTrigger asChild>
@@ -508,22 +548,22 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                                     </div>
                                                 </div>
 
-                                                {/* 4 & 5: 제안된 alt 텍스트 + 인라인 복사 아이콘 */}
+                                                {/* 제안된 alt 텍스트 + 인라인 복사 아이콘 */}
                                                 <div className="flex items-center gap-2 font-mono text-sm text-gray-100">
                                                     <span className="break-all">
                                                         alt="{aiSuggestion}"
                                                     </span>
 
                                                     <HoverCard
-                                                        open={copiedOpenId === result.id}
-                                                        onOpenChange={(o) => !o && setCopiedOpenId(null)}
+                                                        open={copiedOpenKey === aiCopyKey}
+                                                        onOpenChange={(o) => !o && setCopiedOpenKey(null)}
                                                     >
                                                         <HoverCardTrigger asChild>
                                                             <button
                                                                 type="button"
                                                                 aria-label="제안된 대체텍스트 복사"
                                                                 className="p-1 text-gray-300 transition rounded hover:text-white hover:bg-white/10 shrink-0"
-                                                                onClick={() => handleCopy(`alt="${aiSuggestion}"`, result.id)}
+                                                                onClick={() => handleCopy(`alt="${aiSuggestion}"`, aiCopyKey)}
                                                             >
                                                                 <Copy className="w-4 h-4" />
                                                             </button>
