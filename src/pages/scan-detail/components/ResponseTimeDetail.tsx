@@ -108,82 +108,86 @@ const ResponseTimeDetail = ({ results }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* 수정 가이드 (피그마: 별도 카드 박스) */}
-      <div className="p-6 bg-white border border-[#727272] rounded-lg shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+    <div className="space-y-8">
+      {/* 수정 가이드 섹션 */}
+      <div>
+        <h3 className="mb-3 text-xl font-bold text-gray-900">
           수정 가이드
         </h3>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm font-bold text-gray-900">
-            ℹ️ WEBridge는 [응답 시간 조절] 미준수 여부를 다음 기준으로 확인해요.
-          </span>
+        <div className="p-6 bg-[#F3F5F8] border border-gray-200 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-bold text-gray-900">
+              ℹ️ WEBridge는 [응답 시간 조절] 미준수 여부를 다음 기준으로 확인해요.
+            </span>
+          </div>
+          <ul className="space-y-1 text-sm text-gray-800">
+            <li>• 시간 제한 콘텐츠가 존재하는 경우</li>
+          </ul>
+          <div className="flex items-center gap-2 mt-4 mb-2">
+            <span className="text-sm font-bold text-gray-900">
+              ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
+            </span>
+          </div>
+          <ul className="space-y-1 text-sm text-gray-800">
+            <li>• 시간 제한이 있는 콘텐츠는 제공하지 않아야 해요.</li>
+            <li>
+              • 반응 시간이 정해진 콘텐츠를 제공해야 하는 경우, 최소 20초 이상의
+              시간을 부여하고 사전에 반응 시간 조절 방법을 안내해야 해요.
+            </li>
+            <li>
+              • 시간 제한을 해제하거나 연장할 수 있는 선택지를 제공하여 사용자가
+              반응 시간을 조절할 수 있도록 해야 해요.
+            </li>
+          </ul>
+          <div className="flex items-center gap-2 mt-4 mb-2">
+            <span className="text-sm font-bold text-gray-900">
+              💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
+            </span>
+          </div>
+          <ul className="space-y-1 text-sm text-gray-800">
+            <li>
+              • 반응 시간 조절이 원천적으로 불가능한 경우(예: 온라인 경매, 실시간
+              게임)는 본 검사 항목이 적용되지 않아요.
+            </li>
+            <li>
+              • 검사 항목에 해당하지 않더라도, 사용자에게 시간 제한이 있다는
+              사실과 종료 시점을 반드시 알려주어야 해요.
+            </li>
+            <li>• 세션 시간이 20시간 이상인 콘텐츠는 예외로 간주돼요.</li>
+          </ul>
         </div>
-        <ul className="space-y-1 text-sm text-gray-800">
-          <li>• 시간 제한 콘텐츠가 존재하는 경우</li>
-        </ul>
-        <div className="flex items-center gap-2 mt-4 mb-2">
-          <span className="text-sm font-bold text-gray-900">
-            ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
-          </span>
-        </div>
-        <ul className="space-y-1 text-sm text-gray-800">
-          <li>• 시간 제한이 있는 콘텐츠는 제공하지 않아야 해요.</li>
-          <li>
-            • 반응 시간이 정해진 콘텐츠를 제공해야 하는 경우, 최소 20초 이상의
-            시간을 부여하고 사전에 반응 시간 조절 방법을 안내해야 해요.
-          </li>
-          <li>
-            • 시간 제한을 해제하거나 연장할 수 있는 선택지를 제공하여 사용자가
-            반응 시간을 조절할 수 있도록 해야 해요.
-          </li>
-        </ul>
-        <div className="flex items-center gap-2 mt-4 mb-2">
-          <span className="text-sm font-bold text-gray-900">
-            💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
-          </span>
-        </div>
-        <ul className="space-y-1 text-sm text-gray-800">
-          <li>
-            • 반응 시간 조절이 원천적으로 불가능한 경우(예: 온라인 경매, 실시간
-            게임)는 본 검사 항목이 적용되지 않아요.
-          </li>
-          <li>
-            • 검사 항목에 해당하지 않더라도, 사용자에게 시간 제한이 있다는
-            사실과 종료 시점을 반드시 알려주어야 해요.
-          </li>
-          <li>• 세션 시간이 20시간 이상인 콘텐츠는 예외로 간주돼요.</li>
-        </ul>
       </div>
 
-      {/* 검사 결과 상세 (피그마: 별도 카드 박스) */}
-      <div className="p-6 bg-white border border-[#727272] rounded-lg shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+      {/* 검사 결과 상세 섹션 */}
+      <div>
+        <h3 className="mb-3 text-xl font-bold text-gray-900">
           검사 결과 상세
         </h3>
 
-        {/* 필터 버튼 (피그마: 준수 / 미준수) */}
+        {/* 필터 버튼 (공통: 준수 / 미준수) */}
         <div className="flex gap-2 mb-6" role="group" aria-label="검사 결과 필터">
           <Button
             size="sm"
+            variant="outline"
             aria-pressed={filter === "compliant"}
             onClick={() => setFilter("compliant")}
-            className={`text-xs px-4 rounded-md ${
+            className={`text-xs px-3.5 py-1.5 h-8 rounded-md font-medium border ${
               filter === "compliant"
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-[#6B7280] hover:bg-[#5B6270] text-white"
+                ? "bg-[#2563EB] hover:bg-blue-700 text-white border-[#2563EB]"
+                : "bg-white hover:bg-blue-50 text-[#2563EB] border-[#2563EB]"
             }`}
           >
             준수
           </Button>
           <Button
             size="sm"
+            variant="outline"
             aria-pressed={filter === "non-compliant"}
             onClick={() => setFilter("non-compliant")}
-            className={`text-xs px-4 rounded-md ${
+            className={`text-xs px-3.5 py-1.5 h-8 rounded-md font-medium border ${
               filter === "non-compliant"
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-[#6B7280] hover:bg-[#5B6270] text-white"
+                ? "bg-[#2563EB] hover:bg-blue-700 text-white border-[#2563EB]"
+                : "bg-white hover:bg-blue-50 text-[#2563EB] border-[#2563EB]"
             }`}
           >
             미준수
@@ -205,13 +209,13 @@ const ResponseTimeDetail = ({ results }: Props) => {
 
               return (
                 <div key={itemKey} className="flex items-start gap-3">
-                  {/* 좌측 순번 박스 */}
-                  <div className="flex items-center justify-center w-8 h-8 text-sm font-medium text-gray-900 bg-white border border-[#727272] rounded shrink-0">
+                  {/* 좌측 순번 배지 */}
+                  <div className="flex items-center justify-center w-6 h-6 text-xs font-semibold text-white rounded bg-[#6B7280] shrink-0">
                     {index + 1}
                   </div>
 
                   {/* 우측 결과 카드 */}
-                  <div className="flex-1 p-5 space-y-3 bg-white border border-[#727272] rounded-lg">
+                  <div className="flex-1 p-5 space-y-3 bg-white border border-gray-300 rounded-lg">
                     {/* 2: 입력값 요약 정보 배지 */}
                     <div>
                       <span className="inline-flex items-center px-4 py-1.5 text-xs font-medium text-white rounded-md bg-[#6B7280]">

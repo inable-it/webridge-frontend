@@ -1,12 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle,
-  ExternalLink,
-  XCircle, // ⬅️ 추가: 빨간 아이콘
-} from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useGetScanDetailQuery } from "@/features/api/scanApi";
 import type { AccessibilityScanDetail } from "@/features/api/scanApi";
 import { getCategoryInfo } from "@/utils/categoryMap";
@@ -21,6 +15,8 @@ import { isBasicLanguageCompliant } from "@/pages/scan-detail/components/BasicLa
 import { isHeadingCompliant } from "@/pages/scan-detail/components/HeadingDetail";
 import { isResponseTimeCompliant } from "@/pages/scan-detail/components/ResponseTimeDetail";
 import { isPauseControlCompliant } from "@/pages/scan-detail/components/PauseControlDetail";
+import { isTableCompliant } from "@/pages/scan-detail/components/TableDetail";
+import { isFlashingCompliant } from "@/pages/scan-detail/components/FlashingDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -115,7 +111,9 @@ const AccessibilityScanDetailPage = () => {
       case "pause_control":
         return !isPauseControlCompliant(result);
       case "table":
-        return !result.compliant;
+        return !isTableCompliant(result);
+      case "flashing":
+        return !isFlashingCompliant(result);
       case "video":
       case "video_caption":
         return !isVideoCaptionCompliant(result);
@@ -127,128 +125,46 @@ const AccessibilityScanDetailPage = () => {
     }
   });
 
-  const isContrast = false;
-  const hasStandaloneSections =
-    category === "alt_text" ||
-    category === "video" ||
-    category === "video_caption" ||
-    category === "auto_play" ||
-    category === "video_autoplay" ||
-    category === "contrast" ||
-    category === "keyboard" ||
-    category === "label" ||
-    category === "markup_error" ||
-    category === "basic_language" ||
-    category === "heading" ||
-    category === "response_time" ||
-    category === "pause_control";
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <div className="bg-white border-b border-[#727272] shadow-sm">
-        <div className="max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/dashboard")}
-                className="mr-4"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                요약 보고서로 돌아가기
-              </Button>
-            </div>
+    <div className="min-h-screen bg-[#EEF3FB] p-6 sm:p-8">
+      <div className="max-w-5xl p-6 mx-auto bg-white shadow-sm sm:p-8 rounded-xl">
+        {/* 1 & 2: 상단 버튼 영역 (요약보고서로 돌아가기 / 사이트 보기) */}
+        <div className="flex items-center justify-between pb-6 mb-6 border-b border-gray-200">
+          <Button
+            size="sm"
+            onClick={() => navigate("/dashboard", { state: { scanId } })}
+            className="px-4 py-2 text-xs font-medium text-white bg-[#2563EB] hover:bg-blue-700 rounded-md"
+          >
+            요약보고서로 돌아가기
+          </Button>
 
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => window.open(scanDetail.url, "_blank")}
-                variant="outline"
-                className="border-[#727272]"
-                size="sm"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                사이트 보기
-              </Button>
-            </div>
-          </div>
+          <Button
+            onClick={() => window.open(scanDetail.url, "_blank")}
+            variant="outline"
+            size="sm"
+            className="px-4 py-2 text-xs font-medium text-[#2563EB] bg-white border border-[#2563EB] hover:bg-blue-50 rounded-md"
+          >
+            사이트 보기
+          </Button>
         </div>
-      </div>
 
-      <div className="max-w-4xl px-4 py-8 mx-auto sm:px-6 lg:px-8">
-        {/* 검사 항목 설명 */}
-        <div className="p-6 mb-8 bg-white border border-[#727272] rounded-lg shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        {/* 3: 검사 수 정보 (총 검사 대상 / 준수 개수 / 미준수 개수) */}
+        <div className="mb-8">
+          <h2 className="mb-3 text-xl font-bold text-gray-900">
             {categoryInfo.title}
           </h2>
-          {!isContrast && (
-            <div className="flex flex-wrap items-center gap-8 text-sm font-medium text-gray-900">
-              <span>총 검사 대상 : {results.length}개</span>
-              <span>준수 개수 : {results.length - issueResults.length}개</span>
-              <span>미준수 개수 : {issueResults.length}개</span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-6 px-5 py-3.5 text-sm font-medium text-gray-900 bg-white border border-gray-400 rounded-lg">
+            <span>총 검사 대상 : {results.length}개</span>
+            <span>준수 개수 : {results.length - issueResults.length}개</span>
+            <span>미준수 개수 : {issueResults.length}개</span>
+          </div>
         </div>
 
-        {/* 검사 결과 상세 */}
-        {hasStandaloneSections ? (
-          <DetailComponent
-            results={results}
-            scanUrl={scanDetail.url}
-          />
-        ) : (
-          <div className="bg-white border border-[#727272] rounded-lg shadow-sm">
-            <div className="p-6 border-b border-[#727272]">
-              <h3 className="text-lg font-semibold text-gray-900">
-                검사 결과 상세
-              </h3>
-              {!isContrast && (
-                <p className="mt-1 text-sm text-gray-500">
-                  준수한 항목과 문제가 발견된 항목을 모두 확인할 수 있습니다.
-                </p>
-              )}
-            </div>
-
-            <div className="p-6">
-              {isContrast ? (
-                // 명도 대비: 지원 제외 전용 화면
-                <div className="py-12 text-center">
-                  <XCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                    현재 지원하지 않는 검사 항목입니다.
-                  </h3>
-                  {/* 안내 문구 제거 요청에 따라 추가 문단 없음 */}
-                  <Button onClick={() => navigate("/dashboard")} className="mt-4">
-                    대시보드로 돌아가기
-                  </Button>
-                </div>
-              ) : results.length > 0 ? (
-                // 일반 항목: 모든 결과 렌더링 (준수/미준수 모두)
-                <DetailComponent
-                  results={results}
-                  scanUrl={scanDetail.url}
-                />
-              ) : (
-                // 일반 항목: 이슈 없음 화면
-                <div className="py-12 text-center">
-                  <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
-                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                    문제가 발견되지 않았습니다!
-                  </h3>
-                  {/* 요청사항: 보조 문장 유지(contrast가 아닐 때만) */}
-                  <p className="text-gray-600">
-                    {categoryInfo.title} 항목은 모든 요소가 접근성 기준을 준수하고
-                    있습니다.
-                  </p>
-                  <Button onClick={() => navigate("/dashboard")} className="mt-4">
-                    대시보드로 돌아가기
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* 수정 가이드 및 검사 결과 상세 (4. 준수/미준수 탭, 5. 대상 순번, 6. html 더보기) */}
+        <DetailComponent
+          results={results}
+          scanUrl={scanDetail.url}
+        />
       </div>
     </div>
   );

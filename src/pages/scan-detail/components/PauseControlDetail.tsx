@@ -81,73 +81,77 @@ const PauseControlDetail = ({ results, scanUrl }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* 수정 가이드 (피그마: 별도 카드 박스) */}
-      <div className="p-6 bg-white border border-[#727272] rounded-lg shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+    <div className="space-y-8">
+      {/* 수정 가이드 섹션 */}
+      <div>
+        <h3 className="mb-3 text-xl font-bold text-gray-900">
           수정 가이드
         </h3>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm font-bold text-gray-900">
-            ℹ️ WEBridge는 [ 정지 기능 제공 ] 미준수 여부를 다음 기준으로
-            확인해요.
-          </span>
+        <div className="p-6 bg-[#F3F5F8] border border-gray-200 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-bold text-gray-900">
+              ℹ️ WEBridge는 [ 정지 기능 제공 ] 미준수 여부를 다음 기준으로
+              확인해요.
+            </span>
+          </div>
+          <ul className="space-y-1 text-sm text-gray-800">
+            <li>• 스크롤 및 자동 갱신되는 콘텐츠를 정지할 수 없는 경우</li>
+          </ul>
+          <div className="flex items-center gap-2 mt-4 mb-2">
+            <span className="text-sm font-bold text-gray-900">
+              ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
+            </span>
+          </div>
+          <ul className="space-y-1 text-sm text-gray-800">
+            <li>
+              • 스크롤 및 자동 갱신되는 콘텐츠의 사용을 배제하는 것이 좋아요.
+            </li>
+            <li>
+              • 스크롤 및 자동 갱신되는 콘텐츠를 사용할 경우 제어 기능(예: 정지,
+              앞으로 이동, 뒤로 이동)을 제공해야 해요.
+            </li>
+          </ul>
+          <div className="flex items-center gap-2 mt-4 mb-2">
+            <span className="text-sm font-bold text-gray-900">
+              💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
+            </span>
+          </div>
+          <ul className="space-y-1 text-sm text-gray-800">
+            <li>• 제어 기능이 정상적으로 작동하는지 테스트해야 해요.</li>
+          </ul>
         </div>
-        <ul className="space-y-1 text-sm text-gray-800">
-          <li>• 스크롤 및 자동 갱신되는 콘텐츠를 정지할 수 없는 경우</li>
-        </ul>
-        <div className="flex items-center gap-2 mt-4 mb-2">
-          <span className="text-sm font-bold text-gray-900">
-            ℹ️ 오류 항목을 수정하기 위해 아래 내용을 준수해야 해요.
-          </span>
-        </div>
-        <ul className="space-y-1 text-sm text-gray-800">
-          <li>
-            • 스크롤 및 자동 갱신되는 콘텐츠의 사용을 배제하는 것이 좋아요.
-          </li>
-          <li>
-            • 스크롤 및 자동 갱신되는 콘텐츠를 사용할 경우 제어 기능(예: 정지,
-            앞으로 이동, 뒤로 이동)을 제공해야 해요.
-          </li>
-        </ul>
-        <div className="flex items-center gap-2 mt-4 mb-2">
-          <span className="text-sm font-bold text-gray-900">
-            💡 WEBridge 검사 이외에 이런 점도 고려해야 해요.
-          </span>
-        </div>
-        <ul className="space-y-1 text-sm text-gray-800">
-          <li>• 제어 기능이 정상적으로 작동하는지 테스트해야 해요.</li>
-        </ul>
       </div>
 
-      {/* 검사 결과 상세 (피그마: 별도 카드 박스) */}
-      <div className="p-6 bg-white border border-[#727272] rounded-lg shadow-sm">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+      {/* 검사 결과 상세 섹션 */}
+      <div>
+        <h3 className="mb-3 text-xl font-bold text-gray-900">
           검사 결과 상세
         </h3>
 
-        {/* 필터 버튼 (피그마: 준수 / 미준수) */}
+        {/* 필터 버튼 (공통: 준수 / 미준수) */}
         <div className="flex gap-2 mb-6" role="group" aria-label="검사 결과 필터">
           <Button
             size="sm"
+            variant="outline"
             aria-pressed={filter === "compliant"}
             onClick={() => setFilter("compliant")}
-            className={`text-xs px-4 rounded-md ${
+            className={`text-xs px-3.5 py-1.5 h-8 rounded-md font-medium border ${
               filter === "compliant"
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-[#6B7280] hover:bg-[#5B6270] text-white"
+                ? "bg-[#2563EB] hover:bg-blue-700 text-white border-[#2563EB]"
+                : "bg-white hover:bg-blue-50 text-[#2563EB] border-[#2563EB]"
             }`}
           >
             준수
           </Button>
           <Button
             size="sm"
+            variant="outline"
             aria-pressed={filter === "non-compliant"}
             onClick={() => setFilter("non-compliant")}
-            className={`text-xs px-4 rounded-md ${
+            className={`text-xs px-3.5 py-1.5 h-8 rounded-md font-medium border ${
               filter === "non-compliant"
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-[#6B7280] hover:bg-[#5B6270] text-white"
+                ? "bg-[#2563EB] hover:bg-blue-700 text-white border-[#2563EB]"
+                : "bg-white hover:bg-blue-50 text-[#2563EB] border-[#2563EB]"
             }`}
           >
             미준수
@@ -170,13 +174,13 @@ const PauseControlDetail = ({ results, scanUrl }: Props) => {
 
               return (
                 <div key={itemKey} className="flex items-start gap-3">
-                  {/* 좌측 순번 박스 */}
-                  <div className="flex items-center justify-center w-8 h-8 text-sm font-medium text-gray-900 bg-white border border-[#727272] rounded shrink-0">
+                  {/* 좌측 순번 배지 */}
+                  <div className="flex items-center justify-center w-6 h-6 text-xs font-semibold text-white rounded bg-[#6B7280] shrink-0">
                     {index + 1}
                   </div>
 
                   {/* 우측 결과 카드 */}
-                  <div className="flex-1 p-5 bg-white border border-[#727272] rounded-lg">
+                  <div className="flex-1 p-5 bg-white border border-gray-300 rounded-lg">
                     {/* 1 & 2: 스크롤 및 자동 갱신되는 콘텐츠 캡쳐본 + HTML 소스 코드 */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
                       {/* 1: 정지 기능 제공 관련 콘텐츠 이미지 */}
