@@ -305,7 +305,7 @@ const VideoDetail = ({ results, scanUrl }: Props) => {
 
                     {/* 4: 안내문 (준수 / 미준수 각각 고정값, 테두리 없이 카드 하단 배치) */}
                     {isCompliant ? (
-                      <div className="px-1 pt-1 space-y-1 text-xs text-gray-800">
+                      <div className="px-1 pt-1 space-y-1.5 text-sm text-gray-800">
                         <p className="flex items-center gap-1.5">
                           <span aria-hidden="true">📌</span>
                           <span>
@@ -320,7 +320,7 @@ const VideoDetail = ({ results, scanUrl }: Props) => {
                         </p>
                       </div>
                     ) : (
-                      <div className="px-1 pt-1 space-y-3 text-xs text-gray-900">
+                      <div className="px-1 pt-1 space-y-3 text-sm text-gray-900">
                         <p className="flex items-center gap-1.5 font-bold">
                           <span aria-hidden="true">⚠</span>
                           <span className="sr-only">미준수 사유: </span>
@@ -330,7 +330,7 @@ const VideoDetail = ({ results, scanUrl }: Props) => {
                         </p>
 
                         <div className="space-y-1">
-                          <p className="flex items-center gap-1.5 font-bold">
+                          <p className="flex items-center gap-1.5 font-normal">
                             <span aria-hidden="true">⚠</span>
                             <span>
                               준수했음에도 WEBridge에서 미준수로 판정됐다면, 아래 경우에 해당할 수 있어요.
