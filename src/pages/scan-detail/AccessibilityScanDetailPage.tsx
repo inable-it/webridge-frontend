@@ -13,6 +13,7 @@ import { getCategoryInfo } from "@/utils/categoryMap";
 import { isAltTextCompliant } from "@/utils/altText";
 import { isVideoCaptionCompliant } from "@/pages/scan-detail/components/VideoDetail";
 import { isAutoPlayCompliant } from "@/pages/scan-detail/components/AutoPlayDetail";
+import { isContrastCompliant } from "@/pages/scan-detail/components/ContrastDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -91,8 +92,7 @@ const AccessibilityScanDetailPage = () => {
         // 상세 화면의 준수/미준수 탭과 같은 기준 사용
         return !isAltTextCompliant(result.compliance);
       case "contrast":
-        // contrast는 지금 지원 제외이지만, 필터 로직은 유지(실제 렌더링은 아래에서 별도 처리)
-        return !result.wcag_compliant;
+        return !isContrastCompliant(result);
       case "keyboard":
         return !result.accessible;
       case "label":
@@ -110,13 +110,14 @@ const AccessibilityScanDetailPage = () => {
     }
   });
 
-  const isContrast = category === "contrast";
+  const isContrast = false;
   const hasStandaloneSections =
     category === "alt_text" ||
     category === "video" ||
     category === "video_caption" ||
     category === "auto_play" ||
-    category === "video_autoplay";
+    category === "video_autoplay" ||
+    category === "contrast";
 
   return (
     <div className="min-h-screen bg-gray-50">

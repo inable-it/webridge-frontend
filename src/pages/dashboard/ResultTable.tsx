@@ -213,7 +213,7 @@ function buildItems(
   if (displayScan.status === "pending") {
     return DEFAULT_ITEMS.map((i) => ({
       ...i,
-      score: i.category === "contrast" ? "-" : "검사 대기중",
+      score: "검사 대기중",
       type: "대기",
     }));
   }
@@ -288,9 +288,23 @@ function buildItems(
       {
         id: 5,
         name: "텍스트 콘텐츠의 명도 대비",
-        score: v.contrast_completed ? "-" : "검사중...",
+        score: v.contrast_completed
+          ? v.contrast_results
+            ? `${
+                v.contrast_results.filter((r: any) =>
+                  typeof r.contrast_ratio === "number"
+                    ? r.contrast_ratio >= 4.5
+                    : r.wcag_compliant
+                ).length
+              } / ${v.contrast_results.length}`
+            : "검사 완료"
+          : "검사중...",
         type: v.contrast_completed ? "오류 확인" : "진행중",
-        hasIssues: false,
+        hasIssues: (v.contrast_results || []).some((r: any) =>
+          typeof r.contrast_ratio === "number"
+            ? r.contrast_ratio < 4.5
+            : !r.wcag_compliant
+        ),
         category: "contrast",
       },
       {
@@ -425,21 +439,24 @@ function buildItems(
     let score = "검사 대기";
     let hasIssues = false;
 
-    if (base.category === "contrast") {
-      return {
-        ...base,
-        score: "-",
-        hasIssues: false,
-        type: "오류 확인" as const,
-      };
-    }
-
     if (Array.isArray(res)) {
       let passCount = 0;
       switch (base.category) {
         case "alt_text":
           passCount = res.filter((r: any) => r.compliance === 0).length;
           hasIssues = res.some((r: any) => r.compliance !== 0);
+          break;
+        case "contrast":
+          passCount = res.filter((r: any) =>
+            typeof r.contrast_ratio === "number"
+              ? r.contrast_ratio >= 4.5
+              : r.wcag_compliant
+          ).length;
+          hasIssues = res.some((r: any) =>
+            typeof r.contrast_ratio === "number"
+              ? r.contrast_ratio < 4.5
+              : !r.wcag_compliant
+          );
           break;
         case "video_caption":
           passCount = res.filter((r: any) => r.has_transcript).length;
