@@ -236,11 +236,11 @@ const AutoPlayDetail = ({ results, scanUrl }: Props) => {
                   </div>
 
                   {/* 우측 결과 카드 */}
-                  <div className="flex-1 p-5 space-y-3 bg-white border border-gray-300 rounded-lg">
-                    {/* 1 & 2: 자동 재생 콘텐츠 이미지 + HTML 소스 코드 */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
-                      {/* 1: 자동 재생 콘텐츠 이미지 (움직이는 부분 캡쳐) */}
-                      <div className="relative flex items-center justify-center w-full sm:w-56 min-h-[120px] overflow-hidden rounded bg-[#D1D5DB] shrink-0">
+                  <div className="flex-1 p-4 space-y-3 bg-white border border-gray-300 rounded-lg">
+                    {/* 1 & 2: 연파랑 배경 박스 (움직이는 부분 캡쳐 + HTML 소스 코드 + 더보기) */}
+                    <div className="flex flex-col items-start justify-between gap-4 p-4 border border-blue-200 rounded sm:flex-row bg-[#EAF1FF]">
+                      {/* 1: 자동 재생 콘텐츠 이미지 (흰색 라운드 박스) */}
+                      <div className="relative flex items-center justify-center w-full overflow-hidden bg-white rounded-lg sm:w-56 h-36 shrink-0">
                         {!previewFailed && imageUrl ? (
                           <img
                             src={imageUrl}
@@ -267,48 +267,44 @@ const AutoPlayDetail = ({ results, scanUrl }: Props) => {
                               }))
                             }
                           />
-                        ) : (
-                          <span className="text-xs font-semibold text-gray-800">
-                            움직이는 부분 캡쳐
-                          </span>
-                        )}
+                        ) : null}
                       </div>
 
-                      {/* 2: 자동 재생 콘텐츠 HTML 소스 코드 + 더보기 */}
-                      <div className="flex flex-col justify-between flex-1 p-3 bg-white border border-gray-300 rounded min-h-[120px]">
-                        <div
-                          className={`font-mono text-xs text-gray-800 break-all whitespace-pre-wrap ${
-                            isExpanded ? "" : "line-clamp-4"
-                          }`}
-                        >
-                          {htmlCode || "html 코드"}
-                        </div>
-                        <div className="flex justify-end mt-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(itemKey)}
-                            className="text-xs font-medium text-gray-600 underline-offset-2 hover:text-gray-900 hover:underline"
-                          >
-                            {isExpanded ? "접기" : "더보기"}
-                          </button>
-                        </div>
+                      {/* 2: 자동 재생 콘텐츠 HTML 소스 코드 */}
+                      <div
+                        className={`flex-1 font-mono text-sm text-gray-800 break-all whitespace-pre-wrap ${
+                          isExpanded ? "" : "line-clamp-3"
+                        }`}
+                      >
+                        {htmlCode || "html 코드"}
                       </div>
+
+                      {/* 더보기 버튼 */}
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(itemKey)}
+                        className="text-xs font-medium text-gray-700 underline-offset-2 hover:text-gray-900 hover:underline shrink-0"
+                      >
+                        {isExpanded ? "접기" : "더보기"}
+                      </button>
                     </div>
 
-                    {/* 3: 안내문 (미준수일 때만 표시, 고정값) */}
+                    {/* 3: 안내문 (미준수일 때만 표시, 테두리 없이 카드 하단 배치) */}
                     {!isCompliant && (
-                      <div className="p-3.5 bg-white border-2 border-red-500 rounded">
-                        <p className="flex items-center gap-1.5 text-sm font-bold text-gray-900">
+                      <div className="px-1 pt-1 space-y-1.5 text-sm text-gray-900">
+                        <p className="flex items-center gap-1.5 font-bold">
                           <span aria-hidden="true">⚠</span>
                           <span className="sr-only">미준수 사유: </span>
-                          HTML 속성에 autoplay가 존재해요.
+                          <span>HTML 속성에 autoplay가 존재해요.</span>
                         </p>
-                        <ul className="mt-1.5 ml-5 space-y-0.5 text-xs font-semibold text-gray-900 list-disc">
+                        <ul className="ml-2 space-y-1 text-sm text-gray-800">
                           <li>
-                            autoplay 속성을 제거하여 자동 재생이 되지 않도록 해야 해요.
+                            • autoplay 속성을 제거하여 자동 재생이 되지 않도록
+                            해야 해요.
                           </li>
                           <li>
-                            JS로 인해 강제 재생되지 않도록 해당 기능을 제거해 주세요.
+                            • JS로 인해 강제 재생되지 않도록 해당 기능을 제거해
+                            주세요.
                           </li>
                         </ul>
                       </div>
