@@ -19,6 +19,7 @@ import { isLabelCompliant } from "@/pages/scan-detail/components/LabelDetail";
 import { isMarkupErrorCompliant } from "@/pages/scan-detail/components/MarkupErrorDetail";
 import { isBasicLanguageCompliant } from "@/pages/scan-detail/components/BasicLanguageDetail";
 import { isHeadingCompliant } from "@/pages/scan-detail/components/HeadingDetail";
+import { isResponseTimeCompliant } from "@/pages/scan-detail/components/ResponseTimeDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -108,6 +109,8 @@ const AccessibilityScanDetailPage = () => {
         return !isBasicLanguageCompliant(result);
       case "heading":
         return !isHeadingCompliant(result);
+      case "response_time":
+        return !isResponseTimeCompliant(result);
       case "table":
         return !result.compliant;
       case "video":
@@ -133,7 +136,8 @@ const AccessibilityScanDetailPage = () => {
     category === "label" ||
     category === "markup_error" ||
     category === "basic_language" ||
-    category === "heading";
+    category === "heading" ||
+    category === "response_time";
 
   return (
     <div className="min-h-screen bg-gray-50">
