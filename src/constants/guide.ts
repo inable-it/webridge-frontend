@@ -5,6 +5,7 @@ export const GUIDE_TEXT: Record<
   1: {
     judge: [
       "이미지에 alt 속성이 아예 없는 경우",
+      "이미지에 alt 속성값이 이유없이 비어있는 경우",
       "이미지에 입력된 대체 텍스트가 이미지의 의미와 맞지 않는 경우",
     ],
     how: [

@@ -10,6 +10,7 @@ import {
 import { useGetScanDetailQuery } from "@/features/api/scanApi";
 import type { AccessibilityScanDetail } from "@/features/api/scanApi";
 import { getCategoryInfo } from "@/utils/categoryMap";
+import { isAltTextCompliant } from "@/utils/altText";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -75,7 +76,8 @@ const AccessibilityScanDetailPage = () => {
   const issueResults = results.filter((result: any) => {
     switch (category) {
       case "alt_text":
-        return result.compliance !== 0;
+        // 상세 화면의 준수/미준수 탭과 같은 기준 사용
+        return !isAltTextCompliant(result.compliance);
       case "contrast":
         // contrast는 지금 지원 제외이지만, 필터 로직은 유지(실제 렌더링은 아래에서 별도 처리)
         return !result.wcag_compliant;
@@ -134,22 +136,14 @@ const AccessibilityScanDetailPage = () => {
       <div className="max-w-4xl px-4 py-8 mx-auto sm:px-6 lg:px-8">
         {/* 검사 항목 설명 */}
         <div className="p-6 mb-8 bg-white border border-[#727272] rounded-lg shadow-sm">
-          <h2 className="mb-2 text-lg font-semibold text-gray-900">
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">
             {categoryInfo.title}
           </h2>
           {!isContrast && (
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span>문제 발견: {issueResults.length}개</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>정상: {results.length - issueResults.length}개</span>
-              </div>
-              <div className="text-gray-500">
-                총 검사 대상: {results.length}개
-              </div>
+            <div className="flex flex-wrap items-center gap-8 text-sm font-medium text-gray-900">
+              <span>총 검사 대상 : {results.length}개</span>
+              <span>준수 개수 : {results.length - issueResults.length}개</span>
+              <span>미준수 개수 : {issueResults.length}개</span>
             </div>
           )}
         </div>

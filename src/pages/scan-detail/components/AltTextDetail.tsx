@@ -17,6 +17,7 @@ import {
     HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import type { AltTextResult } from "@/features/api/scanApi";
+import { isAltTextCompliant } from "@/utils/altText";
 import {
     useCreateAltTextFeedbackMutation,
     useDeleteAltTextFeedbackMutation,
@@ -57,12 +58,73 @@ const getComplianceIcon = (compliance: number) => {
     }
 };
 
+// ===== 미준수 사유 분류 =====
+type AltIssueType = "missing" | "empty" | "inappropriate";
+
+const ALT_ISSUE_MESSAGES: Record<AltIssueType, { title: string; description: string }> = {
+    missing: {
+        title: "alt 속성이 존재하지 않습니다.",
+        description: "모든 의미있는 이미지에는 alt 속성을 반드시 입력해야 해요.",
+    },
+    empty: {
+        title: "alt 값에 대체텍스트가 존재하지 않습니다.",
+        description: "장식 요소로 존재하는 이미지가 아니라면, alt 값에는 적절한 이미지 설명을 작성해야 해요.",
+    },
+    inappropriate: {
+        title: "alt 값에 적절하지 않은 대체텍스트가 존재합니다.",
+        description: "이미지와 맥락을 충분히 설명할 수 있는 대체텍스트를 작성해야 해요.",
+    },
+};
+
+/**
+ * 소스 코드(element_html)에서 alt 속성 값을 추출
+ * - undefined: alt 속성 자체가 없음
+ * - string: alt 속성 값 (빈 문자열 포함)
+ * - null: 판단 불가 (HTML 파싱 실패)
+ */
+const extractAltAttr = (elementHtml?: string): string | undefined | null => {
+    if (!elementHtml) return null;
+    try {
+        const doc = new DOMParser().parseFromString(elementHtml, "text/html");
+        const el = doc.body.querySelector("img, input, area") ?? doc.body.firstElementChild;
+        if (!el) return null;
+        return el.hasAttribute("alt") ? el.getAttribute("alt") ?? "" : undefined;
+    } catch {
+        return null;
+    }
+};
+
+const getAltIssueType = (result: AltTextResult): AltIssueType | null => {
+    const isCompliant = isAltTextCompliant(result.compliance);
+    if (isCompliant) return null;
+
+    const hasAltTextValue = (result.alt_text ?? "").trim() !== "";
+    if (hasAltTextValue) {
+        return result.compliance === 2 ? "inappropriate" : null;
+    }
+
+    const altAttr = extractAltAttr(result.element_html);
+    if (altAttr === undefined) return "missing";
+    if (typeof altAttr === "string" && altAttr.trim() === "") return "empty";
+    if (altAttr === null) return "empty";
+
+    return result.compliance === 2 ? "inappropriate" : null;
+};
+
+const formatCurrentAlt = (result: AltTextResult) => {
+    const hasAltTextValue = (result.alt_text ?? "").trim() !== "";
+    const altAttr = extractAltAttr(result.element_html);
+    if (!hasAltTextValue && altAttr === undefined) return "alt 속성 없음";
+    const value = typeof altAttr === "string" && altAttr !== "" ? altAttr : result.alt_text ?? "";
+    return `alt="${value}"`;
+};
+
 // 각 result.id 별로 like/dislike 각각의 feedback id를 별도로 저장
 type FeedbackState = Record<number, { likeId?: number; dislikeId?: number }>;
 
 const AltTextDetail = ({ results, scanUrl }: Props) => {
     const [copiedOpenId, setCopiedOpenId] = useState<number | null>(null);
-    const [filter, setFilter] = useState<'all' | 'compliant' | 'non-compliant'>('all');
+    const [filter, setFilter] = useState<'compliant' | 'non-compliant'>('non-compliant');
 
     // 현재 어떤 버튼이 전송 중인지 구분 (예: "123:like" / "123:dislike")
     const [sendingKey, setSendingKey] = useState<string | null>(null);
@@ -219,15 +281,8 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
 
     // 필터링된 결과
     const filteredResults = results.filter(result => {
-        const isCompliant = result.compliance === 0 || result.compliance === 1;
-        switch (filter) {
-            case 'compliant':
-                return isCompliant;
-            case 'non-compliant':
-                return !isCompliant;
-            default:
-                return true;
-        }
+        const isCompliant = isAltTextCompliant(result.compliance);
+        return filter === 'compliant' ? isCompliant : !isCompliant;
     });
 
     return (
@@ -247,6 +302,7 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                 </div>
                 <ul className="space-y-1 text-sm">
                     <li>• 이미지에 alt 속성이 아예 없는 경우</li>
+                    <li>• 이미지에 alt 속성값이 이유없이 비어있는 경우</li>
                     <li>• 이미지에 입력된 대체 텍스트가 이미지의 의미와 맞지 않는 경우</li>
                 </ul>
                 <div className="flex items-center gap-2 mt-4 mb-2">
@@ -269,31 +325,25 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                 </ul>
             </div>
 
-            {/* 필터 버튼 */}
-            <div className="flex gap-2 mb-4">
-                <Button
-                    size="sm"
-                    variant={filter === 'all' ? 'default' : 'outline'}
-                    onClick={() => setFilter('all')}
-                    className="text-xs"
-                >
-                    전체 ({results.length})
-                </Button>
+            {/* 필터 버튼 (피그마: 준수 / 미준수) */}
+            <div className="flex gap-2 mb-4" role="group" aria-label="검사 결과 필터">
                 <Button
                     size="sm"
                     variant={filter === 'compliant' ? 'default' : 'outline'}
+                    aria-pressed={filter === 'compliant'}
                     onClick={() => setFilter('compliant')}
                     className="text-xs"
                 >
-                    준수 ({results.filter(r => r.compliance === 0 || r.compliance === 1).length})
+                    준수
                 </Button>
                 <Button
                     size="sm"
                     variant={filter === 'non-compliant' ? 'default' : 'outline'}
+                    aria-pressed={filter === 'non-compliant'}
                     onClick={() => setFilter('non-compliant')}
                     className="text-xs"
                 >
-                    미준수 ({results.filter(r => r.compliance === 2).length})
+                    미준수
                 </Button>
             </div>
 
@@ -306,7 +356,8 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                 const fb = feedbackState[result.id] || {};
                 const isLiked = !!fb.likeId;
                 const isDisliked = !!fb.dislikeId;
-                const isCompliant = result.compliance === 0 || result.compliance === 1;
+                const isCompliant = isAltTextCompliant(result.compliance);
+                const issueType = getAltIssueType(result);
 
                 return (
                     <Card key={result.id} className={`border-l-4 ${isCompliant ? 'border-l-green-500' : 'border-l-blue-500'}`}>
@@ -366,13 +417,27 @@ const AltTextDetail = ({ results, scanUrl }: Props) => {
                                     </div>
 
                                     <div>
-                                        <label className="text-xs font-medium text-gray-700">현재 대체 텍스트</label>
-                                        <div className="p-2 mt-1 text-sm rounded bg-gray-50 border border-[#727272]">
-                                            {result.alt_text || "(없음)"}
+                                        <label className="text-xs font-medium text-gray-700">현재 입력된 대체텍스트</label>
+                                        <div className="p-2 mt-1 font-mono text-sm break-all rounded bg-gray-50 border border-[#727272]">
+                                            {formatCurrentAlt(result)}
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* 미준수 사유 */}
+                            {issueType && (
+                                <div className="p-3 bg-white border-2 border-red-500 rounded">
+                                    <p className="flex items-center gap-1 text-sm font-bold text-gray-900">
+                                        <span aria-hidden="true">⚠</span>
+                                        <span className="sr-only">미준수 사유: </span>
+                                        {ALT_ISSUE_MESSAGES[issueType].title}
+                                    </p>
+                                    <p className="mt-1 text-sm text-gray-700">
+                                        {ALT_ISSUE_MESSAGES[issueType].description}
+                                    </p>
+                                </div>
+                            )}
 
                             {/* 제안 박스 */}
                             {(result.ai_improvement || result.answer) && (
