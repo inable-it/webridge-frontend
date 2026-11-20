@@ -7,6 +7,7 @@ import { clearUser } from "@/features/store/userSlice";
 import { toast } from "@/hooks/use-toast";
 import { publicApi } from "@/app/api";
 import { persistor } from "@/app/store";
+import { cn } from "@/lib/utils";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -112,16 +113,16 @@ export const Header = () => {
   // 현재 경로와 비교하여 메뉴 항목에 활성화 스타일 부여
   const isActive = (path: string) => location.pathname === path;
 
-  // 메뉴 항목 스타일링 (포커스 가시성 강화)
+  // 메뉴 항목 스타일링 (호버 및 활성화 시 색상 + 밑줄 표시, 초점 표시 파란색으로 통일)
   const getMenuItemClass = (path: string) => {
-    const base =
-      "px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2";
-    const ringColor =
-      path === "/accessibility"
-        ? "focus-visible:ring-amber-500"
-        : "focus-visible:ring-blue-700";
-    const active = isActive(path) ? "text-blue-600" : "";
-    return `${base} ${ringColor} ${active}`;
+    const active = isActive(path);
+
+    return cn(
+      "px-1 py-1 flex flex-col justify-center items-center text-base font-semibold font-['Pretendard_Variable'] leading-6 border-b-2 transition-all outline-none focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-600",
+      active
+        ? "text-[#155DFC] border-[#155DFC]"
+        : "text-[#344054] border-transparent hover:text-[#155DFC] hover:border-[#155DFC]"
+    );
   };
 
   return (
@@ -160,7 +161,6 @@ export const Header = () => {
             </div>
           </button>
 
-          {/* ▶ ‘웹 접근성이란?’ : 앰버색 포커스 링으로 차별화 */}
           <button
             type="button"
             aria-current={isActive("/accessibility") ? "page" : undefined}
@@ -180,7 +180,7 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => setDropdownOpen((prev) => !prev)}
-              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-700"
+              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-600"
             >
               <div className="flex flex-col justify-center text-center">
                 {user.name}
@@ -211,7 +211,7 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-700"
+              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-600"
             >
               <div className="flex flex-col justify-center text-center">
                 로그인
@@ -220,7 +220,7 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => navigate("/signup")}
-              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-700"
+              className="px-1.5 py-2.5 flex flex-col justify-center items-center gap-2.5 text-[#344054] text-base font-semibold font-['Pretendard_Variable'] leading-6 hover:text-blue-600 transition-colors rounded-md outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-600"
             >
               <div className="flex flex-col justify-center">회원가입</div>
             </button>

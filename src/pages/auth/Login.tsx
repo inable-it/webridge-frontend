@@ -129,7 +129,12 @@ const LoginPageContent = () => {
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-white">
       <div className="w-full max-w-md space-y-6">
-        <h1 className="text-2xl font-semibold text-gray-900">로그인</h1>
+        <div className="flex items-end justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">로그인</h1>
+          <p className="text-xs text-gray-500">
+            <span className="font-semibold text-red-500">*</span>는 필수입력 항목입니다
+          </p>
+        </div>
 
         {/* 이메일 */}
         <div className="space-y-1 text-left">

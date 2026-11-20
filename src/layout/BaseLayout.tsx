@@ -10,7 +10,7 @@ export const BaseLayout = () => (
     <aside className="hidden w-64 h-full bg-white border-r md:block">
       <LNB />
     </aside>
-    <main className="overflow-auto bg-gray-50">
+    <main id="main-content" tabIndex={-1} className="overflow-auto bg-gray-50 outline-none">
       <Outlet />
     </main>
   </div>

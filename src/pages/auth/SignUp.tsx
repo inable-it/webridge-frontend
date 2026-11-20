@@ -447,6 +447,12 @@ const SignupPageContent = () => {
           <h1 className="text-3xl font-bold text-gray-900">회원가입</h1>
         </div>
 
+        <div className="flex justify-end -mt-2">
+          <p className="text-xs text-gray-500">
+            <span className="font-semibold text-red-500">*</span>는 필수입력 항목입니다
+          </p>
+        </div>
+
         {/* 이름 */}
         <div className="space-y-1 text-left">
           <Label htmlFor="name" className="text-sm font-medium text-gray-700">

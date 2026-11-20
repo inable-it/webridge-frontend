@@ -113,6 +113,12 @@ const SurveyPage = () => {
           </h1>
         </div>
 
+        <div className="flex justify-end -mt-4">
+          <p className="text-xs text-gray-500">
+            <span className="font-semibold text-red-500">*</span>는 필수입력 항목입니다
+          </p>
+        </div>
+
         {/* 경로 */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">

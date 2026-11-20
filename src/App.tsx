@@ -38,6 +38,9 @@ function RouteWithTitle({
   return <>{element}</>;
 }
 
+import { SkipToContent } from "@/components/common/SkipToContent";
+import { ScrollToTopButton } from "@/components/common/ScrollToTopButton";
+
 function App() {
   const routes = useRoutes([
     {
@@ -223,7 +226,9 @@ function App() {
 
   return (
     <>
+      <SkipToContent />
       {routes}
+      <ScrollToTopButton />
       <Toaster />
     </>
   );

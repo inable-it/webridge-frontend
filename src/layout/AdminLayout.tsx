@@ -177,7 +177,7 @@ export const AdminLayout = () => {
         </header>
 
         {/* 페이지 컨텐츠 */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main id="main-content" tabIndex={-1} className="flex-1 p-4 sm:p-6 lg:p-8 outline-none">
           <Outlet />
         </main>
       </div>
