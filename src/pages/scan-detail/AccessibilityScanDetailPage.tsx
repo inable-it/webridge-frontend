@@ -11,6 +11,7 @@ import { useGetScanDetailQuery } from "@/features/api/scanApi";
 import type { AccessibilityScanDetail } from "@/features/api/scanApi";
 import { getCategoryInfo } from "@/utils/categoryMap";
 import { isAltTextCompliant } from "@/utils/altText";
+import { isVideoCaptionCompliant } from "@/pages/scan-detail/components/VideoDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -53,9 +54,18 @@ const AccessibilityScanDetailPage = () => {
   }
 
   const categoryInfo = getCategoryInfo(category || "");
-  const resultsKey = `${category}_results` as keyof AccessibilityScanDetail;
+  const resolvedCategoryKey =
+    category === "video"
+      ? "video_caption"
+      : category === "auto_play"
+      ? "video_autoplay"
+      : category;
+  const resultsKey = `${resolvedCategoryKey}_results` as keyof AccessibilityScanDetail;
+  const fallbackResultsKey = `${category}_results` as keyof AccessibilityScanDetail;
+  const hasResultsKey =
+    !!category && (resultsKey in scanDetail || fallbackResultsKey in scanDetail);
 
-  if (!categoryInfo || !category || !(resultsKey in scanDetail)) {
+  if (!categoryInfo || !category || !hasResultsKey) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -69,7 +79,8 @@ const AccessibilityScanDetailPage = () => {
     );
   }
 
-  const results = (scanDetail[resultsKey] as any[]) || [];
+  const results =
+    ((scanDetail[resultsKey] ?? scanDetail[fallbackResultsKey]) as any[]) || [];
   const DetailComponent = categoryInfo.component;
 
   // 이슈가 있는 결과만 필터링
@@ -88,17 +99,21 @@ const AccessibilityScanDetailPage = () => {
       case "table":
         return !result.compliant;
       case "video":
-        return (
-          !result.has_transcript ||
-          !result.autoplay_disabled ||
-          !result.has_aria_label
-        );
+      case "video_caption":
+        return !isVideoCaptionCompliant(result);
+      case "auto_play":
+      case "video_autoplay":
+        return typeof result.compliant === "boolean"
+          ? !result.compliant
+          : !result.autoplay_disabled;
       default:
         return !result.compliant;
     }
   });
 
   const isContrast = category === "contrast";
+  const hasStandaloneSections =
+    category === "alt_text" || category === "video" || category === "video_caption";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -149,7 +164,7 @@ const AccessibilityScanDetailPage = () => {
         </div>
 
         {/* 검사 결과 상세 */}
-        {category === "alt_text" ? (
+        {hasStandaloneSections ? (
           <DetailComponent
             results={results}
             scanUrl={scanDetail.url}
