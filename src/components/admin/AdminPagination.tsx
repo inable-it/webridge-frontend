@@ -16,12 +16,13 @@ export const AdminPagination = ({
   onPageChange,
   disabled = false,
 }: AdminPaginationProps) => {
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const safeTotal = Number(totalCount ?? 0);
+  const totalPages = Math.max(1, Math.ceil(safeTotal / pageSize));
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-200">
       <div className="text-sm text-gray-600">
-        총 <span className="font-semibold text-gray-900">{totalCount.toLocaleString()}</span>건 ·{" "}
+        총 <span className="font-semibold text-gray-900">{safeTotal.toLocaleString()}</span>건 ·{" "}
         <span className="font-medium text-gray-900">{page}</span> / {totalPages} 페이지
       </div>
       <div className="flex items-center gap-2">

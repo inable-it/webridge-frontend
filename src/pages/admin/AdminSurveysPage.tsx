@@ -52,7 +52,7 @@ const StatBarSection = ({
                       </span>
                     </div>
                     <div className="text-xs font-semibold text-gray-700">
-                      {item.count.toLocaleString()}명 ({pct.toFixed(1)}%)
+                      {Number(item?.count ?? 0).toLocaleString()}명 ({pct.toFixed(1)}%)
                     </div>
                   </div>
                   <div className="w-full h-3 overflow-hidden bg-gray-100 rounded-full">
@@ -98,6 +98,15 @@ const AdminSurveysPage = () => {
     );
   }
 
+  const payload = ((data as any)?.data ?? data) as typeof data;
+  const totalResponses = Number(payload?.total_responses ?? 0);
+  const pathStats = Array.isArray(payload?.path_to_webridge_stats)
+    ? payload.path_to_webridge_stats
+    : [];
+  const occupationStats = Array.isArray(payload?.occupation_stats)
+    ? payload.occupation_stats
+    : [];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -127,7 +136,7 @@ const AdminSurveysPage = () => {
               총 가입 설문 응답자 수
             </div>
             <div className="mt-1 text-3xl font-bold text-gray-900">
-              {data.total_responses.toLocaleString()}명
+              {totalResponses.toLocaleString()}명
             </div>
           </div>
           <div className="flex items-center justify-center w-12 h-12 text-blue-600 rounded-xl bg-blue-50">
@@ -140,11 +149,11 @@ const AdminSurveysPage = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <StatBarSection
           title="유입 경로별 통계"
-          items={data.path_to_webridge_stats || []}
+          items={pathStats}
         />
         <StatBarSection
           title="직군별 통계"
-          items={data.occupation_stats || []}
+          items={occupationStats}
         />
       </div>
     </div>

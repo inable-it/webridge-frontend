@@ -161,15 +161,15 @@ const AdminDashboardPage = () => {
               <Users className="w-5 h-5 text-blue-600" />
             </div>
             <div className="mt-2 text-2xl font-bold text-gray-900">
-              {data.total_users.toLocaleString()}명
+              {Number(data.total_users ?? 0).toLocaleString()}명
             </div>
             <div className="mt-1.5 flex items-center gap-2 text-xs text-gray-500">
               <span className="inline-flex items-center gap-0.5 text-green-600 font-medium">
                 <UserPlus className="w-3.5 h-3.5" />
-                오늘 +{data.today_new_users}
+                오늘 +{data.today_new_users ?? 0}
               </span>
-              <span>· 활성 {data.active_users}명</span>
-              <span>· 관리자 {data.admin_users}명</span>
+              <span>· 활성 {data.active_users ?? 0}명</span>
+              <span>· 관리자 {data.admin_users ?? 0}명</span>
             </div>
           </CardContent>
         </Card>
@@ -181,10 +181,10 @@ const AdminDashboardPage = () => {
               <ScanSearch className="w-5 h-5 text-indigo-600" />
             </div>
             <div className="mt-2 text-2xl font-bold text-gray-900">
-              {data.total_scans.toLocaleString()}건
+              {Number(data.total_scans ?? 0).toLocaleString()}건
             </div>
             <div className="mt-1.5 text-xs text-gray-500">
-              오늘 <span className="font-semibold text-indigo-600">+{data.today_scans}건</span>{" "}
+              오늘 <span className="font-semibold text-indigo-600">+{data.today_scans ?? 0}건</span>{" "}
               요청됨
             </div>
           </CardContent>
@@ -197,12 +197,12 @@ const AdminDashboardPage = () => {
               <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
             <div className="mt-2 text-2xl font-bold text-gray-900">
-              {data.completed_scans.toLocaleString()}건 완료
+              {Number(data.completed_scans ?? 0).toLocaleString()}건 완료
             </div>
             <div className="mt-1.5 text-xs text-gray-500">
               실패{" "}
               <span className="font-semibold text-red-600">
-                {data.failed_scans.toLocaleString()}건
+                {Number(data.failed_scans ?? 0).toLocaleString()}건
               </span>
             </div>
           </CardContent>
