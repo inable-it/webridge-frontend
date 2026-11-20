@@ -12,6 +12,7 @@ import type { AccessibilityScanDetail } from "@/features/api/scanApi";
 import { getCategoryInfo } from "@/utils/categoryMap";
 import { isAltTextCompliant } from "@/utils/altText";
 import { isVideoCaptionCompliant } from "@/pages/scan-detail/components/VideoDetail";
+import { isAutoPlayCompliant } from "@/pages/scan-detail/components/AutoPlayDetail";
 
 const AccessibilityScanDetailPage = () => {
   const { scanId, category } = useParams<{
@@ -103,9 +104,7 @@ const AccessibilityScanDetailPage = () => {
         return !isVideoCaptionCompliant(result);
       case "auto_play":
       case "video_autoplay":
-        return typeof result.compliant === "boolean"
-          ? !result.compliant
-          : !result.autoplay_disabled;
+        return !isAutoPlayCompliant(result);
       default:
         return !result.compliant;
     }
@@ -113,7 +112,11 @@ const AccessibilityScanDetailPage = () => {
 
   const isContrast = category === "contrast";
   const hasStandaloneSections =
-    category === "alt_text" || category === "video" || category === "video_caption";
+    category === "alt_text" ||
+    category === "video" ||
+    category === "video_caption" ||
+    category === "auto_play" ||
+    category === "video_autoplay";
 
   return (
     <div className="min-h-screen bg-gray-50">
