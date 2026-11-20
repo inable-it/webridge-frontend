@@ -28,6 +28,15 @@ import FeedbackPage from "@/pages/feedback/FeedbackPage";
 import SurveyPage from "@/pages/SurveyPage";
 import HomeGate from "@/components/common/HomeGate";
 
+import { RequireAdmin } from "@/components/admin/RequireAdmin";
+import { AdminLayout } from "@/layout/AdminLayout";
+import AdminLoginPage from "@/pages/admin/AdminLoginPage";
+import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
+import AdminUsersPage from "@/pages/admin/AdminUsersPage";
+import AdminScansPage from "@/pages/admin/AdminScansPage";
+import AdminTermsPage from "@/pages/admin/AdminTermsPage";
+import AdminSurveysPage from "@/pages/admin/AdminSurveysPage";
+
 function RouteWithTitle({
   element,
   title,
@@ -228,6 +237,74 @@ export const router = createBrowserRouter([
               <RouteWithTitle
                 element={<NewsPage />}
                 title="소식지 | WEBridge"
+              />
+            ),
+          },
+        ],
+      },
+
+      // ── 관리자 로그인 (공개) ───────────────────────────────
+      {
+        path: "admin/login",
+        element: (
+          <RouteWithTitle
+            element={<AdminLoginPage />}
+            title="관리자 로그인 | WEBridge"
+          />
+        ),
+      },
+
+      // ── 관리자 보호 영역 ───────────────────────────────────
+      {
+        path: "admin",
+        element: (
+          <RequireAdmin>
+            <AdminLayout />
+          </RequireAdmin>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <RouteWithTitle
+                element={<AdminDashboardPage />}
+                title="관리자 대시보드 | WEBridge"
+              />
+            ),
+          },
+          {
+            path: "users",
+            element: (
+              <RouteWithTitle
+                element={<AdminUsersPage />}
+                title="회원 관리 | WEBridge Admin"
+              />
+            ),
+          },
+          {
+            path: "scans",
+            element: (
+              <RouteWithTitle
+                element={<AdminScansPage />}
+                title="검사 내역 관리 | WEBridge Admin"
+              />
+            ),
+          },
+          {
+            path: "terms",
+            element: (
+              <RouteWithTitle
+                element={<AdminTermsPage />}
+                title="약관 관리 | WEBridge Admin"
+              />
+            ),
+          },
+          {
+            path: "surveys",
+            element: (
+              <RouteWithTitle
+                element={<AdminSurveysPage />}
+                title="가입 설문 통계 | WEBridge Admin"
               />
             ),
           },
