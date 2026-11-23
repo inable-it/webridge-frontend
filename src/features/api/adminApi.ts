@@ -235,6 +235,34 @@ export type AdminAltTextFeedbackResponse = {
   results: AdminAltTextFeedbackItem[];
 };
 
+// ── (7) 서비스 이용 만족도/별점 피드백 타입 ──────────────────
+export type AdminFeedbackItem = {
+  id: number;
+  rating: number;
+  content: string;
+  user_id: number;
+  user_email: string;
+  user_name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AdminFeedbackListParams = {
+  page?: number;
+  size?: number;
+  rating?: number;
+  search?: string;
+};
+
+export type AdminFeedbackListResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  average_rating: number;
+  rating_counts: Record<string, number>;
+  results: AdminFeedbackItem[];
+};
+
 // ── API Endpoints ───────────────────────────────────────────
 export const adminEndpointsApi = adminApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -386,6 +414,31 @@ export const adminEndpointsApi = adminApi.injectEndpoints({
       },
       providesTags: ['AdminAltTextFeedback'],
     }),
+
+    // (7) 서비스 이용 만족도/별점 피드백 목록 & 삭제
+    getAdminFeedbacks: builder.query<
+      AdminFeedbackListResponse,
+      AdminFeedbackListParams
+    >({
+      query: ({ page = 1, size = 20, rating, search } = {}) => {
+        const params = new URLSearchParams({
+          page: String(page),
+          size: String(size),
+        });
+        if (typeof rating === 'number') params.append('rating', String(rating));
+        if (search && search.trim()) params.append('search', search.trim());
+        return { url: `/admin/feedback?${params.toString()}` };
+      },
+      providesTags: ['AdminFeedback'],
+    }),
+
+    deleteAdminFeedback: builder.mutation<void, number>({
+      query: (feedbackId) => ({
+        url: `/admin/feedback/${feedbackId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['AdminFeedback'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -406,4 +459,6 @@ export const {
   useUpdateAdminTermMutation,
   useGetAdminSignupSurveysQuery,
   useGetAdminAltTextFeedbacksQuery,
+  useGetAdminFeedbacksQuery,
+  useDeleteAdminFeedbackMutation,
 } = adminEndpointsApi;

@@ -155,5 +155,6 @@ export const adminApi = createApi({
     'AdminTerms',
     'AdminSurveys',
     'AdminAltTextFeedback',
+    'AdminFeedback',
   ],
 });

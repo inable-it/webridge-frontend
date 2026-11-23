@@ -8,6 +8,7 @@ import {
   FileText,
   BarChart3,
   MessageSquareHeart,
+  MessageSquare,
   LogOut,
   Menu,
   X,
@@ -28,6 +29,12 @@ const NAV_ITEMS = [
     to: "/admin/alt-text-feedback",
     label: "AI 대체텍스트 피드백",
     icon: MessageSquareHeart,
+    end: false,
+  },
+  {
+    to: "/admin/feedback",
+    label: "서비스 이용 피드백",
+    icon: MessageSquare,
     end: false,
   },
 ];
