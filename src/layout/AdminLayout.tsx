@@ -7,6 +7,7 @@ import {
   ScanSearch,
   FileText,
   BarChart3,
+  MessageSquareHeart,
   LogOut,
   Menu,
   X,
@@ -23,6 +24,12 @@ const NAV_ITEMS = [
   { to: "/admin/scans", label: "검사 내역 관리", icon: ScanSearch, end: false },
   { to: "/admin/terms", label: "약관 관리", icon: FileText, end: false },
   { to: "/admin/surveys", label: "가입 설문 통계", icon: BarChart3, end: false },
+  {
+    to: "/admin/alt-text-feedback",
+    label: "AI 대체텍스트 피드백",
+    icon: MessageSquareHeart,
+    end: false,
+  },
 ];
 
 export const AdminLayout = () => {

@@ -36,6 +36,7 @@ import AdminUsersPage from "@/pages/admin/AdminUsersPage";
 import AdminScansPage from "@/pages/admin/AdminScansPage";
 import AdminTermsPage from "@/pages/admin/AdminTermsPage";
 import AdminSurveysPage from "@/pages/admin/AdminSurveysPage";
+import AdminAltTextFeedbackPage from "@/pages/admin/AdminAltTextFeedbackPage";
 
 function RouteWithTitle({
   element,
@@ -305,6 +306,15 @@ export const router = createBrowserRouter([
               <RouteWithTitle
                 element={<AdminSurveysPage />}
                 title="가입 설문 통계 | WEBridge Admin"
+              />
+            ),
+          },
+          {
+            path: "alt-text-feedback",
+            element: (
+              <RouteWithTitle
+                element={<AdminAltTextFeedbackPage />}
+                title="AI 대체텍스트 피드백 | WEBridge Admin"
               />
             ),
           },

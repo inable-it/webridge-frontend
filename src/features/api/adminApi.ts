@@ -201,6 +201,40 @@ export type AdminSignupSurveyStatsResponse = {
   path_to_webridge_stats?: SurveyStatItem[];
 };
 
+// ── (6) AI 대체텍스트 피드백 타입 ───────────────────────────
+export type AdminAltTextFeedbackRating = 'like' | 'dislike';
+
+export type AdminAltTextFeedbackItem = {
+  id: number;
+  rating: AdminAltTextFeedbackRating;
+  created_at: string;
+  alt_text_result_id: number;
+  img_url: string;
+  alt_text: string | null;
+  suggested_alt: string | null;
+  ai_improvement: string | null;
+  scan_id: string;
+  scan_url: string;
+  scan_title: string | null;
+  user_email: string | null;
+};
+
+export type AdminAltTextFeedbackParams = {
+  page?: number;
+  size?: number;
+  rating?: AdminAltTextFeedbackRating;
+  search?: string;
+};
+
+export type AdminAltTextFeedbackResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  total_likes: number;
+  total_dislikes: number;
+  results: AdminAltTextFeedbackItem[];
+};
+
 // ── API Endpoints ───────────────────────────────────────────
 export const adminEndpointsApi = adminApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -335,6 +369,23 @@ export const adminEndpointsApi = adminApi.injectEndpoints({
       query: () => ({ url: '/admin/surveys/signup' }),
       providesTags: ['AdminSurveys'],
     }),
+
+    // (6) AI 대체텍스트 피드백 목록
+    getAdminAltTextFeedbacks: builder.query<
+      AdminAltTextFeedbackResponse,
+      AdminAltTextFeedbackParams
+    >({
+      query: ({ page = 1, size = 20, rating, search } = {}) => {
+        const params = new URLSearchParams({
+          page: String(page),
+          size: String(size),
+        });
+        if (rating) params.append('rating', rating);
+        if (search && search.trim()) params.append('search', search.trim());
+        return { url: `/admin/alt-text-feedback?${params.toString()}` };
+      },
+      providesTags: ['AdminAltTextFeedback'],
+    }),
   }),
   overrideExisting: false,
 });
@@ -354,4 +405,5 @@ export const {
   useCreateAdminTermMutation,
   useUpdateAdminTermMutation,
   useGetAdminSignupSurveysQuery,
+  useGetAdminAltTextFeedbacksQuery,
 } = adminEndpointsApi;
