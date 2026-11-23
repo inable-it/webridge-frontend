@@ -109,6 +109,22 @@ const resolveContrastCaptureUrl = (r: any, scanUrl?: string): string | null => {
   return toAbsoluteUrl(raw, scanUrl);
 };
 
+const resolveContrastPreviewText = (r: any): string => {
+  if (typeof r?.text_content === "string" && r.text_content.trim()) {
+    return r.text_content.replace(/\s+/g, " ").trim();
+  }
+  if (typeof r?.element_html === "string" && r.element_html.trim()) {
+    try {
+      const doc = new DOMParser().parseFromString(r.element_html, "text/html");
+      const txt = (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+      if (txt) return txt;
+    } catch {
+      // ignore parse failure
+    }
+  }
+  return "텍스트 미리보기";
+};
+
 const ContrastDetail = ({ results, scanUrl }: Props) => {
   const [filter, setFilter] = useState<"compliant" | "non-compliant">("non-compliant");
   const [expandedMap, setExpandedMap] = useState<Record<number | string, boolean>>({});
@@ -238,8 +254,8 @@ const ContrastDetail = ({ results, scanUrl }: Props) => {
                   <div className="flex-1 p-4 space-y-3 bg-white border border-gray-300 rounded-lg">
                     {/* 1 & 2: 연파랑 배경 박스 (글씨 부분 캡쳐 + HTML 소스 코드 + 더보기) */}
                     <div className="flex flex-col items-start justify-between gap-4 p-4 border border-blue-200 rounded sm:flex-row bg-[#EAF1FF]">
-                      {/* 1: 텍스트 캡쳐 이미지 (흰색 라운드 박스) */}
-                      <div className="relative flex items-center justify-center w-full overflow-hidden bg-white rounded-lg sm:w-56 h-36 shrink-0">
+                      {/* 1: 텍스트 캡쳐 이미지 (미제공 시 실제 색상/텍스트 미리보기) */}
+                      <div className="relative flex items-center justify-center w-full overflow-hidden bg-white border border-gray-200 rounded-lg sm:w-56 h-36 shrink-0">
                         {!previewFailed && captureUrl ? (
                           <img
                             src={captureUrl}
@@ -252,7 +268,16 @@ const ContrastDetail = ({ results, scanUrl }: Props) => {
                               }))
                             }
                           />
-                        ) : null}
+                        ) : (
+                          <div
+                            className="flex items-center justify-center w-full h-full p-3 text-center"
+                            style={{ backgroundColor: bgHex, color: fgHex }}
+                          >
+                            <span className="text-sm font-semibold break-words line-clamp-3">
+                              {resolveContrastPreviewText(r)}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* 2: 텍스트 콘텐츠 명도대비 HTML 소스 코드 */}
@@ -322,22 +347,40 @@ const ContrastDetail = ({ results, scanUrl }: Props) => {
                       </div>
                     </div>
 
-                    {/* 6: 안내문 (미준수 시 대형 텍스트 안내문, 테두리 없이 카드 하단 배치) */}
+                    {/* 6: 안내문 (미준수 시 대형/확대 텍스트 안내문 2종 고정 배치) */}
                     {!isCompliant && (
-                      <div className="px-1 pt-1 space-y-1 text-sm text-gray-900">
-                        <p className="flex items-center gap-1.5 font-bold">
-                          <span aria-hidden="true">⚠</span>
-                          <span className="sr-only">확인 안내: </span>
-                          <span>대형 텍스트인지 확인해 보세요.</span>
-                        </p>
-                        <ul className="ml-2 text-sm text-gray-800">
-                          <li>
-                            • 폰트를 18pt 이상 또는 14pt 이상의 굵은 폰트를
-                            사용하는 경우라면 명도 대비를{" "}
-                            <span className="font-bold text-[#2563EB]">3:1</span>{" "}
-                            까지 낮출 수 있어요.
-                          </li>
-                        </ul>
+                      <div className="px-1 pt-1 space-y-3 text-sm text-gray-900">
+                        <div className="space-y-1">
+                          <p className="flex items-center gap-1.5 font-bold">
+                            <span aria-hidden="true">⚠</span>
+                            <span className="sr-only">확인 안내: </span>
+                            <span>대형 텍스트인지 확인해 보세요.</span>
+                          </p>
+                          <ul className="ml-2 text-sm text-gray-800">
+                            <li>
+                              • 폰트를 18pt 이상 또는 14pt 이상의 굵은 폰트를
+                              사용하는 경우라면 명도 대비를{" "}
+                              <span className="font-bold text-[#2563EB]">3:1</span>{" "}
+                              까지 낮출 수 있어요.
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="space-y-1">
+                          <p className="flex items-center gap-1.5 font-bold">
+                            <span aria-hidden="true">⚠</span>
+                            <span className="sr-only">확인 안내: </span>
+                            <span>확대텍스트인지 확인해 보세요.</span>
+                          </p>
+                          <ul className="ml-2 text-sm text-gray-800">
+                            <li>
+                              • 화면 확대가 가능하도록 구현한 텍스트 콘텐츠라면
+                              명도 대비를{" "}
+                              <span className="font-bold text-[#2563EB]">3:1</span>{" "}
+                              까지 낮출 수 있어요.
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -102,7 +102,15 @@ const BasicLanguageDetail = ({ results }: Props) => {
               const r = result as any;
               const itemKey = r.id ?? index;
               const isExpanded = !!expandedMap[itemKey];
-              const htmlCode = r?.element_html || "";
+              const langAttr =
+                typeof r?.lang_attribute === "string"
+                  ? r.lang_attribute.trim()
+                  : "";
+              const htmlCode =
+                r?.element_html ||
+                (langAttr
+                  ? `<html lang="${langAttr}">`
+                  : r?.message || "<html> (lang 속성 미지정)");
 
               return (
                 <div key={itemKey} className="flex items-start gap-3">

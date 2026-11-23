@@ -54,9 +54,19 @@ const resolvePauseControlPreviewUrl = (
     try {
       const doc = new DOMParser().parseFromString(r.element_html, "text/html");
       const imgEl = doc.body.querySelector("img");
-      const imgSrc = imgEl?.getAttribute("src");
+      const imgSrc =
+        imgEl?.getAttribute("src") || imgEl?.getAttribute("data-src");
       if (imgSrc) {
         return toAbsoluteUrl(imgSrc, scanUrl);
+      }
+      const videoEl = doc.body.querySelector("video");
+      const posterSrc = videoEl?.getAttribute("poster");
+      if (posterSrc) {
+        return toAbsoluteUrl(posterSrc, scanUrl);
+      }
+      const bgMatch = r.element_html.match(/background-image\s*:\s*url\((['"]?)(.*?)\1\)/i);
+      if (bgMatch?.[2]) {
+        return toAbsoluteUrl(bgMatch[2], scanUrl);
       }
     } catch {
       // ignore parse failure

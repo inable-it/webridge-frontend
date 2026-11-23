@@ -190,7 +190,7 @@ const TableDetail = ({ results, scanUrl }: Props) => {
                     <div className="p-4 space-y-3 border border-blue-200 rounded bg-[#EAF1FF]">
                       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
                         {/* 표 캡쳐본 (흰색 라운드 박스) */}
-                        <div className="relative flex items-center justify-center w-full overflow-hidden bg-white rounded-lg sm:w-56 h-36 shrink-0">
+                        <div className="relative flex items-center justify-center w-full overflow-hidden bg-white border border-gray-200 rounded-lg sm:w-56 h-36 shrink-0">
                           {!previewFailed && captureUrl ? (
                             <img
                               src={captureUrl}
@@ -203,7 +203,18 @@ const TableDetail = ({ results, scanUrl }: Props) => {
                                 }))
                               }
                             />
-                          ) : null}
+                          ) : htmlCode ? (
+                            <iframe
+                              title={`표 미리보기 ${index + 1}`}
+                              sandbox=""
+                              className="w-full h-full border-0 pointer-events-none bg-white"
+                              srcDoc={`<!doctype html><html><head><style>body{margin:4px;font-family:sans-serif;font-size:9px;color:#1f2937;overflow:hidden}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #d1d5db;padding:2px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}th{background:#f3f4f6;font-weight:600}caption{font-weight:600;margin-bottom:2px;text-align:left}img{max-width:24px;max-height:16px;object-fit:contain}</style></head><body>${htmlCode}</body></html>`}
+                            />
+                          ) : (
+                            <span className="px-2 text-xs text-center text-gray-500">
+                              제목 셀 {r?.headers_count ?? 0}개 · 행 {r?.rows_count ?? 0}개
+                            </span>
+                          )}
                         </div>
 
                         {/* 표 HTML 소스 코드 */}

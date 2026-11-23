@@ -205,7 +205,10 @@ const ResponseTimeDetail = ({ results }: Props) => {
               const itemKey = r.id ?? index;
               const isExpanded = !!expandedMap[itemKey];
               const htmlCode = r?.element_html || "";
-              const inputSummary = getResponseTimeInputSummary(r);
+              const inputSummary =
+                getResponseTimeInputSummary(r) ||
+                r?.message ||
+                (r?.has_time_limit === false ? "시간 제한 없음" : "시간 제한 요소");
 
               return (
                 <div key={itemKey} className="flex items-start gap-3">
@@ -230,7 +233,7 @@ const ResponseTimeDetail = ({ results }: Props) => {
                           isExpanded ? "" : "line-clamp-3"
                         }`}
                       >
-                        {htmlCode || "html 코드"}
+                        {htmlCode || r?.message || "시간 제한이 있는 요소가 감지되지 않았습니다."}
                       </div>
                       <button
                         type="button"
