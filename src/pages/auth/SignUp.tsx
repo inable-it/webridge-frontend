@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { X } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/features/store/userSlice";
 import {
@@ -51,6 +52,8 @@ const SignupPageContent = () => {
   const [emailVerified, setEmailVerified] = useState(false);
   const [showModal, setShowModal] = useState(false); // 이메일 인증 안내 모달
   const [welcomeOpen, setWelcomeOpen] = useState(false); // 회원가입 완료 웰컴 모달
+  const emailModalRef = useFocusTrap(showModal, () => setShowModal(false));
+  const welcomeModalRef = useFocusTrap(welcomeOpen, () => setWelcomeOpen(false));
   const [isGoogleUser, setIsGoogleUser] = useState(false);
 
   // API 훅
@@ -616,8 +619,17 @@ const SignupPageContent = () => {
 
       {/* 이메일 인증 안내 모달 */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signup-email-modal-title"
+        >
+          <div
+            ref={emailModalRef}
+            tabIndex={-1}
+            className="relative w-full max-w-md p-8 bg-white rounded-2xl focus:outline-none"
+          >
             <button
               onClick={() => setShowModal(false)}
               className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
@@ -627,7 +639,10 @@ const SignupPageContent = () => {
             </button>
 
             <div className="pt-4 space-y-6 text-center">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2
+                id="signup-email-modal-title"
+                className="text-xl font-bold text-gray-900"
+              >
                 인증 메일이 발송되었습니다.
               </h2>
 
@@ -656,8 +671,17 @@ const SignupPageContent = () => {
 
       {/* 회원가입 완료 웰컴 모달 */}
       {welcomeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signup-welcome-modal-title"
+        >
+          <div
+            ref={welcomeModalRef}
+            tabIndex={-1}
+            className="relative w-full max-w-md p-8 bg-white rounded-2xl focus:outline-none"
+          >
             <button
               onClick={() => setWelcomeOpen(false)}
               className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
@@ -674,7 +698,10 @@ const SignupPageContent = () => {
                 </span>
               </div>
 
-              <h2 className="text-2xl font-extrabold text-gray-900">
+              <h2
+                id="signup-welcome-modal-title"
+                className="text-2xl font-extrabold text-gray-900"
+              >
                 회원가입을 환영합니다!
               </h2>
 

@@ -9,6 +9,7 @@ import { setUser } from "@/features/store/userSlice";
 import { useDispatch } from "react-redux";
 import { TERMS_CONFIG, type TermConfig } from "@/constants/termsConfig";
 import { X } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 // 이 페이지 전용 초안 저장 키
 const DRAFT_KEY = "terms_agreement_draft_v1";
@@ -32,6 +33,7 @@ const TermsAgreementPage = () => {
 
   // 환영 모달
   const [showWelcome, setShowWelcome] = useState(false);
+  const welcomeModalRef = useFocusTrap(showWelcome, () => handleContinueToSurvey());
 
   // ---- 저장/복원 헬퍼 ----
   const saveDraftNow = (draft = form) => {
@@ -235,10 +237,20 @@ const TermsAgreementPage = () => {
 
       {/* 환영 모달 */}
       {showWelcome && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="relative w-full max-w-md p-8 text-center bg-white rounded-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="terms-welcome-modal-title"
+        >
+          <div
+            ref={welcomeModalRef}
+            tabIndex={-1}
+            className="relative w-full max-w-md p-8 text-center bg-white rounded-2xl focus:outline-none"
+          >
             <button
               onClick={handleContinueToSurvey}
+              aria-label="닫기"
               className="absolute flex items-center justify-center w-10 h-10 text-gray-700 border-2 border-gray-600 rounded-full top-6 right-6 hover:text-gray-900 hover:border-gray-700"
             >
               <X className="w-5 h-5" />
@@ -246,7 +258,10 @@ const TermsAgreementPage = () => {
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <h2 className="text-[22px] font-extrabold text-gray-900">
+                <h2
+                  id="terms-welcome-modal-title"
+                  className="text-[22px] font-extrabold text-gray-900"
+                >
                   회원가입이 완료되었습니다!
                 </h2>
                 <p className="text-gray-700">

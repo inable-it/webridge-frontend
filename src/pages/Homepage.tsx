@@ -530,10 +530,8 @@ export const HomePage = () => {
                 </li>
                 <li>
                   <span className='font-bold'>사업장 주소</span>
-                  <span className='ml-2'>:</span>
+                  <span className='ml-2'>: 경기도 평택시 지산로 117, 201동 1층 102호</span>
                 </li>
-                <li>서울특별시 광진구 능동로 81 더 라움 펜트하우스 302-1호</li>
-                <li>건국대학교 캠퍼스타운사업단 [공유오피스 InAble(이너블)]</li>
               </ul>
             </div>
 

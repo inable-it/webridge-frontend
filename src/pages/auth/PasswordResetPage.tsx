@@ -5,12 +5,14 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { usePasswordResetMutation } from "@/features/api/authApi";
 import { X } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const PasswordResetPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const modalRef = useFocusTrap(showModal, () => setShowModal(false));
 
   const [passwordReset, { isLoading }] = usePasswordResetMutation();
 
@@ -107,8 +109,17 @@ const PasswordResetPage = () => {
 
       {/* 전송 완료 모달 */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="relative w-full max-w-md p-8 bg-white rounded-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="password-reset-modal-title"
+        >
+          <div
+            ref={modalRef}
+            tabIndex={-1}
+            className="relative w-full max-w-md p-8 bg-white rounded-2xl focus:outline-none"
+          >
             <button
               onClick={() => setShowModal(false)}
               className="absolute flex items-center justify-center text-gray-700 border-2 border-gray-600 rounded-full w-9 h-9 top-4 right-4 hover:text-gray-900 hover:border-gray-700"
@@ -118,7 +129,12 @@ const PasswordResetPage = () => {
             </button>
 
             <div className="space-y-5 text-center">
-              <h2 className="text-xl font-bold text-gray-900">전송 완료</h2>
+              <h2
+                id="password-reset-modal-title"
+                className="text-xl font-bold text-gray-900"
+              >
+                전송 완료
+              </h2>
               <p className="text-gray-700">
                 <span className="font-medium">{email}</span> 로
                 <br /> 비밀번호 재설정 링크를 보냈어요.

@@ -109,15 +109,6 @@ export default function ScanHistoryPage() {
                 aria-controls="scan-list"
                 aria-label="선택 항목 삭제"
                 ref={trashRef}
-                onKeyDown={(e) => {
-                    if (e.key === "Tab" && !e.shiftKey) {
-                        const nextBtn = nextRef.current;
-                        if (nextBtn && !nextBtn.disabled) {
-                            e.preventDefault();
-                            nextBtn.focus();
-                        }
-                    }
-                }}
             >
                 <Trash2 className="w-5 h-5" />
             </Button>
@@ -165,10 +156,9 @@ export default function ScanHistoryPage() {
           ) : count === 0 ? (
             <div className="p-6 text-sm text-gray-700">데이터가 없습니다.</div>
           ) : (
-            data!.results.map((row, idx) => {
+            data!.results.map((row) => {
               const rowCheckId = `row-check-${row.id}`;
               const labelText = `${row.title || "사이트"} 선택`;
-              const isLast = idx === count - 1;
 
               return (
                 <div
@@ -187,45 +177,30 @@ export default function ScanHistoryPage() {
                         type="checkbox"
                         checked={!!selected[row.id]}
                         onChange={() => toggleOne(row.id)}
-                        // 마지막 체크박스에서 Tab → 휴지통으로 강제 이동
-                        onKeyDown={(e) => {
-                          if (isLast && e.key === "Tab" && !e.shiftKey) {
-                            const trashBtn = trashRef.current;
-                            const nextBtn = nextRef.current;
-                            if (trashBtn && !trashBtn.disabled) {
-                              e.preventDefault();
-                              trashBtn.focus();
-                            } else if (nextBtn && !nextBtn.disabled) {
-                              e.preventDefault();
-                              nextBtn.focus();
-                            }
-                          }
-                        }}
                       />
                       <span className="sr-only">{labelText}</span>
                     </label>
                   </div>
 
-                  {/* 사이트명 — 탭에서 제외 */}
+                  {/* 사이트명 (Tab 이동 가능) */}
                   <div className="col-span-4">
                     <button
-                      tabIndex={-1}
+                      type="button"
                       onClick={() => goDetail(row.id, row.title)}
-                      className="font-medium text-blue-600 hover:underline"
+                      className="font-medium text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                       title="상세 보기"
                     >
                       {row.title || "사이트"}
                     </button>
                   </div>
 
-                  {/* 주소 — 탭에서 제외 */}
+                  {/* 주소 (Tab 이동 가능) */}
                   <div className="flex items-center col-span-6 gap-2 truncate">
                     <a
                       href={row.url}
                       target="_blank"
                       rel="noreferrer"
-                      tabIndex={-1}
-                      className="truncate hover:underline"
+                      className="truncate hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                       title={row.url}
                     >
                       {row.url}

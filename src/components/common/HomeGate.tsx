@@ -5,6 +5,7 @@ import type { RootState } from "@/app/store";
 import HomePage from "@/pages/Homepage";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const hasAnyToken = () => {
   const keys = ["accessToken", "refreshToken", "access_token", "refresh_token"];
@@ -57,6 +58,8 @@ export default function HomeGate() {
     navigate("/login");
   }, [navigate]);
 
+  const logoutModalRef = useFocusTrap(showLogoutModal, handleClose);
+
   return (
     <>
       <HomePage />
@@ -73,7 +76,9 @@ export default function HomeGate() {
         >
           {/* 모달 카드 */}
           <div
-            className="relative w-full max-w-md p-8 text-center bg-white shadow-xl rounded-2xl"
+            ref={logoutModalRef}
+            tabIndex={-1}
+            className="relative w-full max-w-md p-8 text-center bg-white shadow-xl rounded-2xl focus:outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 닫기 버튼 */}

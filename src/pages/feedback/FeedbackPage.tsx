@@ -1,6 +1,7 @@
 import { useState, useId, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Star, Edit, Trash2, X } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
   useCreateFeedbackMutation,
   useGetFeedbackListQuery,
@@ -208,6 +209,10 @@ const FeedbackPage = () => {
   // 삭제 확인 모달 상태
   const [deletingFeedbackId, setDeletingFeedbackId] = useState<number | null>(
     null
+  );
+  const deleteModalRef = useFocusTrap(
+    deletingFeedbackId !== null,
+    () => setDeletingFeedbackId(null)
   );
 
   // API 훅들
@@ -492,8 +497,17 @@ const FeedbackPage = () => {
 
         {/* 삭제 확인 모달 */}
         {deletingFeedbackId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="relative p-8 bg-white rounded-xl w-80">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-feedback-modal-title"
+          >
+            <div
+              ref={deleteModalRef}
+              tabIndex={-1}
+              className="relative p-8 bg-white rounded-xl w-80 focus:outline-none"
+            >
               <button
                 onClick={() => setDeletingFeedbackId(null)}
                 className="absolute text-gray-700 top-4 right-4 hover:text-gray-900"
@@ -503,7 +517,10 @@ const FeedbackPage = () => {
                 <X className="w-5 h-5" />
               </button>
               <div className="mt-4 mb-8 text-center">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3
+                  id="delete-feedback-modal-title"
+                  className="text-lg font-medium text-gray-900"
+                >
                   정말로 삭제하시겠습니까?
                 </h3>
               </div>
